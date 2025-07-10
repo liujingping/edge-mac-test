@@ -16,3 +16,9 @@ configuration:
     role: Maintain
   - member: zhengdawang
     role: Maintain
+  - member: v-minya
+    role: Write
+  - member: v-doshen
+    role: Write
+  - member: v-baji
+    role: Write
