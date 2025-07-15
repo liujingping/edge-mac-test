@@ -1,0 +1,7 @@
+.vscode/*
+bdd_ai_conf.json
+.venv/*
+*.pyc
+files/*
+logs/*
+uv.lock

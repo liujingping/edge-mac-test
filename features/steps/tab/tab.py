@@ -1,3 +1,7 @@
+from behave import given, when, then, step
+from features.environment import call_tool_sync, get_tool_json
+
+
 # --- auto-generated step ---
 @given('Edge is launched in horizontal mode')
 def step_impl(context):

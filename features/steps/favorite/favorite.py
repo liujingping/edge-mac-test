@@ -1,28 +1,6 @@
-# --- auto-generated step ---
-@given('Edge is launched')
-def step_impl(context):
-    result = call_tool_sync(context, context.session.call_tool(name="app_launch", arguments={'caller': 'behave-automation', 'need_snapshot': 0}))
-    result_json = get_tool_json(result)
-    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+from behave import given, when, then, step
+from features.environment import call_tool_sync, get_tool_json
 
-# --- auto-generated step ---
-@when('I navigate to "https://www.microsoft.com"')
-def step_impl(context):
-    result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'Address and search bar', 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID', 'need_snapshot': 0}))
-    result_json = get_tool_json(result)
-    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
-    result = call_tool_sync(context, context.session.call_tool(name="send_keys", arguments={'caller': 'behave-automation', 'locator_value': 'Address and search bar', 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID', 'text': 'https://www.microsoft.com', 'need_snapshot': 0}))
-    result_json = get_tool_json(result)
-    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
-    result = call_tool_sync(context, context.session.call_tool(name="press_key", arguments={'caller': 'behave-automation', 'key': 'return', 'need_snapshot': 0}))
-    result_json = get_tool_json(result)
-    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
-    result = call_tool_sync(context, context.session.call_tool(name="find_element", arguments={'caller': 'behave-automation', 'locator_value': 'Close tab', 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID', 'need_snapshot': 0}))
-    result_json = get_tool_json(result)
-    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
 
 # --- auto-generated step ---
 @step('I click the "Add this page to favorites" icon in the address bar')

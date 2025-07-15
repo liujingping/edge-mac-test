@@ -7,4 +7,3 @@ Scenario: Add a website to favorites using the star icon
  And I click "Done" button in the favorites dialog
  When I Press "alt+cmd+B" to open Favorite bar
  Then "Microsoft" should appear in my favorites list
-	
