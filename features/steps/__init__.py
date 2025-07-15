@@ -5,13 +5,13 @@ import importlib.util
 import traceback
 import sys
 
-# 防止重复导入的标志
+# Flag to prevent duplicate imports
 _steps_imported = False
 
 def auto_import_steps():
     global _steps_imported
     
-    # 如果已经导入过，直接返回
+    # If already imported, return directly
     if _steps_imported:
         return
     
@@ -30,7 +30,7 @@ def auto_import_steps():
             rel_path = py_file.relative_to(base_dir)
             module_name = ".".join(rel_path.with_suffix("").parts)
 
-            # 检查模块是否已经在 sys.modules 中
+            # Check if module is already in sys.modules
             if module_name in sys.modules:
                 continue
 
@@ -39,7 +39,7 @@ def auto_import_steps():
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             
-            # 将模块添加到 sys.modules 中
+            # Add module to sys.modules
             sys.modules[module_name] = module
             imported_count += 1
 
@@ -49,5 +49,5 @@ def auto_import_steps():
     
     _steps_imported = True
 
-# 只在第一次导入时执行
+# Execute only on first import
 auto_import_steps()
