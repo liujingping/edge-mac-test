@@ -22,3 +22,11 @@ configuration:
     role: Write
   - member: v-baji
     role: Write
+  - member: v-wangxiaofe
+    role: Write
+  - member: v-zhulu
+    role: Write
+  - member: v-xianmyang
+    role: Write
+  - member: v-chenyshen
+    role: Write
