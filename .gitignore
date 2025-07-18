@@ -5,3 +5,4 @@ bdd_ai_conf.json
 files/*
 logs/*
 uv.lock
+.ruff_cache/*

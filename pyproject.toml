@@ -21,6 +21,14 @@ dependencies = [
     "openai>=1.0.0",
 ]
 
-
 [tool.uv]
-dev-dependencies = []
+dev-dependencies = [
+    "ruff>=0.1.0", 
+    "reformat-gherkin>=3.0.0",
+    "pre-commit>=3.0.0",
+]
+
+[tool.ruff.format]
+quote-style = "single"
+indent-style = "space"
+line-ending = "auto"

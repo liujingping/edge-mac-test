@@ -1,0 +1,11 @@
+# Simple pre-commit configuration - just run format.py
+repos:
+  - repo: local
+    hooks:
+      # Run format.py script
+      - id: format-project
+        name: "🎨 Format project files"
+        entry: uv run format.py
+        language: system
+        pass_filenames: false
+        always_run: true
