@@ -1,0 +1,184 @@
+
+from behave import *
+import logging
+from features.environment import call_tool_sync, get_tool_json
+
+
+# --- auto-generated step ---
+# @when('I click "Settings and more" button on toolbar')
+# def step_impl(context):
+#     result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'Settings and more', 'locator_strategy': '', 'need_snapshot': 0}))
+#     result_json = get_tool_json(result)
+#     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+# @step('I select "Settings" button from the dropdown menu')
+# def step_impl(context):
+#     result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'Settings', 'locator_strategy': '', 'need_snapshot': 0}))
+#     result_json = get_tool_json(result)
+#     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+# @then('the settings page should be opened')
+# def step_impl(context):
+#     result = call_tool_sync(context, context.session.call_tool(name="verify_element_exists", arguments={'caller': 'behave-automation', 'locator_value': 'Settings', 'locator_strategy': '', 'need_snapshot': 0}))
+#     result_json = get_tool_json(result)
+#     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('Click outside to close dropdown')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'Address and search bar', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@when('I open a new tab by clicking the "New Tab" button')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'New Tab', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('I navigate to "edge://settings"')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="send_keys", arguments={'caller': 'behave-automation', 'locator_value': 'Address and search bar', 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID', 'text': 'edge://settings', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('Press Enter to navigate')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="press_key", arguments={'caller': 'behave-automation', 'key': 'return', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+# @when('I input "Privacy" in the settings search box')
+# def step_impl(context):
+#     result = call_tool_sync(context, context.session.call_tool(name="send_keys", arguments={'caller': 'behave-automation', 'locator_value': 'Search settings', 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID', 'text': 'Privacy', 'need_snapshot': 0}))
+#     result_json = get_tool_json(result)
+#     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+# @then('the search results should display relevant settings related to "Privacy"')
+# def step_impl(context):
+#     result = call_tool_sync(context, context.session.call_tool(name="verify_element_exists", arguments={'caller': 'behave-automation', 'locator_value': 'Privacy, search, and services', 'locator_strategy': '', 'need_snapshot': 0}))
+#     result_json = get_tool_json(result)
+#     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+# @when('I clear the search box')
+# def step_impl(context):
+#     result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'Clear search', 'locator_strategy': '', 'need_snapshot': 0}))
+#     result_json = get_tool_json(result)
+#     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+# @then('the search results should reset to show all settings')
+# def step_impl(context):
+#     result = call_tool_sync(context, context.session.call_tool(name="verify_element_exists", arguments={'caller': 'behave-automation', 'locator_value': 'Profiles', 'locator_strategy': '', 'need_snapshot': 0}))
+#     result_json = get_tool_json(result)
+#     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+# @when('I input "123" in the settings search box')
+# def step_impl(context):
+#     result = call_tool_sync(context, context.session.call_tool(name="send_keys", arguments={'caller': 'behave-automation', 'locator_value': 'Search settings', 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID', 'text': '123', 'need_snapshot': 0}))
+#     result_json = get_tool_json(result)
+#     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+# @then('the search results should display "No search results found"')
+# def step_impl(context):
+#     result = call_tool_sync(context, context.session.call_tool(name="verify_element_exists", arguments={'caller': 'behave-automation', 'locator_value': 'No search results found', 'locator_strategy': '', 'need_snapshot': 0}))
+#     result_json = get_tool_json(result)
+#     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@when('I enter "password" in the search settings box')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="send_keys", arguments={'caller': 'behave-automation', 'locator_value': 'Search settings', 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID', 'text': 'password', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@then('search results should be displayed')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="verify_element_exists", arguments={'caller': 'behave-automation', 'locator_value': 'Passwords and autofill', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('Clean up')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="session_close", arguments={'caller': 'behave-automation', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@when('I click "Settings and more" button on toolbar')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'Settings and more', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('I select "Settings" button from the dropdown menu')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'Settings ⌘Comma ⌘Comma', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@then('the settings page should be opened')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="verify_element_exists", arguments={'caller': 'behave-automation', 'locator_value': 'Search settings', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@when('I input "Privacy" in the settings search box')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="send_keys", arguments={'caller': 'behave-automation', 'locator_value': 'Search settings', 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID', 'text': 'Privacy', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@then('the search results should display relevant settings related to "Privacy"')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="verify_element_exists", arguments={'caller': 'behave-automation', 'locator_value': 'Privacy, search, and services', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@when('I clear the search box')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'Clear search', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@then('the search results should reset to show all settings')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="verify_element_exists", arguments={'caller': 'behave-automation', 'locator_value': 'Profiles', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@when('I input "123" in the settings search box')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'Search settings', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+    result = call_tool_sync(context, context.session.call_tool(name="directly_send_keys", arguments={'caller': 'behave-automation', 'text': '123', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@then('the search results should display "No search results found"')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="verify_element_exists", arguments={'caller': 'behave-automation', 'locator_value': 'No search results found', 'locator_strategy': '', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
