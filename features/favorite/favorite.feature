@@ -4,9 +4,7 @@ Feature: favorite
   @P0 @Regression
   Scenario: Add a website to favorites using the star icon
     Given Edge is launched
-    When I click on search bar
-    And I enter "https://www.bing.com" in the search bar
-    And I press Enter key
+    When I navigate to "https://www.bing.com"
     And I click the "Add this page to favorites(⌘D)" button in the address bar
     And I click "Done" button in the favorites dialog
     When I Press "alt+cmd+B" to open Favorite bar
@@ -16,6 +14,7 @@ Feature: favorite
   @P0 @Regression
   Scenario: Open favorites hub from toolbar
     Given Edge is launched
+    And the Favorites button is hidden on the toolbar
     When I navigate to "edge://settings/appearance/toolbar"
     And I turn on Favorites button
     Then the Favorites button is displayed on the toolbar
@@ -34,7 +33,7 @@ Feature: favorite
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/44656489
   @P0 @Regression
-  Scenario: Open favorites page
+  Scenario: Open favorite item in current tab
     Given Edge is launched
     And the webpage "https://www.wikipedia.org" is added to Favorites
     When I open Favorites hub
@@ -68,7 +67,7 @@ Feature: favorite
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/44763909
   @P0 @Regression
-  Scenario: Close favorites pane
+  Scenario: Close Favorites pane
     Given Edge is launched
     When I click the "Favorites" button in the toolbar
     And I click the "Pin favorites" button in the favorites pane

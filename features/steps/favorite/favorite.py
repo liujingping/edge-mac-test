@@ -2,118 +2,7 @@ from behave import given, when, then, step
 from features.environment import call_tool_sync, get_tool_json
 
 
-# --- auto-generated step ---
-@when('I navigate to "https://www.microsoft.com"')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': "//XCUIElementTypeTextField[@label='Address and search bar']",
-                'locator_strategy': 'AppiumBy.XPATH',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
 
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='send_keys',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': "//XCUIElementTypeTextField[@label='Address and search bar']",
-                'locator_strategy': 'AppiumBy.XPATH',
-                'text': 'https://www.microsoft.com',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='press_key',
-            arguments={
-                'caller': 'behave-automation',
-                'key': 'return',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': '//XCUIElementTypeWebView',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@step('I click the "Add this page to favorites" icon in the address bar')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': 'Add this page to favorites (⌘D)',
-                'locator_strategy': 'AppiumBy.NAME',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@then('"Microsoft" should appear in my favorites list')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': 'Microsoft - AI、クラウド、生産性向上、コンピューティング、ゲーム、アプリ',
-                'locator_strategy': 'AppiumBy.NAME',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
 
 
 # --- auto-generated step ---
@@ -606,25 +495,7 @@ def step_impl(context):
     )
 
 
-# --- auto-generated step ---
-@when('I click this item icon in Favorites hub')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': 'Wikipedia',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+
 
 
 # --- auto-generated step ---
@@ -984,89 +855,16 @@ def step_impl(context):
     )
 
 
-# --- auto-generated step ---
-@then('"Bing" should appear in my favorites list')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': 'Search - Microsoft Bing',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
 
 
-# --- auto-generated step ---
-@step('Wait for page load')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='app_state',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': '',
-                'locator_type': '',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
 
 
-# --- auto-generated step ---
-@when('I click on search bar')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': 'Address and search bar',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
 
 
-# --- auto-generated step ---
-@step('I enter "https://www.bing.com" in the search bar')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='send_keys',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': 'Address and search bar',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'text': 'https://www.bing.com',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+
+
+
+
 
 
 # --- auto-generated step ---
@@ -1170,3 +968,29 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+# --- auto-generated step ---
+@when('I navigate to "https://www.bing.com"')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="click_element", arguments={'caller': 'behave-automation', 'locator_value': 'Address and search bar', 'locator_strategy': 'AppiumBy.NAME', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+    result = call_tool_sync(context, context.session.call_tool(name="send_keys", arguments={'caller': 'behave-automation', 'locator_value': 'Address and search bar', 'locator_strategy': 'AppiumBy.NAME', 'text': 'https://www.bing.com', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+    result = call_tool_sync(context, context.session.call_tool(name="press_key", arguments={'caller': 'behave-automation', 'key': 'return', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+    result = call_tool_sync(context, context.session.call_tool(name="press_key", arguments={'caller': 'behave-automation', 'key': 'escape', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('the Favorites button is hidden on the toolbar')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(name="verify_element_not_exists", arguments={'caller': 'behave-automation', 'locator_value': "//XCUIElementTypeToolbar[@label='App bar']//XCUIElementTypeButton[contains(@label, 'Favorites')]", 'locator_strategy': 'AppiumBy.XPATH', 'need_snapshot': 0}))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
