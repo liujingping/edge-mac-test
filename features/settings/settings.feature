@@ -54,3 +54,13 @@ Feature: Settings functionality
     When I open multiple tabs
     And I close and restart Edge
     Then previously opened tabs should be restored automatically
+
+  @regression @p0 @settings
+  Scenario: Restore by new tab
+    Given Edge is launched
+    And I input "edge://settings/startHomeNTP" to the address bar
+    When I select the option "Open the new tab page"
+    Then the option should be selected successfully
+    When I open multiple tabs
+    And I close and restart Edge
+    Then should open new tab page automatically
