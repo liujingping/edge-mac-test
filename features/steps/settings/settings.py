@@ -46,28 +46,6 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I enter "password" in the search settings box')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='send_keys',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': 'Search settings',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'text': 'password',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
 @then('search results should be displayed')
 def step_impl(context):
     result = call_tool_sync(
