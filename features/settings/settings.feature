@@ -43,3 +43,14 @@ Feature: Settings functionality
     When I click the "System" theme option
     Then Edge should change to system Mode
     And the settings page color should follow the system Mode
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511650
+  @regression @p0 @settings
+  Scenario: Restore previous session tabs
+    Given Edge is launched
+    And I input "edge://settings/startHomeNTP" to the address bar
+    When I select the option "Open tabs from the previous session"
+    Then the option should be selected successfully
+    When I open multiple tabs
+    And I close and restart Edge
+    Then previously opened tabs should be restored automatically
