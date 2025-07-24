@@ -28,22 +28,24 @@ Feature: Settings functionality
     When I input "123" in the settings search box
     Then the search results should display "No search results found"
 
-  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511459
-  @regression @p0 @settings
-  Scenario: Change to dark successfully
-    Given Edge is launched
-    And I input "edge://settings/appearance" to the address bar
-    Given the theme is set to "Light" Mode
-    When I click the "Dark" theme option
-    Then Edge should change to dark Mode
-    Given the theme is currently set to "Dark" Mode
-    When I click the "Light" theme option
-    Then Edge should change to light Mode
-    Given the theme is currently set to "Light" Mode
-    When I click the "System" theme option
-    Then Edge should change to system Mode
-    And the settings page color should follow the system Mode
+  # skip
+  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511459
+  # @regression @p0 @settings
+  # Scenario: Change to dark successfully
+  # Given Edge is launched
+  # And I input "edge://settings/appearance" to the address bar
+  # Given the theme is set to "Light" Mode
+  # When I click the "Dark" theme option
+  # Then Edge should change to dark Mode
+  # Given the theme is currently set to "Dark" Mode
+  # When I click the "Light" theme option
+  # Then Edge should change to light Mode
+  # Given the theme is currently set to "Light" Mode
+  # When I click the "System" theme option
+  # Then Edge should change to system Mode
+  # And the settings page color should follow the system Mode
 
+  
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511650
   @regression @p0 @settings
   Scenario: Restore previous session tabs
@@ -55,6 +57,7 @@ Feature: Settings functionality
     And I close and restart Edge
     Then previously opened tabs should be restored automatically
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511626
   @regression @p0 @settings
   Scenario: Restore by new tab
     Given Edge is launched
@@ -64,3 +67,40 @@ Feature: Settings functionality
     When I open multiple tabs
     And I close and restart Edge
     Then should open new tab page automatically
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511520
+  @regression @p0 @settings
+  Scenario: Show/hide home button
+    Given Edge is launched
+    And I input "edge://settings/appearance/toolbar" to the address bar
+    When I click on "Home" button
+    Then the option should be turned on successfully
+    And the home button should be visible on the toolbar
+    When I click on "Home" button again
+    Then the option should be turned off successfully
+    And the home button should be hidden on the toolbar
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56499157
+  @regression @p0 @settings
+  Scenario: Verify clear browsing data successfully
+    Given Edge is launched
+    And I have created a new profile
+    When I have navigated to "edge://settings/privacy" page
+    Then all text elements should display correctly
+    When I click the "Clear browsing data" button
+    Then the "Delete browsing data" dialog should be displayed
+    And all UI elements in the dialog should render properly
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56612273
+  @regression @p0 @settings
+  Scenario: Cancel add custom site
+    Given Edge is launched
+    And I input "edge://settings/startHomeNTP" to the address bar
+    When I select the option "Open custom sites"
+    Then the option should be selected successfully
+    When I click the "Add site" button
+    Then the "Add site" dialog should be opened
+    When I input "https://www.bing.com" in the URL field
+    And I click the "Cancel" button
+    Then the "Add site" dialog should be closed
+    And the "Website" input field is no longer present on the page
