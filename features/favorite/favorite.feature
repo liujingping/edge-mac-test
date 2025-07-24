@@ -73,3 +73,22 @@ Feature: favorite
     And I click the "Pin favorites" button in the favorites pane
     And I click the "Close favorites" button in the favorites pane
     Then the favorites pane should be closed
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/45697813
+  @P0 @Regression
+  Scenario: Show and hide favorites bar
+    Given Edge is launched with a new profile
+    When I press "Shift+cmd+B" to toggle Favorites bar
+    Then Favorites bar should not be shown below the address bar
+    When I press "Shift+cmd+B" to toggle Favorites bar again
+    Then Favorites bar should be shown below the address bar
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/44745292
+  @P0 @Regression
+  Scenario: Search favorites in Favorites hub
+    Given Edge is launched
+    And I added "https://www.youtube.com" to Favorites
+    When I open Favorites hub
+    And I click the "Search favorites" button in Favorites hub
+    And I enter "Youtube" in the search box
+    Then the "youtube" website should be displayed in the Favorites hub
