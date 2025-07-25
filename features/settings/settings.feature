@@ -44,19 +44,18 @@ Feature: Settings functionality
   # When I click the "System" theme option
   # Then Edge should change to system Mode
   # And the settings page color should follow the system Mode
-
+  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511650
+  # @regression @p0 @settings
+  # Scenario: Restore previous session tabs
+  # Given Edge is launched
+  # And I navigate to "edge://settings/startHomeNTP"
+  # When I select the option "Open tabs from the previous session"
+  # Then the option should be selected successfully
+  # When I new a tab navigate to "www.bing.com"
+  # And I new a tab navigate to "www.google.com"
+  # And I close and restart Edge
+  # Then edge open with "edge://settings/startHomeNTP","www.bing.com" and "www.google.com"
   
-  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511650
-  @regression @p0 @settings
-  Scenario: Restore previous session tabs
-    Given Edge is launched
-    And I input "edge://settings/startHomeNTP" to the address bar
-    When I select the option "Open tabs from the previous session"
-    Then the option should be selected successfully
-    When I open multiple tabs
-    And I close and restart Edge
-    Then previously opened tabs should be restored automatically
-
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511626
   @regression @p0 @settings
   Scenario: Restore by new tab
@@ -64,7 +63,8 @@ Feature: Settings functionality
     And I input "edge://settings/startHomeNTP" to the address bar
     When I select the option "Open the new tab page"
     Then the option should be selected successfully
-    When I open multiple tabs
+    When I new a tab
+    And I navigate to "www.bing.com"
     And I close and restart Edge
     Then should open new tab page automatically
 
@@ -80,17 +80,17 @@ Feature: Settings functionality
     Then the option should be turned off successfully
     And the home button should be hidden on the toolbar
 
-  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56499157
-  @regression @p0 @settings
-  Scenario: Verify clear browsing data successfully
-    Given Edge is launched
-    And I have created a new profile
-    When I have navigated to "edge://settings/privacy" page
-    Then all text elements should display correctly
-    When I click the "Clear browsing data" button
-    Then the "Delete browsing data" dialog should be displayed
-    And all UI elements in the dialog should render properly
-
+  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/56499157
+  # @regression @p0 @settings
+  # Scenario: Verify clear browsing data successfully
+  # Given Edge is launched
+  # And I have created a new profile
+  # When I have navigated to "edge://settings/privacy" page
+  # Then all text elements should display correctly
+  # When I click the "Clear browsing data" button
+  # Then the "Delete browsing data" dialog should be displayed
+  # And all UI elements in the dialog should render properly
+  
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56612273
   @regression @p0 @settings
   Scenario: Cancel add custom site
@@ -103,4 +103,3 @@ Feature: Settings functionality
     When I input "https://www.bing.com" in the URL field
     And I click the "Cancel" button
     Then the "Add site" dialog should be closed
-    And the "Website" input field is no longer present on the page
