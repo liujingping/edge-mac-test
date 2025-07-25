@@ -66,7 +66,7 @@ Feature: Settings functionality
     When I new a tab
     And I navigate to "www.bing.com"
     And I close and restart Edge
-    Then should open new tab page automatically
+    Then edge should open with new tab page
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511520
   @regression @p0 @settings
@@ -76,7 +76,7 @@ Feature: Settings functionality
     When I click on "Home" button
     Then the option should be turned on successfully
     And the home button should be visible on the toolbar
-    When I click on "Home" button again
+    When I click on "Home" button on the settings page
     Then the option should be turned off successfully
     And the home button should be hidden on the toolbar
 
@@ -90,7 +90,7 @@ Feature: Settings functionality
   # When I click the "Clear browsing data" button
   # Then the "Delete browsing data" dialog should be displayed
   # And all UI elements in the dialog should render properly
-  
+
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56612273
   @regression @p0 @settings
   Scenario: Cancel add custom site
@@ -100,6 +100,6 @@ Feature: Settings functionality
     Then the option should be selected successfully
     When I click the "Add site" button
     Then the "Add site" dialog should be opened
-    When I input "https://www.bing.com" in the URL field
+    When I input "https://www.bing.com" in the URL field on the "Add site" dialog
     And I click the "Cancel" button
     Then the "Add site" dialog should be closed
