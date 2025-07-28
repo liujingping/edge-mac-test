@@ -1,8 +1,7 @@
 Feature: favorite
 
   Background:
-    Given I launch Edge with empty user data directory
-    And I open a new tab
+    Given Edge is launched
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/44656412
   @P0 @Regression @Favorites
@@ -17,9 +16,8 @@ Feature: favorite
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/44525015
   @P0 @Regression @Favorites
   Scenario: Open favorites hub from toolbar
-    And the Favorites button is hidden on the toolbar
     When I navigate to "edge://settings/appearance/toolbar"
-    And I turn on Favorites button
+    And I click on "Favorites" button in Settings page
     Then the Favorites button is displayed on the toolbar
     When I click Favorites button on toolbar
     Then the Favorites hub is opened
@@ -66,3 +64,20 @@ Feature: favorite
     Then Favorites bar should not be shown below the address bar
     When I press "Shift+cmd+B" to toggle Favorites bar again
     Then Favorites bar should be shown below the address bar
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/44745292
+  @P0 @Regression @Favorites
+  Scenario: Search favorites item in Favorites hub
+    And The "https://www.youtube.com" is added to Favorites
+    When I open Favorites hub
+    And I click the "Search favorites" button in Favorites hub
+    And I enter "Youtube" into the search box
+    Then the "Youtube" website should be displayed in search results of Favorites hub
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/44780350
+  @P0 @Regression @Favorites
+  Scenario: Drag a favorites item from "Favorites bar" to "Other favorites"
+    And I added "https://www.youtube.com" to "Favorites bar"
+    When I open Favorites hub
+    And I drag the "https://www.youtube.com" item from "Favorites bar" to "Other favorites"
+    Then the "https://www.youtube.com" should be displayed in "Other favorites"
