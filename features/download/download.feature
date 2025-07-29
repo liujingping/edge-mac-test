@@ -50,3 +50,4 @@ Feature: Download functionality in Microsoft Edge
     And I click on the file name containing "Bing.html" in the Downloads panel
     Then address bar contains "Bing.html" in the new tab
 
+
