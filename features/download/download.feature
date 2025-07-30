@@ -1,5 +1,6 @@
 Feature: Download functionality in Microsoft Edge
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446007
   @p0 @regression @download
   Scenario: Download a file and open file by clicking "Open file" button
     Given Edge is launched
@@ -10,6 +11,7 @@ Feature: Download functionality in Microsoft Edge
     Then I can see address bar contains "sample-1" in the new tab
 
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446314
   @p0 @regression @download
   Scenario: Delete a downloaded file
     Given Edge is launched
@@ -23,6 +25,7 @@ Feature: Download functionality in Microsoft Edge
     Then the file name containing "sample-1" should not be found in Downloads folder
 
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533234
   @p0 @regression @download
   Scenario: Change the downloads path
     Given Edge is launched
@@ -37,6 +40,7 @@ Feature: Download functionality in Microsoft Edge
     Then I can see address bar contains "Desktop" in the new tab
 
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533078
   @p0 @regression @download
   Scenario: Download a webpage file
     Given Edge is launched
@@ -51,3 +55,16 @@ Feature: Download functionality in Microsoft Edge
     Then address bar contains "Bing.html" in the new tab
 
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446069
+  @p0 @regression @download
+  Scenario: Pause and Resume download file
+    Given Edge is launched
+    When I navigate to "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/2de44c02-6f01-4ed9-85f4-9e958c33f182/MicrosoftEdgeDev-140.0.3430.1.dmg?platform=Mac&channel=Dev&brand=M103&_.%25%E2%80%8B="
+    Then the Downloads panel should appear
+    When I click Downloads panel
+    And I hover over the file name containing "MicrosoftEdgeDev" in the Downloads panel
+    And I click the "Pause" button
+    Then "Resume" button should be displayed in the Downloads panel
+    When I click the "Resume" button
+    And I wait for 90 seconds
+    Then "Show in Finder" button should be displayed in the Downloads panel
