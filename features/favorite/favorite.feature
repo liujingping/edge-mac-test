@@ -81,3 +81,50 @@ Feature: favorite
     When I open Favorites hub
     And I drag the "https://www.youtube.com" item from "Favorites bar" to "Other favorites"
     Then the "https://www.youtube.com" should be displayed in "Other favorites"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/44656560
+  @P0 @Regression @Favorites
+  Scenario: Open a favorites item in a new tab when right-clicking on it in Favorites hub
+    When I navigate to "https://www.youtube.com/"
+    And I click "Favorites" button in the toolbar
+    And I click the "More options" button in the favorites hub
+    And I click the "Add this page to favorites" button in the more options menu
+    And I press Enter key
+    Then the "Youtube" website should be added to Favorites hub
+    When I right-click on "https://www.youtube.com/" in "Favorites bar"
+    And I click "Open in new tab" button in the context menu
+    Then the "Youtube" website should be opened in a new tab
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/58466995
+  @P0 @Regression @Favorites
+  Scenario: Delete a favorite item from favorites bar
+    And the "https://www.youtube.com" website is added to Favorites
+    When I right-click on "https://www.youtube.com/" in Favorites bar
+    And I click "Delete" button in the menu
+    And I open Favorites hub
+    And I click the "Search favorites" button in Favorites hub
+    And I enter "Youtube" into the search box
+    Then the "No results found" message should be displayed in Favorites hub
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/44656862
+  @P0 @Regression @Favorites
+  Scenario: Edit an item on Favorites bar
+    And the website "https://www.bing.com" is added to Favorites bar
+    When I right-click on "https://www.bing.com" in Favorites bar
+    And I click "Edit" button in the drop-down menu
+    Then the "Edit favorite" dialog should be opened
+    When I clear the name field in "Edit favorite" dialog
+    And I type "bingbing" into name field of "Edit favorite" dialog
+    And I press Enter key
+    Then the "bingbing" website name should be shown in Favorites bar
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/44656412
+  @P0 @Regression @Favorites
+  Scenario: Remove a website by clicking the star icon
+    And the website "https://www.bing.com" is added to Favorites bar
+    When I click the "https://www.bing.com" in Favorites bar
+    And I click the "Edit favorite for this page(⌘D)" button in the address bar
+    And I click "Remove" button in Edit favorite dialog
+    Then the Edit favorite dialog should be closed
+    When I open Favorites hub
+    And "Search - Microsoft Bing" should not be shown in Favorites Bar
