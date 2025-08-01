@@ -677,3 +677,110 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+# --- auto-generated step ---
+@when('I navigate to "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/2de44c02-6f01-4ed9-85f4-9e958c33f182/MicrosoftEdgeDev-140.0.3430.1.dmg?platform=Mac&channel=Dev&brand=M103&_.%25%E2%80%8B="')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="click_element", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+            'locator_value': 'Address and search bar',
+            'need_snapshot': 0}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+    result = call_tool_sync(context, context.session.call_tool(
+        name="send_keys", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+            'locator_value': 'Address and search bar',
+            'need_snapshot': 0,
+            'text': 'https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/2de44c02-6f01-4ed9-85f4-9e958c33f182/MicrosoftEdgeDev-140.0.3430.1.dmg?platform=Mac&channel=Dev&brand=M103&_.%25%E2%80%8B='}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+    result = call_tool_sync(context, context.session.call_tool(
+        name="press_key", 
+        arguments={'caller': 'behave-automation', 'key': 'return', 'need_snapshot': 0}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('I hover over the file name containing "MicrosoftEdgeDev" in the Downloads panel')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="mouse_hover", 
+        arguments={'caller': 'behave-automation',
+            'duration': 2.0,
+            'locator_strategy': 'AppiumBy.XPATH',
+            'locator_value': '//XCUIElementTypeStaticText[contains(@value, '
+                             '"MicrosoftEdgeDev")]',
+            'need_snapshot': 0}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('I click the "Pause" button')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="click_element", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+            'locator_value': 'Pause',
+            'need_snapshot': 0}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@then('"Resume" button should be displayed in the Downloads panel')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_element_exists", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+            'locator_value': 'Resume',
+            'need_snapshot': 0}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@when('I click the "Resume" button')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="click_element", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+            'locator_value': 'Resume',
+            'need_snapshot': 0}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('I wait for 90 seconds')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="time_sleep", 
+        arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 90}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@then('"Show in Finder" button should be displayed in the Downloads panel')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_element_exists", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+            'locator_value': 'Show in Finder',
+            'need_snapshot': 0}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
