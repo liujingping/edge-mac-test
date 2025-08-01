@@ -44,18 +44,18 @@ Feature: Settings functionality
   # When I click the "System" theme option
   # Then Edge should change to system Mode
   # And the settings page color should follow the system Mode
-  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511650
-  # @regression @p0 @settings
-  # Scenario: Restore previous session tabs
-  # Given Edge is launched
-  # And I navigate to "edge://settings/startHomeNTP"
-  # When I select the option "Open tabs from the previous session"
-  # Then the radio button before "Open tabs from the previous session" option should be selected
-  # When I new a tab navigate to "www.bing.com"
-  # And I new a tab navigate to "www.google.com"
-  # And I close and restart Edge
-  # Then edge open with "edge://settings/startHomeNTP","www.bing.com" and "www.google.com"
   
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511650
+  @regression @p0 @settings
+  Scenario: Restore previous session tabs
+    Given Edge is launched
+    And I input "edge://settings/startHomeNTP" to the address bar
+    When I select the option "Open tabs from the previous session"
+    When I navigate to "www.bing.com" in a new tab
+    And I navigate to "www.google.com" in a new tab
+    And I close and restart Edge
+    Then edge should open with "edge://settings/startHomeNTP","www.bing.com" and "www.google.com"
+
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511626
   @regression @p0 @settings
   Scenario: Restore by new tab
@@ -100,13 +100,33 @@ Feature: Settings functionality
     And I click the "Cancel" button on the "Add site" dialog
     Then the "Add site" dialog should be closed
 
-# # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511529
-# Scenario: Show/hide Split screen button
-# Given I navigate to "edge://settings/appearance" in the address bar
-# And I click on "Toolbar" navigation item on the settings page
-# When I click on the "Split screen" button
-# Then the Split screen button option should be turned on successfully
-# And the Split screen button should be visible on the toolbar
-# When I click on the "Split screen" button again
-# Then the Split screen button option should be turned off successfully
-# And the Split screen button should be invisible from the toolbar
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511529
+  @regression @p0 @settings
+  Scenario: Show/hide Split screen button
+    Given Edge is launched
+    And I input "edge://settings/appearance/toolbar" to the address bar
+    When I click on "Split screen" button switch in Toolbar Settings page
+    Then the Split screen button should be visible on the toolbar
+    When I click on "Split screen" button switch in Toolbar Settings page
+    Then the Split screen button should be hidden on the toolbar
+
+  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511546
+  # @regression @p0 @settings
+  # Scenario: Show/hide Feedback button
+  # Given Edge is launched
+  # And I input "edge://settings/appearance/toolbar" to the address bar
+  # When I scroll to the bottom of the Toolbar Settings page
+  # And I click on "Feedback" button switch in Toolbar Settings page
+  # Then the Send feedback button should be visible on the toolbar
+  # When I click on "Feedback" button switch in Toolbar Settings page
+  # Then the Send feedback button should be hidden on the toolbar
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511558
+  @regression @p0 @settings
+  Scenario: Show/hide sidebar
+    Given Edge is launched
+    And I input "edge://settings/appearance/copilotAndSidebar" to the address bar
+    When I select "Always on" option in Settings page
+    Then the sidebar should be visible
+    When I select "Off" option in Settings page
+    Then the sidebar should be hidden
