@@ -108,7 +108,7 @@ Feature: favorite
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/44656862
   @P0 @Regression @Favorites
-  Scenario: Edit an item on Favorites bar
+  Scenario: Edit an item name on Favorites bar
     And the website "https://www.bing.com" is added to Favorites bar
     When I right-click on "https://www.bing.com" in Favorites bar
     And I click "Edit" button in the drop-down menu
@@ -118,7 +118,7 @@ Feature: favorite
     And I press Enter key
     Then the "bingbing" website name should be shown in Favorites bar
 
-  # https://microsoft.visualstudio.com/Edge/_workitems/edit/44656412
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/58593955
   @P0 @Regression @Favorites
   Scenario: Remove a website by clicking the star icon
     And the website "https://www.bing.com" is added to Favorites bar
@@ -128,3 +128,47 @@ Feature: favorite
     Then the Edit favorite dialog should be closed
     When I open Favorites hub
     And "Search - Microsoft Bing" should not be shown in Favorites Bar
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/44692423
+  @P0 @Regression @Favorites
+  Scenario: Copy link in Favorites hub
+    And the website "https://www.bing.com" is added to Favorites bar
+    When I open Favorites hub
+    And I right-click on "https://www.bing.com" in Favorites bar of hub
+    And I click "Copy link" button in the drop-down menu
+    And I open a new tab
+    And I press "Cmd+V" to paste the copied link in the address bar
+    And I press Enter key
+    Then the "https://www.bing.com" website should be opened in the new tab
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/44779506
+  @P0 @Regression @Favorites
+  Scenario: Open a folder with 3 items in new window
+    And the websites "https://www.bing.com", "https://www.youtube.com", and "https://www.wikipedia.org" are added to Favorites bar
+    When I open Favorites hub
+    And I right-click on "Favorites bar" folder in hub
+    And I click "Open all(3) in new window" button in the drop-down menu
+    Then the "https://www.bing.com" website should be opened in the new window
+    And the "https://www.youtube.com" website should be opened in the new window
+    And the "https://www.wikipedia.org" website should be opened in the new window
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/53826024
+  @P0 @Regression @Favorites
+  Scenario: Favorites sort by custom
+    And the websites "https://www.bing.com", "https://www.youtube.com", and "https://www.wikipedia.org" are added to Favorites bar
+    When I open Favorites hub
+    And I click on "Sort favorites" button in Favorites hub
+    And I select "Custom" from the drop-down menu
+    Then the "https://www.bing.com" website should be displayed first
+    And the "https://www.youtube.com" website should be displayed second
+    And the "https://www.wikipedia.org" website should be displayed third
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/53826034
+  @P0 @Regression @Favorites
+  Scenario: Favorites sort by A to Z
+    And the websites "https://www.youtube.com", "https://www.bing.com" are added to Favorites bar
+    When I open Favorites hub
+    And I click on "Sort favorites" button in Favorites hub
+    And I select "A to Z" from the drop-down menu
+    Then the "https://www.bing.com" website should be displayed first
+    And the "https://www.youtube.com" website should be displayed second
