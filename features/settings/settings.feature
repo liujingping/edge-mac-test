@@ -44,7 +44,7 @@ Feature: Settings functionality
   # When I click the "System" theme option
   # Then Edge should change to system Mode
   # And the settings page color should follow the system Mode
-  
+
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511650
   @regression @p0 @settings
   Scenario: Restore previous session tabs
@@ -120,7 +120,7 @@ Feature: Settings functionality
   # Then the Send feedback button should be visible on the toolbar
   # When I click on "Feedback" button switch in Toolbar Settings page
   # Then the Send feedback button should be hidden on the toolbar
-
+  
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511558
   @regression @p0 @settings
   Scenario: Show/hide sidebar
@@ -130,3 +130,40 @@ Feature: Settings functionality
     Then the sidebar should be visible
     When I select "Off" option in Settings page
     Then the sidebar should be hidden
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56612246
+  @regression @p0 @settings
+  Scenario: Restore by custom sites
+    Given Edge is launched
+    And I input "edge://settings/startHomeNTP" to the address bar
+    When I select the option "Open custom sites"
+    And I click the "Add site" button
+    Then the "Add site" dialog should be opened
+    When I input "https://www.bing.com" in the URL field on the "Add site" dialog
+    And I click the "Add" button on the "Add site" dialog
+    Then the "Add site" dialog should be closed
+    And url "https://www.bing.com" should be added to the custom sites list
+    When I close and restart Edge
+    Then edge should open with "https://www.bing.com"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56612834
+  @regression @p0 @settings
+  Scenario: Delete custom sites
+    Given Edge is launched
+    And I input "edge://settings/startHomeNTP" to the address bar
+    When I click the "More actions" button next to the custom site "https://www.bing.com"
+    And I click the "Delete" button from the dropdown menu
+    When I close and restart Edge
+    Then edge should open with a page titled "New Tab"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56612878
+  @regression @p0 @settings
+  Scenario: Restore by use all open tabs
+    Given Edge is launched
+    And I navigate to "www.google.com" in a new tab
+    And I navigate to "edge://settings/startHomeNTP" in a new tab
+    When I select the option "Open custom sites"
+    And I click the "Use all open tabs" button
+    Then url "https://www.google.com" should be added to the custom sites list
+    When I close and restart Edge
+    Then edge should open with "https://www.google.com"
