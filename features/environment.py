@@ -1,4 +1,5 @@
 import json
+import re
 import time
 import threading
 import asyncio
@@ -188,11 +189,11 @@ def take_screenshot(scenario_name):
 
         # Clean test name for use as filename - replace spaces with underscores
         # Screenshot naming convention: *{test_name}*.png
-        test_name_pattern = name.replace(' ', '_')
+        test_name_pattern = clean_test_name(name)
 
         # Add timestamp to avoid filename conflicts while following the pattern
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f'{timestamp}_{test_name_pattern}_{timestamp}.png'
+        filename = f'{test_name_pattern}_{timestamp}.png'
 
         # Full path for the screenshot
         screenshot_path = screenshot_dir / filename
@@ -222,3 +223,33 @@ def after_scenario(context, scenario):
             print(f'Screenshot captured for scenario: {scenario.name}')
     except Exception as e:
         print(f'Warning: Screenshot failed for scenario {scenario.name}: {str(e)}')
+
+
+def clean_test_name(name):
+    """
+    Clean test case name by removing/replacing special characters
+    
+    Args:
+        name: Original test case name
+        
+    Returns:
+        str: Cleaned name suitable for file pattern matching
+    """
+    if not name:
+        return ""
+    
+    # Replace common problematic characters with underscore
+    # Keep only alphanumeric, underscore, hyphen, and space
+    cleaned = re.sub(r'[^\w\s\-]', '_', name)
+    
+    # Replace multiple spaces with single space, then replace spaces with underscore
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+    cleaned = cleaned.replace(' ', '_')
+    
+    # Replace multiple underscores with single underscore
+    cleaned = re.sub(r'_+', '_', cleaned)
+    
+    # Remove leading and trailing underscores
+    cleaned = cleaned.strip('_')
+    
+    return cleaned
