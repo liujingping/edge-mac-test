@@ -40,7 +40,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
 # --- auto-generated step ---
 @then('the "cgtn" website should be opnened')
 def step_impl(context):
@@ -61,7 +60,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
 # --- auto-generated step ---
 @when('I click "Settings and more" button in toolbar')
 def step_impl(context):
@@ -81,7 +79,6 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
-
 
 # --- auto-generated step ---
 @step('I click "History" button')
@@ -113,7 +110,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
 # --- auto-generated step ---
 @step('I hover over the "cgtn" website in History panel')
 def step_impl(context):
@@ -135,7 +131,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
 # --- auto-generated step ---
 @step('I click "Delete" button in History panel')
 def step_impl(context):
@@ -155,7 +150,6 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
-
 
 # --- auto-generated step ---
 @then('the "cgtn" website should not be displayed in History panel')
@@ -177,7 +171,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
 # --- auto-generated step ---
 @step('I right click "History" button in menu')
 def step_impl(context):
@@ -197,7 +190,6 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
-
 
 # --- auto-generated step ---
 @step('I click "Show in toolbar" in menu')
@@ -219,7 +211,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
 # --- auto-generated step ---
 @then('"History" should be displayed in toolbar')
 def step_impl(context):
@@ -239,7 +230,6 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
-
 
 # --- auto-generated step ---
 @when('I navigate to "https://www.cgtn.com"')
@@ -295,7 +285,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
 # --- auto-generated step ---
 @step('I input "cgtn" in Search history box')
 def step_impl(context):
@@ -333,7 +322,6 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
-
 
 # --- auto-generated step ---
 @when('I input "mscaaa" in Search history box')
@@ -373,7 +361,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
 # --- auto-generated step ---
 @then('the "cgtn" website should be displayed in History panel')
 def step_impl(context):
@@ -387,9 +374,8 @@ def step_impl(context):
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
 
-
 # --- auto-generated step ---
-@then('shows "No results found for \'mscaaa\'" in history panel')
+@then('shows "No results found for \'mscaaa\'" in History panel')
 def step_impl(context):
     result = call_tool_sync(context, context.session.call_tool(
         name="find_element", 
@@ -410,7 +396,6 @@ def step_impl(context):
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
 
 # --- auto-generated step ---
 @step('I click "Close tab" button on the "cgtn" tab')
@@ -434,7 +419,6 @@ def step_impl(context):
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
 
-
 # --- auto-generated step ---
 @then('the "cgtn" tab cannot be found in the tab bar')
 def step_impl(context):
@@ -449,7 +433,6 @@ def step_impl(context):
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
 
-
 # --- auto-generated step ---
 @when('I press "cmd" and "Y" keys')
 def step_impl(context):
@@ -459,7 +442,6 @@ def step_impl(context):
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
 
 # --- auto-generated step ---
 @step('I click "Recently closed" in History panel')
@@ -473,7 +455,6 @@ def step_impl(context):
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
 
 # --- auto-generated step ---
 @then('the "cgtn" website should be displayed in "Recently closed" in History panel')
@@ -489,7 +470,6 @@ def step_impl(context):
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
 
-
 # --- auto-generated step ---
 @then('the "cgtn" website should be displayed in "All" in History panel')
 def step_impl(context):
@@ -502,7 +482,6 @@ def step_impl(context):
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
 
 # --- auto-generated step ---
 @step('I click "cgtn" website in "All" in History panel')
@@ -517,9 +496,8 @@ def step_impl(context):
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
 
-
 # --- auto-generated step ---
-@then('the "cgtn" website should be opened in a new tab')
+@then('the "cgtn" website should be opened in new tab')
 def step_impl(context):
     result = call_tool_sync(context, context.session.call_tool(
         name="time_sleep", 
@@ -527,7 +505,6 @@ def step_impl(context):
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
 
 # --- auto-generated step ---
 @then('History panel should appear')
@@ -550,7 +527,6 @@ def step_impl(context):
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
 
 # --- auto-generated step ---
 @when('I click "Pin history" button in History panel')
@@ -579,7 +555,6 @@ def step_impl(context):
     
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
 
-
 # --- auto-generated step ---
 @then('History pane still should be displayed')
 def step_impl(context):
@@ -592,7 +567,6 @@ def step_impl(context):
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
 
 # --- auto-generated step ---
 @when('I click "Close history" button in History pane')
@@ -607,7 +581,6 @@ def step_impl(context):
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
 
-
 # --- auto-generated step ---
 @then('History pane should be displayed')
 def step_impl(context):
@@ -621,7 +594,6 @@ def step_impl(context):
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
 
-
 # --- auto-generated step ---
 @step('Wait for history panel to appear')
 def step_impl(context):
@@ -631,7 +603,6 @@ def step_impl(context):
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
 
 # --- auto-generated step ---
 @when('I click "History" in toolbar')
@@ -645,7 +616,6 @@ def step_impl(context):
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
 
 # --- auto-generated step ---
 @then('History panel should be closed')

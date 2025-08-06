@@ -10,7 +10,6 @@ Feature: Download functionality in Microsoft Edge
     And I click on the file name containing "sample-1" in the Downloads panel
     Then I can see address bar contains "sample-1" in the new tab
 
-
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446314
   @p0 @regression @download
   Scenario: Delete a downloaded file
@@ -23,7 +22,6 @@ Feature: Download functionality in Microsoft Edge
     Then the file name containing "sample-1" should be removed from the Downloads panel
     When I click "Open Downloads folder" in the Downloads panel
     Then the file name containing "sample-1" should not be found in Downloads folder
-
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533234
   @p0 @regression @download
@@ -39,7 +37,6 @@ Feature: Download functionality in Microsoft Edge
     And I click on the file name containing "sample-1" in the Downloads panel
     Then I can see address bar contains "Desktop" in the new tab
 
-
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533078
   @p0 @regression @download
   Scenario: Download a webpage file
@@ -54,6 +51,16 @@ Feature: Download functionality in Microsoft Edge
     And I click on the file name containing "Bing.html" in the Downloads panel
     Then address bar contains "Bing.html" in the new tab
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533112
+  Scenario: Cancel downloading a webpage file
+    Given Edge is launched
+    When I navigate to "www.bing.com"
+    And I right click on the page without selecting any text or element
+    And I click "Save As..." in the context menu
+    Then Save As window should appear
+    When I click "Cancel" button in Save As window
+    Then Save As window should be closed
+    And the Downloads panel should not appear
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446069
   @p0 @regression @download
