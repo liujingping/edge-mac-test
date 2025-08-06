@@ -1,5 +1,6 @@
 Feature: tab
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/43623996
   @p0
   Scenario: Close a tab in horizontal mode
     Given Edge is launched in horizontal mode
@@ -7,6 +8,7 @@ Feature: tab
     And I click the "Close Tab" button on tab header
     Then the "Apple" tab should be closed
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/58453262
   @p0
   Scenario: Drag a tab in horizontal mode
     Given Edge is launched in horizontal mode
@@ -15,6 +17,7 @@ Feature: tab
     And I drag the "Amanon.com" tab to the far left of the "Apple" tab
     Then "Amanon.com" tab is on the left, "Apple" tab is on the right
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/43625800
   @p0
   Scenario: Refresh in horizontal mode
     Given Edge is launched in horizontal mode
@@ -24,14 +27,18 @@ Feature: tab
     Then the page should be refreshed
     And the address bar still displays the complete URL "https://www.youtube.com"
 
-  # Scenario: add tab to new tab group in horizontal mode
-  # Given Edge is launched in horizontal mode
-  # When I navigate to "https://www.apple.com"
-  # And I new a tab and navigate to "https://www.amazon.com/"
-  # And I right click on the tab header of "Amazon.com" tab
-  # And I click "Add tab to new group" from the context menu
-  # Then a new tab group should be created with the "Amazon.com" tab
-  # And the tab group should be named "shopping"
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/43625694
+  @p0
+  Scenario: add tab to new tab group in horizontal mode
+    Given Edge is launched in horizontal mode
+    When I navigate to "https://www.apple.com"
+    And I new a tab and navigate to "https://www.amazon.com/"
+    And I right click on the tab title contains "Amazon.com"
+    And I click "Add tab to new group" from the context menu
+    Then a new tab group should be created with the "Amazon.com" tab
+    And the tab group should be named "shopping"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/43626630
   @p0
   Scenario: reopen a closed tab in horizontal mode
     Given Edge is launched
