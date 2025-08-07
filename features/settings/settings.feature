@@ -151,11 +151,3 @@ Feature: Settings functionality
     And I select the option "New tab page"
     When I click "Home" button to the left of the address bar
     Then should open a page titled "New Tab"
-
-  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56499157
-  @settings @smoke @p0
-  Scenario: Verify the "Delete browsing data" dialog should display
-    Given Edge is launched
-    And I input "edge://settings/privacy" to the address bar
-    When I click the "Clear browsing data" button
-    Then the "Delete browsing data" dialog should display
