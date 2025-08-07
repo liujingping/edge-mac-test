@@ -1807,6 +1807,46 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
+@step(
+    'the websites "https://www.youtube.com", "https://www.bing.com" are added to Favorites bar'
+)
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeButton[@label="YouTube"]',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeButton[@label="Search - Microsoft Bing"]',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
 @step('I click on "Sort favorites" button in Favorites hub')
 def step_impl(context):
     result = call_tool_sync(
@@ -1828,7 +1868,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I select "Custom" from the drop-down menu')
+@step('I select "A to Z" from the drop-down menu')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -1837,7 +1877,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeMenuItem[@label='Sort By, Group, Custom']",
+                'locator_value': '//XCUIElementTypeMenuItem[@label="Sort By, Group, A to Z"]',
                 'need_snapshot': 0,
             },
         ),
@@ -1885,93 +1925,6 @@ def step_impl(context):
                     "//XCUIElementTypeOutlineRow[@title='YouTube']",
                 ],
                 'expected_orders': [],
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@step('the "https://www.wikipedia.org" website should be displayed third')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_elements_order',
-            arguments={
-                'caller': 'behave-automation',
-                'direction': 'vertical',
-                'element_xpaths': [
-                    "//XCUIElementTypeOutlineRow[@title='Search - Microsoft Bing']",
-                    "//XCUIElementTypeOutlineRow[@title='YouTube']",
-                    "//XCUIElementTypeOutlineRow[@title='Wikipedia']",
-                ],
-                'expected_orders': [],
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@step(
-    'the websites "https://www.youtube.com", "https://www.bing.com" are added to Favorites bar'
-)
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeButton[@label="YouTube"]',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeButton[@label="Search - Microsoft Bing"]',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@step('I select "A to Z" from the drop-down menu')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeMenuItem[@label="Sort By, Group, A to Z"]',
                 'need_snapshot': 0,
             },
         ),

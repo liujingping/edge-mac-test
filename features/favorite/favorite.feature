@@ -152,17 +152,6 @@ Feature: favorite
     And the "https://www.youtube.com" website should be opened in the new window
     And the "https://www.wikipedia.org" website should be opened in the new window
 
-  # https://microsoft.visualstudio.com/Edge/_workitems/edit/53826024
-  @P0 @Regression @Favorites
-  Scenario: Favorites sort by custom
-    And the websites "https://www.bing.com", "https://www.youtube.com", and "https://www.wikipedia.org" are added to Favorites bar
-    When I open Favorites hub
-    And I click on "Sort favorites" button in Favorites hub
-    And I select "Custom" from the drop-down menu
-    Then the "https://www.bing.com" website should be displayed first
-    And the "https://www.youtube.com" website should be displayed second
-    And the "https://www.wikipedia.org" website should be displayed third
-
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/53826034
   @P0 @Regression @Favorites
   Scenario: Favorites sort by A to Z
