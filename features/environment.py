@@ -243,36 +243,30 @@ def _check_system_dialog_exists_native(button_text):
         # 转义AppleScript中的引号
         escaped_button_text = button_text.replace('"', '\\"')
         
-        # 使用osascript检查系统对话框 - 更全面的进程检查
+        # 简化版本的 AppleScript - 先测试基本功能
         script = f'''
         tell application "System Events"
             set dialogExists to false
-            set processNames to {{}}
             set dialogInfo to ""
             try
-                -- 获取所有进程名称用于调试
-                set allProcesses to every process
-                repeat with aProcess in allProcesses
-                    set processNames to processNames & name of aProcess & ","
-                end repeat
-                
-                -- 检查可能包含系统对话框的进程
-                set targetProcesses to every process whose name contains "CoreServicesUIAgent" or name contains "UserNotificationCenter" or name contains "loginwindow" or name contains "SecurityAgent" or name contains "authd"
-                
+                set targetProcesses to every process whose name contains "CoreServicesUIAgent"
                 repeat with aProcess in targetProcesses
                     set processName to name of aProcess
                     set theWindows to every window of aProcess
-                    set dialogInfo to dialogInfo & "Process:" & processName & ",Windows:" & (count of theWindows) & ";"
+                    set windowCount to count of theWindows
+                    set dialogInfo to dialogInfo & "Process:" & processName & ",Windows:" & windowCount & ";"
+                    
                     repeat with aWindow in theWindows
                         try
                             set theButtons to every button of aWindow
                             repeat with aButton in theButtons
                                 set buttonName to name of aButton
-                                set dialogInfo to dialogInfo & "Button:" & buttonName & ";"
-                                -- 使用精确匹配而不是contains
-                                if buttonName is equal to "{escaped_button_text}" then
+                                set dialogInfo to dialogInfo & "Button:[" & buttonName & "];"
+                                
+                                -- 尝试多种匹配方式
+                                if (buttonName = "{escaped_button_text}") or (buttonName contains "{escaped_button_text}") or ("{escaped_button_text}" is in buttonName) then
                                     set dialogExists to true
-                                    set dialogInfo to dialogInfo & "FOUND_TARGET_BUTTON!"
+                                    set dialogInfo to dialogInfo & "MATCHED_" & buttonName & "!"
                                     exit repeat
                                 end if
                             end repeat
@@ -287,8 +281,7 @@ def _check_system_dialog_exists_native(button_text):
                 set dialogInfo to dialogInfo & "MainError:" & errMsg & ";"
             end try
             
-            -- 返回结果和调试信息
-            return (dialogExists as string) & "|PROCESSES:" & processNames & "|DIALOGS:" & dialogInfo
+            return (dialogExists as string) & "|" & dialogInfo
         end tell
         '''
         
@@ -303,17 +296,12 @@ def _check_system_dialog_exists_native(button_text):
             output = result.stdout.strip()
             logger.debug(f"AppleScript output: {output}")
             
-            parts = output.split('|')
+            parts = output.split('|', 1)
             dialog_found = parts[0] == 'true'
             
-            # 记录详细的调试信息
-            for part in parts[1:]:
-                if part.startswith('PROCESSES:'):
-                    processes = part[10:200]  # 限制长度
-                    logger.debug(f"Available processes: {processes}")
-                elif part.startswith('DIALOGS:'):
-                    dialogs = part[8:]
-                    logger.debug(f"Dialog details: {dialogs}")
+            if len(parts) > 1:
+                dialog_info = parts[1]
+                logger.debug(f"Dialog details: {dialog_info}")
             
             logger.debug(f"System dialog check result: {dialog_found}")
             return dialog_found
@@ -335,25 +323,30 @@ def _try_click_system_dialog_button_native(button_text):
         # 转义AppleScript中的引号
         escaped_button_text = button_text.replace('"', '\\"')
         
-        # 使用osascript点击系统对话框按钮
+        # 简化版本的点击脚本
         script = f'''
         tell application "System Events"
             set buttonClicked to false
             try
-                set theDialogs to every window of every process whose name contains "CoreServicesUIAgent" or name contains "UserNotificationCenter" or name contains "loginwindow"
-                repeat with aDialog in theDialogs
-                    try
-                        set theButtons to every button of aDialog
-                        repeat with aButton in theButtons
-                            -- 使用精确匹配而不是contains
-                            if name of aButton is equal to "{escaped_button_text}" then
-                                click aButton
-                                set buttonClicked to true
-                                exit repeat
-                            end if
-                        end repeat
-                        if buttonClicked then exit repeat
-                    end try
+                set targetProcesses to every process whose name contains "CoreServicesUIAgent"
+                repeat with aProcess in targetProcesses
+                    set theWindows to every window of aProcess
+                    repeat with aWindow in theWindows
+                        try
+                            set theButtons to every button of aWindow
+                            repeat with aButton in theButtons
+                                set buttonName to name of aButton
+                                -- 尝试多种匹配方式
+                                if (buttonName = "{escaped_button_text}") or (buttonName contains "{escaped_button_text}") or ("{escaped_button_text}" is in buttonName) then
+                                    click aButton
+                                    set buttonClicked to true
+                                    exit repeat
+                                end if
+                            end repeat
+                            if buttonClicked then exit repeat
+                        end try
+                    end repeat
+                    if buttonClicked then exit repeat
                 end repeat
             end try
             return buttonClicked
