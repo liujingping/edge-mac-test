@@ -256,7 +256,7 @@ def handle_system_dialogs(context):
     """处理常见的系统弹窗"""
     try:
         # 目前只处理Edge Canary的弹窗，后续可以慢慢补充
-        button_text = 'Use "Edge Canary"'
+        button_text = 'Use Edge Canary'  # 移除引号，因为实际按钮文本没有引号
         
         logger.debug("Checking for system dialogs using native macOS methods")
         
