@@ -49,6 +49,28 @@ def load_mcp_config():
 def before_all(context):
     import threading
 
+        
+    # 配置日志 - 只在 before_all 中配置一次
+    logger.handlers.clear()
+    logger.setLevel(logging.DEBUG)
+    logger.propagate = False  # 防止传播到根logger，避免重复日志
+    
+    # 添加控制台和文件处理器
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
+    # file_handler = logging.FileHandler('behave_debug.log', mode='a')
+    # file_handler.setLevel(logging.DEBUG)
+    # file_handler.setFormatter(formatter)
+    # logger.addHandler(file_handler)
+    
+    logger.info("Logging configured successfully")
+
+
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
     session_ready = threading.Event()
@@ -190,27 +212,31 @@ def after_step(context, step):
 def handle_system_dialogs(context):
     """处理常见的系统弹窗"""
     try:
-        # 目前只处理Edge Canary的弹窗，后续可以慢慢补充
-        button_text = 'Use "Edge Canary"'  # 恢复引号，因为实际按钮文本包含引号
+        # 定义多种可能的按钮文本格式
+        button_texts = [
+            'Use "Edge Canary"',  # 带引号格式
+            'Use Edge Canary',    # 不带引号格式
+            '"Use Edge Canary"',  # 完整引号格式
+        ]
         
         logger.debug("Checking for system dialogs using native macOS methods")
         
-        # 直接使用原生方法检查和处理系统对话框，不依赖Appium driver状态
-        dialog_exists = _check_system_dialog_exists_native(button_text)
-        logger.debug(f"Dialog existence check result: {dialog_exists}")
+        # 尝试匹配任意一种按钮文本格式
+        for button_text in button_texts:
+            dialog_exists = _check_system_dialog_exists_native(button_text)
+            logger.debug(f"Dialog existence check for '{button_text}': {dialog_exists}")
+            
+            if dialog_exists:
+                # 如果存在，则点击 - 使用原生方法
+                click_success = _try_click_system_dialog_button_native(button_text)
+                logger.debug(f"Dialog click result for '{button_text}': {click_success}")
+                if click_success:
+                    logger.info(f"Handled system dialog by clicking '{button_text}'")
+                    return True
+                else:
+                    logger.warning(f"Failed to handle system dialog '{button_text}'")
         
-        if dialog_exists:
-            # 如果存在，则点击 - 使用原生方法
-            click_success = _try_click_system_dialog_button_native(button_text)
-            logger.debug(f"Dialog click result: {click_success}")
-            if click_success:
-                logger.info(f"Handled system dialog by clicking '{button_text}'")
-                return True
-            else:
-                logger.warning(f"Failed to handle system dialog '{button_text}'")
-        else:
-            logger.debug("No system dialogs found")
-                    
+        logger.debug("No system dialogs found with any known button text format")
         return False
         
     except Exception as e:
