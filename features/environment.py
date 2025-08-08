@@ -173,6 +173,25 @@ def handle_system_dialogs(context):
         # 检查context是否有session，如果没有则跳过
         if not hasattr(context, 'session') or not context.session:
             return False
+        
+        # 检查是否有活跃的driver会话，如果没有则跳过
+        # 通过调用app_state来检查driver是否可用
+        try:
+            result = call_tool_sync(
+                context,
+                context.session.call_tool(
+                    name='app_state',
+                    arguments={'caller': 'behave-automation'}
+                ),
+                timeout=1
+            )
+            result_json = get_tool_json(result)
+            if not result_json or result_json.get('status') != 'success':
+                # 没有活跃的driver会话，跳过对话框处理
+                return False
+        except Exception:
+            # 如果app_state调用失败，说明没有活跃会话，跳过对话框处理
+            return False
             
         # 目前只处理Edge Canary的弹窗，后续可以慢慢补充
         button_text = 'Use "Edge Canary"'
@@ -218,6 +237,7 @@ def _check_system_dialog_exists(context, button_text):
         return result_json and result_json.get('status') == 'success'
         
     except Exception as e:
+        # 静默处理异常，因为大多数时候不会有对话框，或者没有活跃的driver会话
         print(f'DEBUG: Exception in _check_system_dialog_exists: {e}')
         return False
 
@@ -254,7 +274,7 @@ def _try_click_system_dialog_button(context, button_text):
         return False
         
     except Exception as e:
-        # 静默处理异常，因为大多数时候不会有对话框
+        # 静默处理异常，因为大多数时候不会有对话框，或者没有活跃的driver会话
         print(f'DEBUG: Exception in _try_click_system_dialog_button: {e}')
         return False
 
