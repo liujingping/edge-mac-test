@@ -15,16 +15,6 @@ from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client, StdioServerParameters
 
-# Configure logging
-logging.basicConfig(
-    level=logging.DEBUG,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),  # 输出到控制台
-        logging.FileHandler('behave_debug.log', mode='a')  # 输出到文件
-    ]
-)
-
 logger = logging.getLogger('behave_environment')
 
 session_ready = threading.Event()
@@ -58,27 +48,6 @@ def load_mcp_config():
 
 def before_all(context):
     import threading
-    
-    # 重新配置日志，确保在behave初始化后仍然有效
-    logger.handlers.clear()
-    logger.setLevel(logging.DEBUG)
-    logger.propagate = False  # 防止传播到根logger，避免重复日志
-    
-    # 添加控制台处理器
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
-    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
-    
-    # 添加文件处理器
-    file_handler = logging.FileHandler('behave_debug.log', mode='a')
-    file_handler.setLevel(logging.DEBUG)
-    file_handler.setFormatter(console_formatter)
-    logger.addHandler(file_handler)
-    
-    logger.info("before_all - Logging configured successfully")
-    print("[BEFORE_ALL] Logging configured successfully")
 
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
@@ -201,62 +170,28 @@ def before_scenario(context, scenario):
 
 def before_step(context, step):
     """在每个步骤执行前运行"""   
-    # 使用多种方式确保日志能够被看到
-    print(f"[BEFORE_STEP] Executing step: '{step.name}'")  # 直接print到控制台
-    logger.info(f"before_step - Executing step: '{step.name}'")  # 改为info级别
-    logger.debug(f"before_step - Debug log test")
-    
-    # 强制刷新日志
-    import sys
-    sys.stdout.flush()
+    logger.info(f"before_step - Executing step: '{step.name}'")
     
     try:
         dialog_handled = handle_system_dialogs(context)
         if dialog_handled:
-            print(f"[BEFORE_STEP] System dialog was handled before step: '{step.name}'")
             logger.info(f"before_step - System dialog was handled before step: '{step.name}'")
         else:
-            print(f"[BEFORE_STEP] No system dialog handling needed for step: '{step.name}'")
             logger.debug(f"before_step - No system dialog handling needed for step: '{step.name}'")
     except Exception as e:
-        print(f"[BEFORE_STEP] Exception in before_step: {e}")
         logger.error(f"before_step - Exception: {e}")
 
 
 def after_step(context, step):
     """在每个步骤执行后运行"""
-    if step.status == 'failed':
-        logger.error(f"after_step - Step failed: '{step.name}', attempting to get page source")
-        try:
-            if hasattr(context, 'session') and context.session:
-                # 获取页面源码用于调试失败的步骤
-                page_source_result = call_tool_sync(
-                    context,
-                    context.session.call_tool(
-                        name='get_page_source_tree',
-                        arguments={'caller': 'behave-automation'}
-                    ),
-                    timeout=5
-                )
-                page_source_json = get_tool_json(page_source_result)
-                if page_source_json and page_source_json.get('status') == 'success':
-                    page_source = page_source_json.get('data', {}).get('page_source', 'No page source available')
-                    logger.error(f"FAILED STEP PAGE SOURCE for '{step.name}':\n{'-'*80}\n{page_source}\n{'-'*80}")
-                else:
-                    logger.error(f"Failed to get page source for failed step: '{step.name}'")
-            else:
-                logger.error(f"No active session to get page source for failed step: '{step.name}'")
-        except Exception as e:
-            logger.error(f"Exception getting page source for failed step '{step.name}': {e}")
-    else:
-        logger.debug(f"after_step - Step passed: '{step.name}'")
+    pass
 
 
 def handle_system_dialogs(context):
     """处理常见的系统弹窗"""
     try:
         # 目前只处理Edge Canary的弹窗，后续可以慢慢补充
-        button_text = 'Use Edge Canary'  # 移除引号，因为实际按钮文本没有引号
+        button_text = 'Use "Edge Canary"'  # 恢复引号，因为实际按钮文本包含引号
         
         logger.debug("Checking for system dialogs using native macOS methods")
         
@@ -425,143 +360,6 @@ def _try_click_system_dialog_button_native(button_text):
             
     except Exception as e:
         logger.error(f"Exception clicking system dialog with AppleScript: {e}")
-        return False
-def _check_system_dialog_exists_appium(context, button_text):
-    try:
-        # 额外的安全检查
-        if not hasattr(context, 'session') or not context.session:
-            logger.debug("_check_system_dialog_exists - No session available")
-            return False
-        
-        logger.debug(f"_check_system_dialog_exists - Looking for button: '{button_text}'")
-        
-        # 首先获取页面源码用于调试
-        try:
-            page_source_result = call_tool_sync(
-                context,
-                context.session.call_tool(
-                    name='get_page_source_tree',
-                    arguments={'caller': 'behave-automation'}
-                ),
-                timeout=3
-            )
-            page_source_json = get_tool_json(page_source_result)
-            if page_source_json and page_source_json.get('status') == 'success':
-                page_source = page_source_json.get('data', {}).get('page_source', 'No page source available')
-                logger.debug(f"Current page source:\n{page_source[:2000]}...")  # 限制输出长度
-                
-                # 检查页面源码中是否包含目标按钮文本
-                if button_text in page_source:
-                    logger.debug(f"Button text '{button_text}' found in page source")
-                else:
-                    logger.debug(f"Button text '{button_text}' NOT found in page source")
-            else:
-                logger.warning("Failed to get page source for debugging")
-        except Exception as e:
-            logger.error(f"Exception getting page source: {e}")
-            
-        # 使用find_element检查按钮是否存在
-        result = call_tool_sync(
-            context,
-            context.session.call_tool(
-                name='find_element',
-                arguments={
-                    'caller': 'behave-automation',
-                    'locator_value': button_text,
-                    'locator_strategy': 'AppiumBy.NAME',
-                    'step': 'system_dialog_checker',
-                    'step_raw': f'Check system dialog: {button_text}',
-                    'scenario': 'System Dialog Handler',
-                },
-            ),
-            timeout=1  # 更短的超时时间，快速检查
-        )
-        result_json = get_tool_json(result)
-        
-        if result_json:
-            logger.debug(f"find_element result - status: {result_json.get('status')}, error: {result_json.get('error', 'No error')}")
-            if result_json.get('status') == 'success':
-                logger.info(f"Successfully found dialog button: '{button_text}'")
-                return True
-            else:
-                logger.debug(f"Dialog button '{button_text}' not found - {result_json.get('error', 'Unknown reason')}")
-        else:
-            logger.warning("find_element returned no result")
-            
-        return False
-        
-    except Exception as e:
-        # 静默处理异常，因为大多数时候不会有对话框，或者没有活跃的driver会话
-        logger.debug(f'Exception in _check_system_dialog_exists: {e}')
-        return False
-
-
-def _try_click_system_dialog_button_appium(context, button_text):
-    """尝试点击系统对话框按钮"""
-    try:
-        # 额外的安全检查
-        if not hasattr(context, 'session') or not context.session:
-            logger.debug("_try_click_system_dialog_button - No session available")
-            return False
-        
-        logger.debug(f"_try_click_system_dialog_button - Attempting to click: '{button_text}'")
-            
-        # 尝试使用NAME定位器
-        result = call_tool_sync(
-            context,
-            context.session.call_tool(
-                name='click_element',
-                arguments={
-                    'caller': 'behave-automation',
-                    'locator_value': button_text,
-                    'locator_strategy': 'AppiumBy.NAME',
-                    'step': 'system_dialog_handler',
-                    'step_raw': f'Handle system dialog: {button_text}',
-                    'scenario': 'System Dialog Handler',
-                },
-            ),
-            timeout=2  # 更短的超时时间
-        )
-        result_json = get_tool_json(result)
-        
-        if result_json:
-            logger.debug(f"click_element result - status: {result_json.get('status')}, error: {result_json.get('error', 'No error')}")
-            if result_json.get('status') == 'success':
-                logger.info(f"Successfully clicked dialog button: '{button_text}'")
-                import time
-                time.sleep(0.5)  # 短暂等待对话框消失
-                
-                # 点击后再次获取页面源码确认对话框是否消失
-                try:
-                    page_source_result = call_tool_sync(
-                        context,
-                        context.session.call_tool(
-                            name='get_page_source_tree',
-                            arguments={'caller': 'behave-automation'}
-                        ),
-                        timeout=2
-                    )
-                    page_source_json = get_tool_json(page_source_result)
-                    if page_source_json and page_source_json.get('status') == 'success':
-                        page_source = page_source_json.get('data', {}).get('page_source', '')
-                        if button_text not in page_source:
-                            logger.info(f"Dialog successfully dismissed - button '{button_text}' no longer found in page source")
-                        else:
-                            logger.warning(f"Dialog may still be present - button '{button_text}' still found in page source")
-                except Exception as e:
-                    logger.error(f"Exception checking page source after click: {e}")
-                
-                return True
-            else:
-                logger.warning(f"Failed to click dialog button: {result_json.get('error', 'Unknown error')}")
-        else:
-            logger.warning("click_element returned no result")
-            
-        return False
-        
-    except Exception as e:
-        # 静默处理异常，因为大多数时候不会有对话框，或者没有活跃的driver会话
-        logger.debug(f'Exception in _try_click_system_dialog_button: {e}')
         return False
 
 
