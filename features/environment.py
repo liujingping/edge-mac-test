@@ -1,5 +1,6 @@
 import json
 import re
+import sys
 import time
 import threading
 import asyncio
@@ -61,6 +62,7 @@ def before_all(context):
     # 重新配置日志，确保在behave初始化后仍然有效
     logger.handlers.clear()
     logger.setLevel(logging.DEBUG)
+    logger.propagate = False  # 防止传播到根logger，避免重复日志
     
     # 添加控制台处理器
     console_handler = logging.StreamHandler()
@@ -253,49 +255,12 @@ def after_step(context, step):
 def handle_system_dialogs(context):
     """处理常见的系统弹窗"""
     try:
-        # 检查context是否有session，如果没有则跳过
-        if not hasattr(context, 'session') or not context.session:
-            logger.debug("No MCP session available, skipping dialog handling")
-            return False
-        
-        # 检查是否有活跃的driver会话，如果没有则跳过
-        # 通过调用app_state来检查driver是否可用
-        try:
-            result = call_tool_sync(
-                context,
-                context.session.call_tool(
-                    name='app_state',
-                    arguments={'caller': 'behave-automation'}
-                ),
-                timeout=1
-            )
-            result_json = get_tool_json(result)
-            if not result_json or result_json.get('status') != 'success':
-                # app_state调用失败，跳过对话框处理
-                logger.debug("app_state call failed, skipping dialog handling")
-                return False
-            
-            # 检查app_state返回的数据，如果键盘状态是"information not available"
-            # 这通常表示driver会话无效
-            data = result_json.get('data', {})
-            keyboard_status = data.get('is_keyboard_show', '')
-            logger.debug(f"app_state result - keyboard_status: '{keyboard_status}', full data: {data}")
-            if keyboard_status == 'information not available':
-                # driver会话无效，跳过对话框处理
-                logger.debug("Driver session invalid (keyboard info not available), skipping dialog handling")
-                return False
-                
-        except Exception:
-            # 如果app_state调用失败，说明没有活跃会话，跳过对话框处理
-            logger.debug("Exception during app_state check, skipping dialog handling")
-            return False
-            
         # 目前只处理Edge Canary的弹窗，后续可以慢慢补充
         button_text = 'Use "Edge Canary"'
         
-        logger.debug("Driver session active, checking for system dialogs")
+        logger.debug("Checking for system dialogs using native macOS methods")
         
-        # 先检查弹窗是否存在 - 使用原生方法而不是Appium
+        # 直接使用原生方法检查和处理系统对话框，不依赖Appium driver状态
         dialog_exists = _check_system_dialog_exists_native(button_text)
         logger.debug(f"Dialog existence check result: {dialog_exists}")
         
@@ -328,41 +293,46 @@ def _check_system_dialog_exists_native(button_text):
         tell application "System Events"
             set dialogExists to false
             set processNames to {{}}
+            set dialogInfo to ""
             try
                 -- 获取所有进程名称用于调试
                 set allProcesses to every process
                 repeat with aProcess in allProcesses
-                    set processNames to processNames & name of aProcess
+                    set processNames to processNames & name of aProcess & ","
                 end repeat
                 
                 -- 检查可能包含系统对话框的进程
                 set targetProcesses to every process whose name contains "CoreServicesUIAgent" or name contains "UserNotificationCenter" or name contains "loginwindow" or name contains "SecurityAgent" or name contains "authd"
                 
                 repeat with aProcess in targetProcesses
+                    set processName to name of aProcess
                     set theWindows to every window of aProcess
+                    set dialogInfo to dialogInfo & "Process:" & processName & ",Windows:" & (count of theWindows) & ";"
                     repeat with aWindow in theWindows
                         try
                             set theButtons to every button of aWindow
                             repeat with aButton in theButtons
                                 set buttonName to name of aButton
+                                set dialogInfo to dialogInfo & "Button:" & buttonName & ";"
                                 if buttonName contains "{button_text}" then
                                     set dialogExists to true
+                                    set dialogInfo to dialogInfo & "FOUND_TARGET_BUTTON!"
                                     exit repeat
                                 end if
                             end repeat
                             if dialogExists then exit repeat
-                        on error
-                            -- 忽略无法访问的窗口
+                        on error buttonError
+                            set dialogInfo to dialogInfo & "ButtonError:" & buttonError & ";"
                         end try
                     end repeat
                     if dialogExists then exit repeat
                 end repeat
             on error errMsg
-                -- 记录错误但继续
+                set dialogInfo to dialogInfo & "MainError:" & errMsg & ";"
             end try
             
             -- 返回结果和调试信息
-            return (dialogExists as string) & "|PROCESSES:" & (processNames as string)
+            return (dialogExists as string) & "|PROCESSES:" & processNames & "|DIALOGS:" & dialogInfo
         end tell
         '''
         
@@ -370,16 +340,24 @@ def _check_system_dialog_exists_native(button_text):
             ['osascript', '-e', script], 
             capture_output=True, 
             text=True, 
-            timeout=10
+            timeout=15
         )
         
         if result.returncode == 0:
             output = result.stdout.strip()
-            parts = output.split('|PROCESSES:')
+            logger.debug(f"AppleScript output: {output}")
+            
+            parts = output.split('|')
             dialog_found = parts[0] == 'true'
             
-            if len(parts) > 1:
-                logger.debug(f"Available processes: {parts[1][:500]}...")  # 限制长度
+            # 记录详细的调试信息
+            for part in parts[1:]:
+                if part.startswith('PROCESSES:'):
+                    processes = part[10:200]  # 限制长度
+                    logger.debug(f"Available processes: {processes}")
+                elif part.startswith('DIALOGS:'):
+                    dialogs = part[8:]
+                    logger.debug(f"Dialog details: {dialogs}")
             
             logger.debug(f"System dialog check result: {dialog_found}")
             return dialog_found
