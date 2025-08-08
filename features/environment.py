@@ -57,6 +57,26 @@ def load_mcp_config():
 
 def before_all(context):
     import threading
+    
+    # 重新配置日志，确保在behave初始化后仍然有效
+    logger.handlers.clear()
+    logger.setLevel(logging.DEBUG)
+    
+    # 添加控制台处理器
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.DEBUG)
+    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
+    
+    # 添加文件处理器
+    file_handler = logging.FileHandler('behave_debug.log', mode='a')
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(console_formatter)
+    logger.addHandler(file_handler)
+    
+    logger.info("before_all - Logging configured successfully")
+    print("[BEFORE_ALL] Logging configured successfully")
 
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
@@ -179,12 +199,26 @@ def before_scenario(context, scenario):
 
 def before_step(context, step):
     """在每个步骤执行前运行"""   
-    logger.debug(f"before_step - Executing step: '{step.name}'")
-    dialog_handled = handle_system_dialogs(context)
-    if dialog_handled:
-        logger.info(f"before_step - System dialog was handled before step: '{step.name}'")
-    else:
-        logger.debug(f"before_step - No system dialog handling needed for step: '{step.name}'")
+    # 使用多种方式确保日志能够被看到
+    print(f"[BEFORE_STEP] Executing step: '{step.name}'")  # 直接print到控制台
+    logger.info(f"before_step - Executing step: '{step.name}'")  # 改为info级别
+    logger.debug(f"before_step - Debug log test")
+    
+    # 强制刷新日志
+    import sys
+    sys.stdout.flush()
+    
+    try:
+        dialog_handled = handle_system_dialogs(context)
+        if dialog_handled:
+            print(f"[BEFORE_STEP] System dialog was handled before step: '{step.name}'")
+            logger.info(f"before_step - System dialog was handled before step: '{step.name}'")
+        else:
+            print(f"[BEFORE_STEP] No system dialog handling needed for step: '{step.name}'")
+            logger.debug(f"before_step - No system dialog handling needed for step: '{step.name}'")
+    except Exception as e:
+        print(f"[BEFORE_STEP] Exception in before_step: {e}")
+        logger.error(f"before_step - Exception: {e}")
 
 
 def after_step(context, step):
