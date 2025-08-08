@@ -48,28 +48,19 @@ def load_mcp_config():
 
 def before_all(context):
     import threading
-
-        
-    # 配置日志 - 只在 before_all 中配置一次
+    
+    # 配置日志 - 简化版本
     logger.handlers.clear()
-    logger.setLevel(logging.DEBUG)
-    logger.propagate = False  # 防止传播到根logger，避免重复日志
+    logger.setLevel(logging.DEBUG)  # Logger 级别控制
+    logger.propagate = False
     
-    # 添加控制台和文件处理器
+    # 添加控制台处理器（使用 Logger 的级别，不重复设置）
     formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
     
-    # file_handler = logging.FileHandler('behave_debug.log', mode='a')
-    # file_handler.setLevel(logging.DEBUG)
-    # file_handler.setFormatter(formatter)
-    # logger.addHandler(file_handler)
-    
     logger.info("Logging configured successfully")
-
 
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
@@ -278,7 +269,8 @@ def _check_system_dialog_exists_native(button_text):
                             repeat with aButton in theButtons
                                 set buttonName to name of aButton
                                 set dialogInfo to dialogInfo & "Button:" & buttonName & ";"
-                                if buttonName contains "{escaped_button_text}" then
+                                -- 使用精确匹配而不是contains
+                                if buttonName is equal to "{escaped_button_text}" then
                                     set dialogExists to true
                                     set dialogInfo to dialogInfo & "FOUND_TARGET_BUTTON!"
                                     exit repeat
@@ -353,7 +345,8 @@ def _try_click_system_dialog_button_native(button_text):
                     try
                         set theButtons to every button of aDialog
                         repeat with aButton in theButtons
-                            if name of aButton contains "{escaped_button_text}" then
+                            -- 使用精确匹配而不是contains
+                            if name of aButton is equal to "{escaped_button_text}" then
                                 click aButton
                                 set buttonClicked to true
                                 exit repeat
