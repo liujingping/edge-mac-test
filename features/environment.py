@@ -46,9 +46,11 @@ def load_mcp_config():
         if server_name.startswith('bdd-auto-mcp'):
             command = server_config.get('command')
             args = server_config.get('args', [])
+            env = server_config.get('env', {})
             logger.info(f'Found MCP server configuration: command={command}')
             logger.info(f'Found MCP server configuration: args={args}')
-            return command, args
+            logger.info(f'Found MCP server configuration: env={env}')
+            return command, args, env
 
     raise ValueError('No bdd-auto-mcp server configuration found in mcp.json')
 
@@ -69,12 +71,12 @@ def before_all(context):
                 if TRANSPORT == 'stdio':
                     logger.info('Using stdio transport for MCP server')
                     # Load configuration from mcp.json
-                    command, args = load_mcp_config()
+                    command, args, env = load_mcp_config()
                     logger.info(f'Loading MCP server with command: {command}')
                     logger.info(f'Args: {args}')
 
                     # Define MCP server parameters
-                    server_params = StdioServerParameters(command=command, args=args)
+                    server_params = StdioServerParameters(command=command, args=args, env=env)
 
                     # Connect to server using stdio_client
                     async with stdio_client(server_params) as streams:
@@ -259,13 +261,13 @@ def handle_system_dialogs(context):
         
         logger.debug("Driver session active, checking for system dialogs")
         
-        # 先检查弹窗是否存在
-        dialog_exists = _check_system_dialog_exists(context, button_text)
+        # 先检查弹窗是否存在 - 使用原生方法而不是Appium
+        dialog_exists = _check_system_dialog_exists_native(button_text)
         logger.debug(f"Dialog existence check result: {dialog_exists}")
         
         if dialog_exists:
-            # 如果存在，则点击
-            click_success = _try_click_system_dialog_button(context, button_text)
+            # 如果存在，则点击 - 使用原生方法
+            click_success = _try_click_system_dialog_button_native(button_text)
             logger.debug(f"Dialog click result: {click_success}")
             if click_success:
                 logger.info(f"Handled system dialog by clicking '{button_text}'")
@@ -282,8 +284,131 @@ def handle_system_dialogs(context):
         return False
 
 
-def _check_system_dialog_exists(context, button_text):
-    """检查系统对话框是否存在"""
+def _check_system_dialog_exists_native(button_text):
+    """使用macOS原生方法检查系统对话框是否存在"""
+    try:
+        logger.debug(f"Checking for system dialog with button text: '{button_text}'")
+        
+        # 使用osascript检查系统对话框 - 更全面的进程检查
+        script = f'''
+        tell application "System Events"
+            set dialogExists to false
+            set processNames to {{}}
+            try
+                -- 获取所有进程名称用于调试
+                set allProcesses to every process
+                repeat with aProcess in allProcesses
+                    set processNames to processNames & name of aProcess
+                end repeat
+                
+                -- 检查可能包含系统对话框的进程
+                set targetProcesses to every process whose name contains "CoreServicesUIAgent" or name contains "UserNotificationCenter" or name contains "loginwindow" or name contains "SecurityAgent" or name contains "authd"
+                
+                repeat with aProcess in targetProcesses
+                    set theWindows to every window of aProcess
+                    repeat with aWindow in theWindows
+                        try
+                            set theButtons to every button of aWindow
+                            repeat with aButton in theButtons
+                                set buttonName to name of aButton
+                                if buttonName contains "{button_text}" then
+                                    set dialogExists to true
+                                    exit repeat
+                                end if
+                            end repeat
+                            if dialogExists then exit repeat
+                        on error
+                            -- 忽略无法访问的窗口
+                        end try
+                    end repeat
+                    if dialogExists then exit repeat
+                end repeat
+            on error errMsg
+                -- 记录错误但继续
+            end try
+            
+            -- 返回结果和调试信息
+            return (dialogExists as string) & "|PROCESSES:" & (processNames as string)
+        end tell
+        '''
+        
+        result = subprocess.run(
+            ['osascript', '-e', script], 
+            capture_output=True, 
+            text=True, 
+            timeout=10
+        )
+        
+        if result.returncode == 0:
+            output = result.stdout.strip()
+            parts = output.split('|PROCESSES:')
+            dialog_found = parts[0] == 'true'
+            
+            if len(parts) > 1:
+                logger.debug(f"Available processes: {parts[1][:500]}...")  # 限制长度
+            
+            logger.debug(f"System dialog check result: {dialog_found}")
+            return dialog_found
+        else:
+            logger.warning(f"AppleScript error checking dialog: {result.stderr}")
+            return False
+            
+    except subprocess.TimeoutExpired:
+        logger.warning("AppleScript timeout while checking system dialog")
+        return False
+    except Exception as e:
+        logger.error(f"Exception checking system dialog with AppleScript: {e}")
+        return False
+
+
+def _try_click_system_dialog_button_native(button_text):
+    """使用macOS原生方法点击系统对话框按钮"""
+    try:
+        # 使用osascript点击系统对话框按钮
+        script = f'''
+        tell application "System Events"
+            set buttonClicked to false
+            try
+                set theDialogs to every window of every process whose name contains "CoreServicesUIAgent" or name contains "UserNotificationCenter" or name contains "loginwindow"
+                repeat with aDialog in theDialogs
+                    try
+                        set theButtons to every button of aDialog
+                        repeat with aButton in theButtons
+                            if name of aButton contains "{button_text}" then
+                                click aButton
+                                set buttonClicked to true
+                                exit repeat
+                            end if
+                        end repeat
+                        if buttonClicked then exit repeat
+                    end try
+                end repeat
+            end try
+            return buttonClicked
+        end tell
+        '''
+        
+        result = subprocess.run(
+            ['osascript', '-e', script], 
+            capture_output=True, 
+            text=True, 
+            timeout=10
+        )
+        
+        if result.returncode == 0:
+            clicked = result.stdout.strip() == 'true'
+            if clicked:
+                logger.info(f"Successfully clicked system dialog button '{button_text}' using AppleScript")
+                time.sleep(0.5)  # 等待对话框消失
+            return clicked
+        else:
+            logger.warning(f"AppleScript error clicking dialog: {result.stderr}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Exception clicking system dialog with AppleScript: {e}")
+        return False
+def _check_system_dialog_exists_appium(context, button_text):
     try:
         # 额外的安全检查
         if not hasattr(context, 'session') or not context.session:
@@ -353,7 +478,7 @@ def _check_system_dialog_exists(context, button_text):
         return False
 
 
-def _try_click_system_dialog_button(context, button_text):
+def _try_click_system_dialog_button_appium(context, button_text):
     """尝试点击系统对话框按钮"""
     try:
         # 额外的安全检查
