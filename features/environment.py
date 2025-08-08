@@ -1,42 +1,48 @@
 import json
+import re
 import time
 import threading
 import asyncio
 import janus
 import queue
 import pathlib
+import os
+import subprocess
+from datetime import datetime
 from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client, StdioServerParameters
 
 session_ready = threading.Event()
-TRANSPORT = "stdio"  # Default transport method, can be changed to "sse" if needed
+TRANSPORT = 'stdio'  # Default transport method, can be changed to "sse" if needed
+
 
 def load_mcp_config():
     current_dir = pathlib.Path(__file__).parent.parent
-    mcp_config_path = current_dir / ".vscode" / "mcp.json"
-    
+    mcp_config_path = current_dir / '.vscode' / 'mcp.json'
+
     if not mcp_config_path.exists():
-        raise FileNotFoundError(f"MCP config file not found: {mcp_config_path}")
-    
+        raise FileNotFoundError(f'MCP config file not found: {mcp_config_path}')
+
     with open(mcp_config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
-    
+
     # Find server configuration starting with bdd-auto-mcp
-    servers = config.get("servers", {})
+    servers = config.get('servers', {})
     for server_name, server_config in servers.items():
-        if server_name.startswith("bdd-auto-mcp"):
-            command = server_config.get("command")
-            args = server_config.get("args", [])
-            print(f"Found MCP server configuration: command={command}")
-            print(f"Found MCP server configuration: args={args}")
+        if server_name.startswith('bdd-auto-mcp'):
+            command = server_config.get('command')
+            args = server_config.get('args', [])
+            print(f'Found MCP server configuration: command={command}')
+            print(f'Found MCP server configuration: args={args}')
             return command, args
-    
-    raise ValueError("No bdd-auto-mcp server configuration found in mcp.json")
+
+    raise ValueError('No bdd-auto-mcp server configuration found in mcp.json')
 
 
 def before_all(context):
     import threading
+
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
     session_ready = threading.Event()
@@ -47,19 +53,16 @@ def before_all(context):
 
         async def mcp_worker():
             try:
-                if TRANSPORT == "stdio":
-                    print("Using stdio transport for MCP server")
+                if TRANSPORT == 'stdio':
+                    print('Using stdio transport for MCP server')
                     # Load configuration from mcp.json
                     command, args = load_mcp_config()
-                    print(f"Loading MCP server with command: {command}")
-                    print(f"Args: {args}")
-                    
+                    print(f'Loading MCP server with command: {command}')
+                    print(f'Args: {args}')
+
                     # Define MCP server parameters
-                    server_params = StdioServerParameters(
-                        command=command,
-                        args=args
-                    )
-                    
+                    server_params = StdioServerParameters(command=command, args=args)
+
                     # Connect to server using stdio_client
                     async with stdio_client(server_params) as streams:
                         async with ClientSession(*streams) as session:
@@ -76,10 +79,10 @@ def before_all(context):
                                 result = await coro
                                 await context._result_queue.async_q.put(result)
                 else:
-                    print("Using SSE transport for MCP server")
+                    print('Using SSE transport for MCP server')
                     # Connect to server using sse_client
-                    print("Connecting to SSE server at http://localhost:8000/sse")
-                    async with sse_client("http://localhost:8000/sse") as streams:
+                    print('Connecting to SSE server at http://localhost:8000/sse')
+                    async with sse_client('http://localhost:8000/sse') as streams:
                         async with ClientSession(*streams) as session:
                             await session.initialize()
                             context.session = session
@@ -96,7 +99,7 @@ def before_all(context):
                                 await context._result_queue.async_q.put(result)
 
             except Exception as e:
-                print(f"MCP init failed: {repr(e)}")
+                print(f'MCP init failed: {repr(e)}')
                 session_ready.set()
 
         loop.run_until_complete(mcp_worker())
@@ -107,10 +110,8 @@ def before_all(context):
     session_ready.wait()
 
 
-
-
 def after_all(context):
-    if hasattr(context, "_task_queue"):
+    if hasattr(context, '_task_queue'):
         context._task_queue.sync_q.put_nowait(None)
 
 
@@ -123,7 +124,7 @@ def call_tool_sync(context, coro, timeout=400):
             return result
         except queue.Empty:
             if time.time() - start > timeout:
-                raise TimeoutError("MCP tool invocation timed out.")
+                raise TimeoutError('MCP tool invocation timed out.')
             time.sleep(0.1)
 
 
@@ -131,15 +132,15 @@ def get_tool_json(result):
     try:
         if isinstance(result, str):
             return result
-        items = getattr(result, "content", None)
+        items = getattr(result, 'content', None)
         if items:
             for item in items:
-                if getattr(item, "text", None):
-                    text = getattr(item, "text", None)
+                if getattr(item, 'text', None):
+                    text = getattr(item, 'text', None)
                     return json.loads(text)
     except Exception as e:
-        print(f"Error getting tool JSON: {e}")
-        
+        print(f'Error getting tool JSON: {e}')
+
     return None
 
 
@@ -157,22 +158,98 @@ def before_scenario(context, scenario):
     #     pass
     # except Exception as e:
     #     print(f"Warning: app_launch error: {str(e)}")
-        #Allow the test to continue even if this fails
-        pass
+    # Allow the test to continue even if this fails
+    pass
+
+
+def take_screenshot(scenario_name):
+    """
+    Take a full screen screenshot on macOS and save it with the scenario name
+    Screenshot naming convention: *{test_name}*.png
+    Storage location: SCREENSHOT_DIR environment variable
+    """
+    try:
+        # Get screenshot directory from environment variable
+        screenshot_dir = os.environ.get('SCREENSHOT_DIR')
+        if not screenshot_dir:
+            # Fallback to default location if env var not set
+            current_dir = pathlib.Path(__file__).parent.parent
+            screenshot_dir = current_dir / 'screenshots'
+            print(
+                f'⚠️  SCREENSHOT_DIR environment variable not set, using default: {screenshot_dir}'
+            )
+        else:
+            screenshot_dir = pathlib.Path(screenshot_dir)
+
+        # Create screenshots directory if it doesn't exist
+        screenshot_dir.mkdir(parents=True, exist_ok=True)
+
+        # Get testcase name (scenario_name is the testcase name)
+        name = scenario_name
+
+        # Clean test name for use as filename - replace spaces with underscores
+        # Screenshot naming convention: *{test_name}*.png
+        test_name_pattern = clean_test_name(name)
+
+        # Add timestamp to avoid filename conflicts while following the pattern
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f'{test_name_pattern}_{timestamp}.png'
+
+        # Full path for the screenshot
+        screenshot_path = screenshot_dir / filename
+
+        # Use macOS screencapture command to take full screen screenshot
+        cmd = ['screencapture', '-x', str(screenshot_path)]
+        result = subprocess.run(cmd, capture_output=True, text=True)
+
+        if result.returncode == 0:
+            print(f'📸 Screenshot saved: {screenshot_path}')
+            print(f'📁 Screenshot pattern: *{test_name_pattern}*.png')
+            return str(screenshot_path)
+        else:
+            print(f'❌ Screenshot failed: {result.stderr}')
+            return None
+
+    except Exception as e:
+        print(f'💥 Error taking screenshot: {str(e)}')
+        return None
+
 
 def after_scenario(context, scenario):
-    # context.scenario = scenario
-    # try:
-    #     result = call_tool_sync(context, context.session.call_tool(name="app_close", arguments={"caller": "behave"}), timeout=60)
-    #     # Add error checking
-    #     tool_json = get_tool_json(result)
-    #     if tool_json and tool_json.get("status") != "success":
-    #         print(f"Warning: app_close failed with error: {tool_json.get('error')}")
-    # except TimeoutError as e:
-    #     print(f"Warning: app_close timed out: {str(e)}")
-    #     # Continue even if this fails
-    #     pass
-    # except Exception as e:
-    #     print(f"Warning: app_close error: {str(e)}")
-    #     # Continue even if this fails
-        pass
+    # Take screenshot after scenario completion
+    try:
+        screenshot_path = take_screenshot(scenario.name)
+        if screenshot_path:
+            print(f'Screenshot captured for scenario: {scenario.name}')
+    except Exception as e:
+        print(f'Warning: Screenshot failed for scenario {scenario.name}: {str(e)}')
+
+
+def clean_test_name(name):
+    """
+    Clean test case name by removing/replacing special characters
+    
+    Args:
+        name: Original test case name
+        
+    Returns:
+        str: Cleaned name suitable for file pattern matching
+    """
+    if not name:
+        return ""
+    
+    # Replace common problematic characters with underscore
+    # Keep only alphanumeric, underscore, hyphen, and space
+    cleaned = re.sub(r'[^\w\s\-]', '_', name)
+    
+    # Replace multiple spaces with single space, then replace spaces with underscore
+    cleaned = re.sub(r'\s+', ' ', cleaned).strip()
+    cleaned = cleaned.replace(' ', '_')
+    
+    # Replace multiple underscores with single underscore
+    cleaned = re.sub(r'_+', '_', cleaned)
+    
+    # Remove leading and trailing underscores
+    cleaned = cleaned.strip('_')
+    
+    return cleaned
