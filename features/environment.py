@@ -164,7 +164,41 @@ def before_scenario(context, scenario):
 
 def before_step(context, step):
     """在每个步骤执行前运行"""   
-    handle_system_dialogs(context)
+    print(f"DEBUG: before_step - Executing step: '{step.name}'")
+    dialog_handled = handle_system_dialogs(context)
+    if dialog_handled:
+        print(f"DEBUG: before_step - System dialog was handled before step: '{step.name}'")
+    else:
+        print(f"DEBUG: before_step - No system dialog handling needed for step: '{step.name}'")
+
+
+def after_step(context, step):
+    """在每个步骤执行后运行"""
+    if step.status == 'failed':
+        print(f"DEBUG: after_step - Step failed: '{step.name}', attempting to get page source")
+        try:
+            if hasattr(context, 'session') and context.session:
+                # 获取页面源码用于调试失败的步骤
+                page_source_result = call_tool_sync(
+                    context,
+                    context.session.call_tool(
+                        name='get_page_source_tree',
+                        arguments={'caller': 'behave-automation'}
+                    ),
+                    timeout=5
+                )
+                page_source_json = get_tool_json(page_source_result)
+                if page_source_json and page_source_json.get('status') == 'success':
+                    page_source = page_source_json.get('data', {}).get('page_source', 'No page source available')
+                    print(f"DEBUG: FAILED STEP PAGE SOURCE for '{step.name}':\n{'-'*80}\n{page_source}\n{'-'*80}")
+                else:
+                    print(f"DEBUG: Failed to get page source for failed step: '{step.name}'")
+            else:
+                print(f"DEBUG: No active session to get page source for failed step: '{step.name}'")
+        except Exception as e:
+            print(f"DEBUG: Exception getting page source for failed step '{step.name}': {e}")
+    else:
+        print(f"DEBUG: after_step - Step passed: '{step.name}'")
 
 
 def handle_system_dialogs(context):
@@ -196,6 +230,7 @@ def handle_system_dialogs(context):
             # 这通常表示driver会话无效
             data = result_json.get('data', {})
             keyboard_status = data.get('is_keyboard_show', '')
+            print(f"DEBUG: app_state result - keyboard_status: '{keyboard_status}', full data: {data}")
             if keyboard_status == 'information not available':
                 # driver会话无效，跳过对话框处理
                 print("DEBUG: Driver session invalid (keyboard info not available), skipping dialog handling")
@@ -212,11 +247,20 @@ def handle_system_dialogs(context):
         print("DEBUG: Driver session active, checking for system dialogs")
         
         # 先检查弹窗是否存在
-        if _check_system_dialog_exists(context, button_text):
+        dialog_exists = _check_system_dialog_exists(context, button_text)
+        print(f"DEBUG: Dialog existence check result: {dialog_exists}")
+        
+        if dialog_exists:
             # 如果存在，则点击
-            if _try_click_system_dialog_button(context, button_text):
+            click_success = _try_click_system_dialog_button(context, button_text)
+            print(f"DEBUG: Dialog click result: {click_success}")
+            if click_success:
                 print(f"DEBUG: Handled system dialog by clicking '{button_text}'")
                 return True
+            else:
+                print(f"DEBUG: Failed to handle system dialog '{button_text}'")
+        else:
+            print("DEBUG: No system dialogs found")
                     
         return False
         
@@ -230,7 +274,35 @@ def _check_system_dialog_exists(context, button_text):
     try:
         # 额外的安全检查
         if not hasattr(context, 'session') or not context.session:
+            print("DEBUG: _check_system_dialog_exists - No session available")
             return False
+        
+        print(f"DEBUG: _check_system_dialog_exists - Looking for button: '{button_text}'")
+        
+        # 首先获取页面源码用于调试
+        try:
+            page_source_result = call_tool_sync(
+                context,
+                context.session.call_tool(
+                    name='get_page_source_tree',
+                    arguments={'caller': 'behave-automation'}
+                ),
+                timeout=3
+            )
+            page_source_json = get_tool_json(page_source_result)
+            if page_source_json and page_source_json.get('status') == 'success':
+                page_source = page_source_json.get('data', {}).get('page_source', 'No page source available')
+                print(f"DEBUG: Current page source:\n{page_source[:2000]}...")  # 限制输出长度
+                
+                # 检查页面源码中是否包含目标按钮文本
+                if button_text in page_source:
+                    print(f"DEBUG: Button text '{button_text}' found in page source")
+                else:
+                    print(f"DEBUG: Button text '{button_text}' NOT found in page source")
+            else:
+                print("DEBUG: Failed to get page source for debugging")
+        except Exception as e:
+            print(f"DEBUG: Exception getting page source: {e}")
             
         # 使用find_element检查按钮是否存在
         result = call_tool_sync(
@@ -249,7 +321,18 @@ def _check_system_dialog_exists(context, button_text):
             timeout=1  # 更短的超时时间，快速检查
         )
         result_json = get_tool_json(result)
-        return result_json and result_json.get('status') == 'success'
+        
+        if result_json:
+            print(f"DEBUG: find_element result - status: {result_json.get('status')}, error: {result_json.get('error', 'No error')}")
+            if result_json.get('status') == 'success':
+                print(f"DEBUG: Successfully found dialog button: '{button_text}'")
+                return True
+            else:
+                print(f"DEBUG: Dialog button '{button_text}' not found - {result_json.get('error', 'Unknown reason')}")
+        else:
+            print("DEBUG: find_element returned no result")
+            
+        return False
         
     except Exception as e:
         # 静默处理异常，因为大多数时候不会有对话框，或者没有活跃的driver会话
@@ -262,7 +345,10 @@ def _try_click_system_dialog_button(context, button_text):
     try:
         # 额外的安全检查
         if not hasattr(context, 'session') or not context.session:
+            print("DEBUG: _try_click_system_dialog_button - No session available")
             return False
+        
+        print(f"DEBUG: _try_click_system_dialog_button - Attempting to click: '{button_text}'")
             
         # 尝试使用NAME定位器
         result = call_tool_sync(
@@ -281,10 +367,39 @@ def _try_click_system_dialog_button(context, button_text):
             timeout=2  # 更短的超时时间
         )
         result_json = get_tool_json(result)
-        if result_json and result_json.get('status') == 'success':
-            import time
-            time.sleep(0.5)  # 短暂等待对话框消失
-            return True
+        
+        if result_json:
+            print(f"DEBUG: click_element result - status: {result_json.get('status')}, error: {result_json.get('error', 'No error')}")
+            if result_json.get('status') == 'success':
+                print(f"DEBUG: Successfully clicked dialog button: '{button_text}'")
+                import time
+                time.sleep(0.5)  # 短暂等待对话框消失
+                
+                # 点击后再次获取页面源码确认对话框是否消失
+                try:
+                    page_source_result = call_tool_sync(
+                        context,
+                        context.session.call_tool(
+                            name='get_page_source_tree',
+                            arguments={'caller': 'behave-automation'}
+                        ),
+                        timeout=2
+                    )
+                    page_source_json = get_tool_json(page_source_result)
+                    if page_source_json and page_source_json.get('status') == 'success':
+                        page_source = page_source_json.get('data', {}).get('page_source', '')
+                        if button_text not in page_source:
+                            print(f"DEBUG: Dialog successfully dismissed - button '{button_text}' no longer found in page source")
+                        else:
+                            print(f"DEBUG: Dialog may still be present - button '{button_text}' still found in page source")
+                except Exception as e:
+                    print(f"DEBUG: Exception checking page source after click: {e}")
+                
+                return True
+            else:
+                print(f"DEBUG: Failed to click dialog button: {result_json.get('error', 'Unknown error')}")
+        else:
+            print("DEBUG: click_element returned no result")
             
         return False
         
