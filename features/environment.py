@@ -228,28 +228,28 @@ def after_scenario(context, scenario):
 def clean_test_name(name):
     """
     Clean test case name by removing/replacing special characters
-    
+
     Args:
         name: Original test case name
-        
+
     Returns:
         str: Cleaned name suitable for file pattern matching
     """
     if not name:
-        return ""
-    
+        return ''
+
     # Replace common problematic characters with underscore
     # Keep only alphanumeric, underscore, hyphen, and space
     cleaned = re.sub(r'[^\w\s\-]', '_', name)
-    
+
     # Replace multiple spaces with single space, then replace spaces with underscore
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
     cleaned = cleaned.replace(' ', '_')
-    
+
     # Replace multiple underscores with single underscore
     cleaned = re.sub(r'_+', '_', cleaned)
-    
+
     # Remove leading and trailing underscores
     cleaned = cleaned.strip('_')
-    
+
     return cleaned
