@@ -887,7 +887,9 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('edge should open with "edge://settings/startHomeNTP","www.bing.com" and "www.google.com"')
+@then(
+    'edge should open with "edge://settings/startHomeNTP","www.bing.com" and "www.google.com"'
+)
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -1244,7 +1246,9 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click the "More actions" button next to the custom site "https://www.bing.com"')
+@when(
+    'I click the "More actions" button next to the custom site "https://www.bing.com"'
+)
 def step_impl(context):
     result = call_tool_sync(
         context,

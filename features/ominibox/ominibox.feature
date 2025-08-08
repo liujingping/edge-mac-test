@@ -104,7 +104,7 @@ Feature: ominibox
 # When I select all text in address bar
 # And I press "delete" to delete the selected text
 # Then the address bar should be empty
-# When I press "cmd+Z" to undo the delete action  
+# When I press "cmd+Z" to undo the delete action
 # Then "https://www.apple.com" should be displayed in the address bar
 # When I press "cmd+Y" to redo the delete action
 # Then the address bar should be empty
