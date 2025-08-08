@@ -288,6 +288,9 @@ def _check_system_dialog_exists_native(button_text):
     try:
         logger.debug(f"Checking for system dialog with button text: '{button_text}'")
         
+        # 转义AppleScript中的引号
+        escaped_button_text = button_text.replace('"', '\\"')
+        
         # 使用osascript检查系统对话框 - 更全面的进程检查
         script = f'''
         tell application "System Events"
@@ -314,7 +317,7 @@ def _check_system_dialog_exists_native(button_text):
                             repeat with aButton in theButtons
                                 set buttonName to name of aButton
                                 set dialogInfo to dialogInfo & "Button:" & buttonName & ";"
-                                if buttonName contains "{button_text}" then
+                                if buttonName contains "{escaped_button_text}" then
                                     set dialogExists to true
                                     set dialogInfo to dialogInfo & "FOUND_TARGET_BUTTON!"
                                     exit repeat
@@ -376,6 +379,9 @@ def _check_system_dialog_exists_native(button_text):
 def _try_click_system_dialog_button_native(button_text):
     """使用macOS原生方法点击系统对话框按钮"""
     try:
+        # 转义AppleScript中的引号
+        escaped_button_text = button_text.replace('"', '\\"')
+        
         # 使用osascript点击系统对话框按钮
         script = f'''
         tell application "System Events"
@@ -386,7 +392,7 @@ def _try_click_system_dialog_button_native(button_text):
                     try
                         set theButtons to every button of aDialog
                         repeat with aButton in theButtons
-                            if name of aButton contains "{button_text}" then
+                            if name of aButton contains "{escaped_button_text}" then
                                 click aButton
                                 set buttonClicked to true
                                 exit repeat
