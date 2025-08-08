@@ -164,13 +164,16 @@ def before_scenario(context, scenario):
 
 def before_step(context, step):
     """在每个步骤执行前运行"""   
-    # 处理系统弹窗
     handle_system_dialogs(context)
 
 
 def handle_system_dialogs(context):
     """处理常见的系统弹窗"""
     try:
+        # 检查context是否有session，如果没有则跳过
+        if not hasattr(context, 'session') or not context.session:
+            return False
+            
         # 目前只处理Edge Canary的弹窗，后续可以慢慢补充
         button_text = 'Use "Edge Canary"'
         
@@ -191,6 +194,10 @@ def handle_system_dialogs(context):
 def _check_system_dialog_exists(context, button_text):
     """检查系统对话框是否存在"""
     try:
+        # 额外的安全检查
+        if not hasattr(context, 'session') or not context.session:
+            return False
+            
         # 使用find_element检查按钮是否存在
         result = call_tool_sync(
             context,
@@ -205,18 +212,23 @@ def _check_system_dialog_exists(context, button_text):
                     'scenario': 'System Dialog Handler',
                 },
             ),
-            timeout=2  # 很短的超时时间，只是检查存在性
+            timeout=1  # 更短的超时时间，快速检查
         )
         result_json = get_tool_json(result)
         return result_json and result_json.get('status') == 'success'
         
     except Exception as e:
+        print(f'DEBUG: Exception in _check_system_dialog_exists: {e}')
         return False
 
 
 def _try_click_system_dialog_button(context, button_text):
     """尝试点击系统对话框按钮"""
     try:
+        # 额外的安全检查
+        if not hasattr(context, 'session') or not context.session:
+            return False
+            
         # 尝试使用NAME定位器
         result = call_tool_sync(
             context,
@@ -231,7 +243,7 @@ def _try_click_system_dialog_button(context, button_text):
                     'scenario': 'System Dialog Handler',
                 },
             ),
-            timeout=3  # 短超时时间
+            timeout=2  # 更短的超时时间
         )
         result_json = get_tool_json(result)
         if result_json and result_json.get('status') == 'success':
@@ -243,6 +255,7 @@ def _try_click_system_dialog_button(context, button_text):
         
     except Exception as e:
         # 静默处理异常，因为大多数时候不会有对话框
+        print(f'DEBUG: Exception in _try_click_system_dialog_button: {e}')
         return False
 
 
