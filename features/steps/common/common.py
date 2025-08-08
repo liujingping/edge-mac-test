@@ -1,5 +1,5 @@
 from behave import given, when, then, step
-from features.environment import call_tool_sync, get_tool_json
+from features.environment import call_tool_sync, get_tool_json, handle_system_dialogs
 
 
 @given('Edge is launched')

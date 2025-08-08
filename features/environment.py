@@ -162,6 +162,90 @@ def before_scenario(context, scenario):
     pass
 
 
+def before_step(context, step):
+    """在每个步骤执行前运行"""   
+    # 处理系统弹窗
+    handle_system_dialogs(context)
+
+
+def handle_system_dialogs(context):
+    """处理常见的系统弹窗"""
+    try:
+        # 目前只处理Edge Canary的弹窗，后续可以慢慢补充
+        button_text = 'Use "Edge Canary"'
+        
+        # 先检查弹窗是否存在
+        if _check_system_dialog_exists(context, button_text):
+            # 如果存在，则点击
+            if _try_click_system_dialog_button(context, button_text):
+                print(f"DEBUG: Handled system dialog by clicking '{button_text}'")
+                return True
+                    
+        return False
+        
+    except Exception as e:
+        print(f'DEBUG: Exception while handling system dialogs: {e}')
+        return False
+
+
+def _check_system_dialog_exists(context, button_text):
+    """检查系统对话框是否存在"""
+    try:
+        # 使用find_element检查按钮是否存在
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='find_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_value': button_text,
+                    'locator_strategy': 'AppiumBy.NAME',
+                    'step': 'system_dialog_checker',
+                    'step_raw': f'Check system dialog: {button_text}',
+                    'scenario': 'System Dialog Handler',
+                },
+            ),
+            timeout=2  # 很短的超时时间，只是检查存在性
+        )
+        result_json = get_tool_json(result)
+        return result_json and result_json.get('status') == 'success'
+        
+    except Exception as e:
+        return False
+
+
+def _try_click_system_dialog_button(context, button_text):
+    """尝试点击系统对话框按钮"""
+    try:
+        # 尝试使用NAME定位器
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_value': button_text,
+                    'locator_strategy': 'AppiumBy.NAME',
+                    'step': 'system_dialog_handler',
+                    'step_raw': f'Handle system dialog: {button_text}',
+                    'scenario': 'System Dialog Handler',
+                },
+            ),
+            timeout=3  # 短超时时间
+        )
+        result_json = get_tool_json(result)
+        if result_json and result_json.get('status') == 'success':
+            import time
+            time.sleep(0.5)  # 短暂等待对话框消失
+            return True
+            
+        return False
+        
+    except Exception as e:
+        # 静默处理异常，因为大多数时候不会有对话框
+        return False
+
+
 def take_screenshot(scenario_name):
     """
     Take a full screen screenshot on macOS and save it with the scenario name
