@@ -8,10 +8,23 @@ import queue
 import pathlib
 import os
 import subprocess
+import logging
 from datetime import datetime
 from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client, StdioServerParameters
+
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),  # 输出到控制台
+        logging.FileHandler('behave_debug.log', mode='a')  # 输出到文件
+    ]
+)
+
+logger = logging.getLogger('behave_environment')
 
 session_ready = threading.Event()
 TRANSPORT = 'stdio'  # Default transport method, can be changed to "sse" if needed
@@ -33,8 +46,8 @@ def load_mcp_config():
         if server_name.startswith('bdd-auto-mcp'):
             command = server_config.get('command')
             args = server_config.get('args', [])
-            print(f'Found MCP server configuration: command={command}')
-            print(f'Found MCP server configuration: args={args}')
+            logger.info(f'Found MCP server configuration: command={command}')
+            logger.info(f'Found MCP server configuration: args={args}')
             return command, args
 
     raise ValueError('No bdd-auto-mcp server configuration found in mcp.json')
@@ -54,11 +67,11 @@ def before_all(context):
         async def mcp_worker():
             try:
                 if TRANSPORT == 'stdio':
-                    print('Using stdio transport for MCP server')
+                    logger.info('Using stdio transport for MCP server')
                     # Load configuration from mcp.json
                     command, args = load_mcp_config()
-                    print(f'Loading MCP server with command: {command}')
-                    print(f'Args: {args}')
+                    logger.info(f'Loading MCP server with command: {command}')
+                    logger.info(f'Args: {args}')
 
                     # Define MCP server parameters
                     server_params = StdioServerParameters(command=command, args=args)
@@ -79,9 +92,9 @@ def before_all(context):
                                 result = await coro
                                 await context._result_queue.async_q.put(result)
                 else:
-                    print('Using SSE transport for MCP server')
+                    logger.info('Using SSE transport for MCP server')
                     # Connect to server using sse_client
-                    print('Connecting to SSE server at http://localhost:8000/sse')
+                    logger.info('Connecting to SSE server at http://localhost:8000/sse')
                     async with sse_client('http://localhost:8000/sse') as streams:
                         async with ClientSession(*streams) as session:
                             await session.initialize()
@@ -99,7 +112,7 @@ def before_all(context):
                                 await context._result_queue.async_q.put(result)
 
             except Exception as e:
-                print(f'MCP init failed: {repr(e)}')
+                logger.error(f'MCP init failed: {repr(e)}')
                 session_ready.set()
 
         loop.run_until_complete(mcp_worker())
@@ -139,7 +152,7 @@ def get_tool_json(result):
                     text = getattr(item, 'text', None)
                     return json.loads(text)
     except Exception as e:
-        print(f'Error getting tool JSON: {e}')
+        logger.error(f'Error getting tool JSON: {e}')
 
     return None
 
@@ -164,18 +177,18 @@ def before_scenario(context, scenario):
 
 def before_step(context, step):
     """在每个步骤执行前运行"""   
-    print(f"DEBUG: before_step - Executing step: '{step.name}'")
+    logger.debug(f"before_step - Executing step: '{step.name}'")
     dialog_handled = handle_system_dialogs(context)
     if dialog_handled:
-        print(f"DEBUG: before_step - System dialog was handled before step: '{step.name}'")
+        logger.info(f"before_step - System dialog was handled before step: '{step.name}'")
     else:
-        print(f"DEBUG: before_step - No system dialog handling needed for step: '{step.name}'")
+        logger.debug(f"before_step - No system dialog handling needed for step: '{step.name}'")
 
 
 def after_step(context, step):
     """在每个步骤执行后运行"""
     if step.status == 'failed':
-        print(f"DEBUG: after_step - Step failed: '{step.name}', attempting to get page source")
+        logger.error(f"after_step - Step failed: '{step.name}', attempting to get page source")
         try:
             if hasattr(context, 'session') and context.session:
                 # 获取页面源码用于调试失败的步骤
@@ -190,15 +203,15 @@ def after_step(context, step):
                 page_source_json = get_tool_json(page_source_result)
                 if page_source_json and page_source_json.get('status') == 'success':
                     page_source = page_source_json.get('data', {}).get('page_source', 'No page source available')
-                    print(f"DEBUG: FAILED STEP PAGE SOURCE for '{step.name}':\n{'-'*80}\n{page_source}\n{'-'*80}")
+                    logger.error(f"FAILED STEP PAGE SOURCE for '{step.name}':\n{'-'*80}\n{page_source}\n{'-'*80}")
                 else:
-                    print(f"DEBUG: Failed to get page source for failed step: '{step.name}'")
+                    logger.error(f"Failed to get page source for failed step: '{step.name}'")
             else:
-                print(f"DEBUG: No active session to get page source for failed step: '{step.name}'")
+                logger.error(f"No active session to get page source for failed step: '{step.name}'")
         except Exception as e:
-            print(f"DEBUG: Exception getting page source for failed step '{step.name}': {e}")
+            logger.error(f"Exception getting page source for failed step '{step.name}': {e}")
     else:
-        print(f"DEBUG: after_step - Step passed: '{step.name}'")
+        logger.debug(f"after_step - Step passed: '{step.name}'")
 
 
 def handle_system_dialogs(context):
@@ -206,7 +219,7 @@ def handle_system_dialogs(context):
     try:
         # 检查context是否有session，如果没有则跳过
         if not hasattr(context, 'session') or not context.session:
-            print("DEBUG: No MCP session available, skipping dialog handling")
+            logger.debug("No MCP session available, skipping dialog handling")
             return False
         
         # 检查是否有活跃的driver会话，如果没有则跳过
@@ -223,49 +236,49 @@ def handle_system_dialogs(context):
             result_json = get_tool_json(result)
             if not result_json or result_json.get('status') != 'success':
                 # app_state调用失败，跳过对话框处理
-                print("DEBUG: app_state call failed, skipping dialog handling")
+                logger.debug("app_state call failed, skipping dialog handling")
                 return False
             
             # 检查app_state返回的数据，如果键盘状态是"information not available"
             # 这通常表示driver会话无效
             data = result_json.get('data', {})
             keyboard_status = data.get('is_keyboard_show', '')
-            print(f"DEBUG: app_state result - keyboard_status: '{keyboard_status}', full data: {data}")
+            logger.debug(f"app_state result - keyboard_status: '{keyboard_status}', full data: {data}")
             if keyboard_status == 'information not available':
                 # driver会话无效，跳过对话框处理
-                print("DEBUG: Driver session invalid (keyboard info not available), skipping dialog handling")
+                logger.debug("Driver session invalid (keyboard info not available), skipping dialog handling")
                 return False
                 
         except Exception:
             # 如果app_state调用失败，说明没有活跃会话，跳过对话框处理
-            print("DEBUG: Exception during app_state check, skipping dialog handling")
+            logger.debug("Exception during app_state check, skipping dialog handling")
             return False
             
         # 目前只处理Edge Canary的弹窗，后续可以慢慢补充
         button_text = 'Use "Edge Canary"'
         
-        print("DEBUG: Driver session active, checking for system dialogs")
+        logger.debug("Driver session active, checking for system dialogs")
         
         # 先检查弹窗是否存在
         dialog_exists = _check_system_dialog_exists(context, button_text)
-        print(f"DEBUG: Dialog existence check result: {dialog_exists}")
+        logger.debug(f"Dialog existence check result: {dialog_exists}")
         
         if dialog_exists:
             # 如果存在，则点击
             click_success = _try_click_system_dialog_button(context, button_text)
-            print(f"DEBUG: Dialog click result: {click_success}")
+            logger.debug(f"Dialog click result: {click_success}")
             if click_success:
-                print(f"DEBUG: Handled system dialog by clicking '{button_text}'")
+                logger.info(f"Handled system dialog by clicking '{button_text}'")
                 return True
             else:
-                print(f"DEBUG: Failed to handle system dialog '{button_text}'")
+                logger.warning(f"Failed to handle system dialog '{button_text}'")
         else:
-            print("DEBUG: No system dialogs found")
+            logger.debug("No system dialogs found")
                     
         return False
         
     except Exception as e:
-        print(f'DEBUG: Exception while handling system dialogs: {e}')
+        logger.error(f'Exception while handling system dialogs: {e}')
         return False
 
 
@@ -274,10 +287,10 @@ def _check_system_dialog_exists(context, button_text):
     try:
         # 额外的安全检查
         if not hasattr(context, 'session') or not context.session:
-            print("DEBUG: _check_system_dialog_exists - No session available")
+            logger.debug("_check_system_dialog_exists - No session available")
             return False
         
-        print(f"DEBUG: _check_system_dialog_exists - Looking for button: '{button_text}'")
+        logger.debug(f"_check_system_dialog_exists - Looking for button: '{button_text}'")
         
         # 首先获取页面源码用于调试
         try:
@@ -292,17 +305,17 @@ def _check_system_dialog_exists(context, button_text):
             page_source_json = get_tool_json(page_source_result)
             if page_source_json and page_source_json.get('status') == 'success':
                 page_source = page_source_json.get('data', {}).get('page_source', 'No page source available')
-                print(f"DEBUG: Current page source:\n{page_source[:2000]}...")  # 限制输出长度
+                logger.debug(f"Current page source:\n{page_source[:2000]}...")  # 限制输出长度
                 
                 # 检查页面源码中是否包含目标按钮文本
                 if button_text in page_source:
-                    print(f"DEBUG: Button text '{button_text}' found in page source")
+                    logger.debug(f"Button text '{button_text}' found in page source")
                 else:
-                    print(f"DEBUG: Button text '{button_text}' NOT found in page source")
+                    logger.debug(f"Button text '{button_text}' NOT found in page source")
             else:
-                print("DEBUG: Failed to get page source for debugging")
+                logger.warning("Failed to get page source for debugging")
         except Exception as e:
-            print(f"DEBUG: Exception getting page source: {e}")
+            logger.error(f"Exception getting page source: {e}")
             
         # 使用find_element检查按钮是否存在
         result = call_tool_sync(
@@ -323,20 +336,20 @@ def _check_system_dialog_exists(context, button_text):
         result_json = get_tool_json(result)
         
         if result_json:
-            print(f"DEBUG: find_element result - status: {result_json.get('status')}, error: {result_json.get('error', 'No error')}")
+            logger.debug(f"find_element result - status: {result_json.get('status')}, error: {result_json.get('error', 'No error')}")
             if result_json.get('status') == 'success':
-                print(f"DEBUG: Successfully found dialog button: '{button_text}'")
+                logger.info(f"Successfully found dialog button: '{button_text}'")
                 return True
             else:
-                print(f"DEBUG: Dialog button '{button_text}' not found - {result_json.get('error', 'Unknown reason')}")
+                logger.debug(f"Dialog button '{button_text}' not found - {result_json.get('error', 'Unknown reason')}")
         else:
-            print("DEBUG: find_element returned no result")
+            logger.warning("find_element returned no result")
             
         return False
         
     except Exception as e:
         # 静默处理异常，因为大多数时候不会有对话框，或者没有活跃的driver会话
-        print(f'DEBUG: Exception in _check_system_dialog_exists: {e}')
+        logger.debug(f'Exception in _check_system_dialog_exists: {e}')
         return False
 
 
@@ -345,10 +358,10 @@ def _try_click_system_dialog_button(context, button_text):
     try:
         # 额外的安全检查
         if not hasattr(context, 'session') or not context.session:
-            print("DEBUG: _try_click_system_dialog_button - No session available")
+            logger.debug("_try_click_system_dialog_button - No session available")
             return False
         
-        print(f"DEBUG: _try_click_system_dialog_button - Attempting to click: '{button_text}'")
+        logger.debug(f"_try_click_system_dialog_button - Attempting to click: '{button_text}'")
             
         # 尝试使用NAME定位器
         result = call_tool_sync(
@@ -369,9 +382,9 @@ def _try_click_system_dialog_button(context, button_text):
         result_json = get_tool_json(result)
         
         if result_json:
-            print(f"DEBUG: click_element result - status: {result_json.get('status')}, error: {result_json.get('error', 'No error')}")
+            logger.debug(f"click_element result - status: {result_json.get('status')}, error: {result_json.get('error', 'No error')}")
             if result_json.get('status') == 'success':
-                print(f"DEBUG: Successfully clicked dialog button: '{button_text}'")
+                logger.info(f"Successfully clicked dialog button: '{button_text}'")
                 import time
                 time.sleep(0.5)  # 短暂等待对话框消失
                 
@@ -389,23 +402,23 @@ def _try_click_system_dialog_button(context, button_text):
                     if page_source_json and page_source_json.get('status') == 'success':
                         page_source = page_source_json.get('data', {}).get('page_source', '')
                         if button_text not in page_source:
-                            print(f"DEBUG: Dialog successfully dismissed - button '{button_text}' no longer found in page source")
+                            logger.info(f"Dialog successfully dismissed - button '{button_text}' no longer found in page source")
                         else:
-                            print(f"DEBUG: Dialog may still be present - button '{button_text}' still found in page source")
+                            logger.warning(f"Dialog may still be present - button '{button_text}' still found in page source")
                 except Exception as e:
-                    print(f"DEBUG: Exception checking page source after click: {e}")
+                    logger.error(f"Exception checking page source after click: {e}")
                 
                 return True
             else:
-                print(f"DEBUG: Failed to click dialog button: {result_json.get('error', 'Unknown error')}")
+                logger.warning(f"Failed to click dialog button: {result_json.get('error', 'Unknown error')}")
         else:
-            print("DEBUG: click_element returned no result")
+            logger.warning("click_element returned no result")
             
         return False
         
     except Exception as e:
         # 静默处理异常，因为大多数时候不会有对话框，或者没有活跃的driver会话
-        print(f'DEBUG: Exception in _try_click_system_dialog_button: {e}')
+        logger.debug(f'Exception in _try_click_system_dialog_button: {e}')
         return False
 
 
@@ -422,8 +435,8 @@ def take_screenshot(scenario_name):
             # Fallback to default location if env var not set
             current_dir = pathlib.Path(__file__).parent.parent
             screenshot_dir = current_dir / 'screenshots'
-            print(
-                f'⚠️  SCREENSHOT_DIR environment variable not set, using default: {screenshot_dir}'
+            logger.warning(
+                f'SCREENSHOT_DIR environment variable not set, using default: {screenshot_dir}'
             )
         else:
             screenshot_dir = pathlib.Path(screenshot_dir)
@@ -450,15 +463,15 @@ def take_screenshot(scenario_name):
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode == 0:
-            print(f'📸 Screenshot saved: {screenshot_path}')
-            print(f'📁 Screenshot pattern: *{test_name_pattern}*.png')
+            logger.info(f'Screenshot saved: {screenshot_path}')
+            logger.info(f'Screenshot pattern: *{test_name_pattern}*.png')
             return str(screenshot_path)
         else:
-            print(f'❌ Screenshot failed: {result.stderr}')
+            logger.error(f'Screenshot failed: {result.stderr}')
             return None
 
     except Exception as e:
-        print(f'💥 Error taking screenshot: {str(e)}')
+        logger.error(f'Error taking screenshot: {str(e)}')
         return None
 
 
@@ -467,9 +480,9 @@ def after_scenario(context, scenario):
     try:
         screenshot_path = take_screenshot(scenario.name)
         if screenshot_path:
-            print(f'Screenshot captured for scenario: {scenario.name}')
+            logger.info(f'Screenshot captured for scenario: {scenario.name}')
     except Exception as e:
-        print(f'Warning: Screenshot failed for scenario {scenario.name}: {str(e)}')
+        logger.warning(f'Screenshot failed for scenario {scenario.name}: {str(e)}')
 
 
 def clean_test_name(name):
