@@ -172,6 +172,7 @@ def handle_system_dialogs(context):
     try:
         # 检查context是否有session，如果没有则跳过
         if not hasattr(context, 'session') or not context.session:
+            print("DEBUG: No MCP session available, skipping dialog handling")
             return False
         
         # 检查是否有活跃的driver会话，如果没有则跳过
@@ -187,14 +188,28 @@ def handle_system_dialogs(context):
             )
             result_json = get_tool_json(result)
             if not result_json or result_json.get('status') != 'success':
-                # 没有活跃的driver会话，跳过对话框处理
+                # app_state调用失败，跳过对话框处理
+                print("DEBUG: app_state call failed, skipping dialog handling")
                 return False
+            
+            # 检查app_state返回的数据，如果键盘状态是"information not available"
+            # 这通常表示driver会话无效
+            data = result_json.get('data', {})
+            keyboard_status = data.get('is_keyboard_show', '')
+            if keyboard_status == 'information not available':
+                # driver会话无效，跳过对话框处理
+                print("DEBUG: Driver session invalid (keyboard info not available), skipping dialog handling")
+                return False
+                
         except Exception:
             # 如果app_state调用失败，说明没有活跃会话，跳过对话框处理
+            print("DEBUG: Exception during app_state check, skipping dialog handling")
             return False
             
         # 目前只处理Edge Canary的弹窗，后续可以慢慢补充
         button_text = 'Use "Edge Canary"'
+        
+        print("DEBUG: Driver session active, checking for system dialogs")
         
         # 先检查弹窗是否存在
         if _check_system_dialog_exists(context, button_text):
