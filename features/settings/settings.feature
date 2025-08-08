@@ -28,23 +28,6 @@ Feature: Settings functionality
     When I input "123" in the settings search box
     Then the search results should display "No search results found"
 
-  # skip
-  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511459
-  # @regression @p0 @settings
-  # Scenario: Change to dark successfully
-  # Given Edge is launched
-  # And I input "edge://settings/appearance" to the address bar
-  # Given the theme is set to "Light" Mode
-  # When I click the "Dark" theme option
-  # Then Edge should change to dark Mode
-  # Given the theme is currently set to "Dark" Mode
-  # When I click the "Light" theme option
-  # Then Edge should change to light Mode
-  # Given the theme is currently set to "Light" Mode
-  # When I click the "System" theme option
-  # Then Edge should change to system Mode
-  # And the settings page color should follow the system Mode
-
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511650
   @regression @p0 @settings
   Scenario: Restore previous session tabs
@@ -77,17 +60,6 @@ Feature: Settings functionality
     When I click on "Home" button on the settings page
     Then the home button should be hidden on the toolbar
 
-  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/56499157
-  # @regression @p0 @settings
-  # Scenario: Verify clear browsing data successfully
-  # Given Edge is launched
-  # And I have created a new profile
-  # When I have navigated to "edge://settings/privacy" page
-  # Then all text elements should display correctly
-  # When I click the "Clear browsing data" button
-  # Then the "Delete browsing data" dialog should be displayed
-  # And all UI elements in the dialog should render properly
-
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56612273
   @regression @p0 @settings
   Scenario: Cancel add custom site
@@ -110,17 +82,6 @@ Feature: Settings functionality
     When I click on "Split screen" button switch in Toolbar Settings page
     Then the Split screen button should be hidden on the toolbar
 
-  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511546
-  # @regression @p0 @settings
-  # Scenario: Show/hide Feedback button
-  # Given Edge is launched
-  # And I input "edge://settings/appearance/toolbar" to the address bar
-  # When I scroll to the bottom of the Toolbar Settings page
-  # And I click on "Feedback" button switch in Toolbar Settings page
-  # Then the Send feedback button should be visible on the toolbar
-  # When I click on "Feedback" button switch in Toolbar Settings page
-  # Then the Send feedback button should be hidden on the toolbar
-  
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511558
   @regression @p0 @settings
   Scenario: Show/hide sidebar
@@ -167,3 +128,26 @@ Feature: Settings functionality
     Then url "https://www.google.com" should be added to the custom sites list
     When I close and restart Edge
     Then edge should open with "https://www.google.com"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56614562
+  @settings @smoke @p0
+  Scenario: Set custom site as home page
+    Given Edge is launched
+    And I input "edge://settings/startHomeNTP" to the address bar
+    When I turn on the option "show home button on the toolbar"
+    And I select the option "Set custom site"
+    Then the input box under "Set custom site" can be clicked
+    When I input "https://www.apple.com" to the input box
+    And I select the option "Set custom site"
+    And I click "Home" button to the left of the address bar
+    Then should open "https://www.apple.com" site
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56614547
+  @settings @smoke @p0
+  Scenario: Set NTP as home page
+    Given Edge is launched
+    And I input "edge://settings/startHomeNTP" to the address bar
+    When I turn on the option "show home button on the toolbar"
+    And I select the option "New tab page"
+    When I click "Home" button to the left of the address bar
+    Then should open a page titled "New Tab"
