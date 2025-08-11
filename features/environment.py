@@ -1,5 +1,6 @@
 import json
 import re
+import sys
 import time
 import threading
 import asyncio
@@ -8,10 +9,13 @@ import queue
 import pathlib
 import os
 import subprocess
+import logging
 from datetime import datetime
 from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client, StdioServerParameters
+
+logger = logging.getLogger('behave_environment')
 
 session_ready = threading.Event()
 TRANSPORT = 'stdio'  # Default transport method, can be changed to "sse" if needed
@@ -33,15 +37,30 @@ def load_mcp_config():
         if server_name.startswith('bdd-auto-mcp'):
             command = server_config.get('command')
             args = server_config.get('args', [])
-            print(f'Found MCP server configuration: command={command}')
-            print(f'Found MCP server configuration: args={args}')
-            return command, args
+            env = server_config.get('env', {})
+            logger.info(f'Found MCP server configuration: command={command}')
+            logger.info(f'Found MCP server configuration: args={args}')
+            logger.info(f'Found MCP server configuration: env={env}')
+            return command, args, env
 
     raise ValueError('No bdd-auto-mcp server configuration found in mcp.json')
 
 
 def before_all(context):
     import threading
+    
+    # 配置日志 - 简化版本
+    logger.handlers.clear()
+    logger.setLevel(logging.DEBUG)  # Logger 级别控制
+    logger.propagate = False
+    
+    # 添加控制台处理器（使用 Logger 的级别，不重复设置）
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+    
+    logger.info("Logging configured successfully")
 
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
@@ -54,14 +73,14 @@ def before_all(context):
         async def mcp_worker():
             try:
                 if TRANSPORT == 'stdio':
-                    print('Using stdio transport for MCP server')
+                    logger.info('Using stdio transport for MCP server')
                     # Load configuration from mcp.json
-                    command, args = load_mcp_config()
-                    print(f'Loading MCP server with command: {command}')
-                    print(f'Args: {args}')
+                    command, args, env = load_mcp_config()
+                    logger.info(f'Loading MCP server with command: {command}')
+                    logger.info(f'Args: {args}')
 
                     # Define MCP server parameters
-                    server_params = StdioServerParameters(command=command, args=args)
+                    server_params = StdioServerParameters(command=command, args=args, env=env)
 
                     # Connect to server using stdio_client
                     async with stdio_client(server_params) as streams:
@@ -79,9 +98,9 @@ def before_all(context):
                                 result = await coro
                                 await context._result_queue.async_q.put(result)
                 else:
-                    print('Using SSE transport for MCP server')
+                    logger.info('Using SSE transport for MCP server')
                     # Connect to server using sse_client
-                    print('Connecting to SSE server at http://localhost:8000/sse')
+                    logger.info('Connecting to SSE server at http://localhost:8000/sse')
                     async with sse_client('http://localhost:8000/sse') as streams:
                         async with ClientSession(*streams) as session:
                             await session.initialize()
@@ -99,7 +118,7 @@ def before_all(context):
                                 await context._result_queue.async_q.put(result)
 
             except Exception as e:
-                print(f'MCP init failed: {repr(e)}')
+                logger.error(f'MCP init failed: {repr(e)}')
                 session_ready.set()
 
         loop.run_until_complete(mcp_worker())
@@ -139,7 +158,7 @@ def get_tool_json(result):
                     text = getattr(item, 'text', None)
                     return json.loads(text)
     except Exception as e:
-        print(f'Error getting tool JSON: {e}')
+        logger.error(f'Error getting tool JSON: {e}')
 
     return None
 
@@ -175,8 +194,8 @@ def take_screenshot(scenario_name):
             # Fallback to default location if env var not set
             current_dir = pathlib.Path(__file__).parent.parent
             screenshot_dir = current_dir / 'screenshots'
-            print(
-                f'⚠️  SCREENSHOT_DIR environment variable not set, using default: {screenshot_dir}'
+            logger.warning(
+                f'SCREENSHOT_DIR environment variable not set, using default: {screenshot_dir}'
             )
         else:
             screenshot_dir = pathlib.Path(screenshot_dir)
@@ -203,15 +222,15 @@ def take_screenshot(scenario_name):
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode == 0:
-            print(f'📸 Screenshot saved: {screenshot_path}')
-            print(f'📁 Screenshot pattern: *{test_name_pattern}*.png')
+            logger.info(f'Screenshot saved: {screenshot_path}')
+            logger.info(f'Screenshot pattern: *{test_name_pattern}*.png')
             return str(screenshot_path)
         else:
-            print(f'❌ Screenshot failed: {result.stderr}')
+            logger.error(f'Screenshot failed: {result.stderr}')
             return None
 
     except Exception as e:
-        print(f'💥 Error taking screenshot: {str(e)}')
+        logger.error(f'Error taking screenshot: {str(e)}')
         return None
 
 
@@ -220,9 +239,9 @@ def after_scenario(context, scenario):
     try:
         screenshot_path = take_screenshot(scenario.name)
         if screenshot_path:
-            print(f'Screenshot captured for scenario: {scenario.name}')
+            logger.info(f'Screenshot captured for scenario: {scenario.name}')
     except Exception as e:
-        print(f'Warning: Screenshot failed for scenario {scenario.name}: {str(e)}')
+        logger.warning(f'Screenshot failed for scenario {scenario.name}: {str(e)}')
 
 
 def clean_test_name(name):
