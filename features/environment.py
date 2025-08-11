@@ -10,6 +10,7 @@ import pathlib
 import os
 import subprocess
 import logging
+import glob
 from datetime import datetime
 from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
@@ -46,21 +47,53 @@ def load_mcp_config():
     raise ValueError('No bdd-auto-mcp server configuration found in mcp.json')
 
 
+def count_all_scenarios():
+    """Count total scenarios across all feature files"""
+    from behave.parser import parse_file
+    import glob
+    
+    total_scenarios = 0
+    current_dir = pathlib.Path(__file__).parent
+    feature_files = glob.glob(str(current_dir / "**/*.feature"), recursive=True)
+    
+    for feature_file in feature_files:
+        try:
+            feature = parse_file(feature_file)
+            total_scenarios += len(feature.scenarios)
+            logger.debug(f"Feature {feature_file}: {len(feature.scenarios)} scenarios")
+        except Exception as e:
+            logger.warning(f"Failed to parse {feature_file}: {e}")
+    
+    logger.info(f"Total scenarios found across all features: {total_scenarios}")
+    return total_scenarios
+
+
 def before_all(context):
     import threading
-    
+
     # 配置日志 - 简化版本
     logger.handlers.clear()
     logger.setLevel(logging.DEBUG)  # Logger 级别控制
     logger.propagate = False
-    
+
     # 添加控制台处理器（使用 Logger 的级别，不重复设置）
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
     logger.addHandler(console_handler)
+
+    logger.info('Logging configured successfully')
+
+    # 初始化全局scenario计数器和总数
+    # 使用全局变量来确保跨feature文件的连续性
+    if not hasattr(before_all, '_global_counter'):
+        before_all._global_counter = 0
+        before_all._total_scenarios = count_all_scenarios()
     
-    logger.info("Logging configured successfully")
+    context.scenario_counter = before_all._global_counter
+    context.total_scenarios = before_all._total_scenarios
 
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
@@ -80,7 +113,9 @@ def before_all(context):
                     logger.info(f'Args: {args}')
 
                     # Define MCP server parameters
-                    server_params = StdioServerParameters(command=command, args=args, env=env)
+                    server_params = StdioServerParameters(
+                        command=command, args=args, env=env
+                    )
 
                     # Connect to server using stdio_client
                     async with stdio_client(server_params) as streams:
@@ -164,6 +199,18 @@ def get_tool_json(result):
 
 
 def before_scenario(context, scenario):
+    # 递增全局scenario计数器
+    before_all._global_counter += 1
+    context.scenario_counter = before_all._global_counter
+    
+    # 获取总数和进度信息
+    total = context.total_scenarios
+    progress_info = f"({context.scenario_counter}/{total})" if total > 0 else f"#{context.scenario_counter}"
+    
+    # 打印当前scenario信息，包括feature名称
+    logger.info(f"=" * 80)
+    logger.info(f"DEBUG: Starting Scenario {progress_info}: {scenario.name}")
+    
     # context.scenario = scenario
     # try:
     #     result = call_tool_sync(context, context.session.call_tool(name="app_launch", arguments={"caller": "behave"}), timeout=60)
@@ -223,7 +270,6 @@ def take_screenshot(scenario_name):
 
         if result.returncode == 0:
             logger.info(f'Screenshot saved: {screenshot_path}')
-            logger.info(f'Screenshot pattern: *{test_name_pattern}*.png')
             return str(screenshot_path)
         else:
             logger.error(f'Screenshot failed: {result.stderr}')
@@ -235,13 +281,34 @@ def take_screenshot(scenario_name):
 
 
 def after_scenario(context, scenario):
+    # 获取总数和进度信息
+    total = context.total_scenarios
+    progress_info = f"({context.scenario_counter}/{total})" if total > 0 else f"#{context.scenario_counter}"
+    
+    # 打印scenario结束信息
+    status = "PASSED" if scenario.status == "passed" else "FAILED"
+    logger.info(f"-" * 80)
+    logger.info(f"DEBUG: Finished Scenario {progress_info}: {scenario.name} - {status}")
+    
+    # Clean up temporary profile directory if it exists
+    if hasattr(context, 'profile_path'):
+        try:
+            import shutil
+
+            profile_path = context.profile_path
+            if os.path.exists(profile_path):
+                shutil.rmtree(profile_path)
+                logger.info(f'Cleaned up temporary profile directory: {profile_path}')
+        except Exception as e:
+            logger.warning(f'Failed to cleanup profile directory: {str(e)}')
+
     # Take screenshot after scenario completion
     try:
         screenshot_path = take_screenshot(scenario.name)
-        if screenshot_path:
-            logger.info(f'Screenshot captured for scenario: {scenario.name}')
     except Exception as e:
         logger.warning(f'Screenshot failed for scenario {scenario.name}: {str(e)}')
+
+    logger.info(f"-" * 80)
 
 
 def clean_test_name(name):
