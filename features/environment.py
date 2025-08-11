@@ -270,7 +270,6 @@ def take_screenshot(scenario_name):
 
         if result.returncode == 0:
             logger.info(f'Screenshot saved: {screenshot_path}')
-            logger.info(f'Screenshot pattern: *{test_name_pattern}*.png')
             return str(screenshot_path)
         else:
             logger.error(f'Screenshot failed: {result.stderr}')
@@ -306,8 +305,6 @@ def after_scenario(context, scenario):
     # Take screenshot after scenario completion
     try:
         screenshot_path = take_screenshot(scenario.name)
-        if screenshot_path:
-            logger.info(f'Screenshot captured for scenario: {scenario.name}')
     except Exception as e:
         logger.warning(f'Screenshot failed for scenario {scenario.name}: {str(e)}')
 
