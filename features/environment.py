@@ -10,6 +10,7 @@ import pathlib
 import os
 import subprocess
 import logging
+import glob
 from datetime import datetime
 from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
@@ -46,6 +47,27 @@ def load_mcp_config():
     raise ValueError('No bdd-auto-mcp server configuration found in mcp.json')
 
 
+def count_all_scenarios():
+    """Count total scenarios across all feature files"""
+    from behave.parser import parse_file
+    import glob
+    
+    total_scenarios = 0
+    current_dir = pathlib.Path(__file__).parent
+    feature_files = glob.glob(str(current_dir / "**/*.feature"), recursive=True)
+    
+    for feature_file in feature_files:
+        try:
+            feature = parse_file(feature_file)
+            total_scenarios += len(feature.scenarios)
+            logger.debug(f"Feature {feature_file}: {len(feature.scenarios)} scenarios")
+        except Exception as e:
+            logger.warning(f"Failed to parse {feature_file}: {e}")
+    
+    logger.info(f"Total scenarios found across all features: {total_scenarios}")
+    return total_scenarios
+
+
 def before_all(context):
     import threading
 
@@ -64,9 +86,14 @@ def before_all(context):
 
     logger.info('Logging configured successfully')
 
-    # 初始化scenario计数器和总数
-    context.scenario_counter = 0
-    context.total_scenarios = 0  # 先初始化为0，在第一个scenario时会设置正确的值
+    # 初始化全局scenario计数器和总数
+    # 使用全局变量来确保跨feature文件的连续性
+    if not hasattr(before_all, '_global_counter'):
+        before_all._global_counter = 0
+        before_all._total_scenarios = count_all_scenarios()
+    
+    context.scenario_counter = before_all._global_counter
+    context.total_scenarios = before_all._total_scenarios
 
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
@@ -172,26 +199,17 @@ def get_tool_json(result):
 
 
 def before_scenario(context, scenario):
-    # 递增scenario计数器
-    context.scenario_counter += 1
-    
-    # 在第一个scenario时，尝试获取总数
-    if context.scenario_counter == 1:
-        try:
-            # 从scenario的feature中获取总数
-            context.total_scenarios = len(scenario.feature.scenarios)
-            logger.info(f'Total scenarios in this feature: {context.total_scenarios}')
-        except:
-            # 如果无法获取，保持为0
-            context.total_scenarios = 0
+    # 递增全局scenario计数器
+    before_all._global_counter += 1
+    context.scenario_counter = before_all._global_counter
     
     # 获取总数和进度信息
-    total = getattr(context, 'total_scenarios', 0)
+    total = context.total_scenarios
     progress_info = f"({context.scenario_counter}/{total})" if total > 0 else f"#{context.scenario_counter}"
     
-    # 打印当前scenario信息
+    # 打印当前scenario信息，包括feature名称
     logger.info(f"=" * 80)
-    logger.info(f"DEBUG: Starting Scenario: {scenario.name} {progress_info}")
+    logger.info(f"DEBUG: Starting Scenario {progress_info}: {scenario.name}")
     
     # context.scenario = scenario
     # try:
@@ -265,7 +283,7 @@ def take_screenshot(scenario_name):
 
 def after_scenario(context, scenario):
     # 获取总数和进度信息
-    total = getattr(context, 'total_scenarios', 0)
+    total = context.total_scenarios
     progress_info = f"({context.scenario_counter}/{total})" if total > 0 else f"#{context.scenario_counter}"
     
     # 打印scenario结束信息
