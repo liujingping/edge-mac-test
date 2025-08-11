@@ -23,9 +23,6 @@ def step_impl(context):
     try:
         print("DEBUG: Starting new profile creation process via edge://settings/profiles")
         
-        # Step 1: Navigate to edge://settings/profiles
-        print("DEBUG: Navigating to edge://settings/profiles")
-        
         # Click the address bar
         call_tool_sync(
             context,
@@ -76,7 +73,7 @@ def step_impl(context):
         
         # Wait for the settings page to load
         import time
-        time.sleep(3)
+        time.sleep(1)
         
         # Step 2: Click "Add profile" button
         call_tool_sync(
@@ -95,7 +92,7 @@ def step_impl(context):
         )
         
         # Wait for dialog to appear
-        time.sleep(2)
+        time.sleep(1)
         
         # Step 3: Click "Add" confirmation button
         call_tool_sync(
@@ -114,7 +111,7 @@ def step_impl(context):
         )
         
         # Wait for new profile window to be created
-        time.sleep(2)
+        time.sleep(1)
         
     except Exception as e:
         print(f'DEBUG: Exception during profile creation: {e}')
