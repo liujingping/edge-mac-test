@@ -91,9 +91,6 @@ def step_impl(context):
             ),
         )
         
-        # Wait for dialog to appear
-        time.sleep(1)
-        
         # Step 3: Click "Add" confirmation button
         call_tool_sync(
             context,
@@ -109,9 +106,6 @@ def step_impl(context):
                 },
             ),
         )
-        
-        # Wait for new profile window to be created
-        time.sleep(1)
         
     except Exception as e:
         print(f'DEBUG: Exception during profile creation: {e}')
