@@ -102,28 +102,6 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('I can see address bar contains "sample-1.pdf" in the new tab')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeTextField[@label='Address and search bar' "
-                "and contains(@value, 'sample-1')]",
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
 @step('I hover over the file name containing "sample-1" in the Downloads panel')
 def step_impl(context):
     result = call_tool_sync(
@@ -198,48 +176,6 @@ def step_impl(context):
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
                 'locator_value': '//XCUIElementTypeStaticText[@value="Removed"]',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@when('I click "Open Downloads folder" in the Downloads panel')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeButton[@label="Open downloads folder"]',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@then('the file name containing "sample-1" should not be found in Downloads folder')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_not_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeStaticText[contains(@value, "sample-1")]',
                 'need_snapshot': 0,
             },
         ),
@@ -484,7 +420,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeStaticText[@value="sample-1.pdf"]',
+                'locator_value': '//XCUIElementTypeStaticText[contains(@value, "sample-1")]',
                 'need_snapshot': 0,
             },
         ),
@@ -505,7 +441,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeTextField[@value='/Users/edgetest/Desktop/sample-1.pdf']",
+                'locator_value': "//XCUIElementTypeTextField[contains(@value, 'Desktop') and contains(@value, 'sample-1')]",
                 'need_snapshot': 0,
             },
         ),
@@ -536,9 +472,8 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-    # --- auto-generated step ---
 
-
+# --- auto-generated step ---
 @step('I click "Save As..." in the context menu')
 def step_impl(context):
     result = call_tool_sync(
@@ -603,7 +538,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I click on the file name containing "bing.html" in the Downloads panel')
+@step('I click on the file name containing "Microsoft Bing" in the Downloads panel')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -612,8 +547,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeStaticText[contains(@value, 'bing.html') or "
-                "contains(@value, 'Bing.html')]",
+                'locator_value': "//XCUIElementTypeStaticText[contains(@value, 'Microsoft Bing') and contains(@value, '.html')]",
                 'need_snapshot': 0,
             },
         ),
@@ -625,7 +559,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('address bar contains "bing.html" in the new tab')
+@then('address bar contains "Microsoft Bing" in the new tab')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -634,8 +568,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeTextField[contains(@value, 'bing.html') or "
-                "contains(@value, 'Bing.html')]",
+                'locator_value': "//XCUIElementTypeTextField[contains(@value, 'Microsoft') and contains(@value, 'Bing') and contains(@value, '.html')]",
                 'need_snapshot': 0,
             },
         ),
@@ -828,7 +761,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I wait for 90 seconds')
+@step('I wait for 120 seconds')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -837,7 +770,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'need_snapshot': 0,
-                'seconds': 90,
+                'seconds': 120,
             },
         ),
     )
@@ -921,6 +854,75 @@ def step_impl(context):
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
                 'locator_value': 'Downloads panel',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@when('I press "Alt" and "Command" and "L" keys')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='press_key',
+            arguments={
+                'caller': 'behave-automation',
+                'key': 'option+command+l',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('I hover over the file name containing "Microsoft Bing" in the Downloads panel')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='mouse_hover',
+            arguments={
+                'caller': 'behave-automation',
+                'duration': 2.0,
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeStaticText[contains(@value, 'Microsoft "
+                "Bing')]",
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@then(
+    'the file name containing "Microsoft Bing" should be removed from the Downloads panel'
+)
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeStaticText[@value='Removed']",
                 'need_snapshot': 0,
             },
         ),

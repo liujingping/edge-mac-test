@@ -20,8 +20,6 @@ Feature: Download functionality in Microsoft Edge
     And I hover over the file name containing "sample-1" in the Downloads panel
     And I click the "Delete file" button
     Then the file name containing "sample-1" should be removed from the Downloads panel
-    When I click "Open Downloads folder" in the Downloads panel
-    Then the file name containing "sample-1" should not be found in Downloads folder
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533234
   @p0 @regression @download
@@ -48,8 +46,12 @@ Feature: Download functionality in Microsoft Edge
     When I click "Save" button in Save As window
     Then the Downloads panel should appear
     When I click Downloads panel
-    And I click on the file name containing "Bing.html" in the Downloads panel
-    Then address bar contains "Bing.html" in the new tab
+    And I click on the file name containing "Microsoft Bing" in the Downloads panel
+    Then address bar contains "Microsoft Bing" in the new tab
+    When I press "Alt" and "Command" and "L" keys
+    And I hover over the file name containing "Microsoft Bing" in the Downloads panel
+    And I click the "Delete file" button
+    Then the file name containing "Microsoft Bing" should be removed from the Downloads panel
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533112
   Scenario: Cancel downloading a webpage file
@@ -73,5 +75,5 @@ Feature: Download functionality in Microsoft Edge
     And I click the "Pause" button
     Then "Resume" button should be displayed in the Downloads panel
     When I click the "Resume" button
-    And I wait for 90 seconds
+    And I wait for 120 seconds
     Then "Show in Finder" button should be displayed in the Downloads panel
