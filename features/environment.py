@@ -92,8 +92,9 @@ def before_all(context):
         before_all._global_counter = 0
         before_all._total_scenarios = count_all_scenarios()
     
-    context.scenario_counter = before_all._global_counter
-    context.total_scenarios = before_all._total_scenarios
+    # 使用 setattr 来避免 ContextMaskWarning
+    setattr(context, 'scenario_counter', before_all._global_counter)
+    setattr(context, 'total_scenarios', before_all._total_scenarios)
 
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
@@ -201,15 +202,18 @@ def get_tool_json(result):
 def before_scenario(context, scenario):
     # 递增全局scenario计数器
     before_all._global_counter += 1
-    context.scenario_counter = before_all._global_counter
+    # 使用 setattr 来避免 ContextMaskWarning
+    setattr(context, 'scenario_counter', before_all._global_counter)
     
     # 获取总数和进度信息
-    total = context.total_scenarios
+    total = getattr(context, 'total_scenarios', 0)
     progress_info = f"({context.scenario_counter}/{total})" if total > 0 else f"#{context.scenario_counter}"
     
     # 打印当前scenario信息，包括feature名称
+    feature_name = scenario.feature.name if scenario.feature else "Unknown Feature"
     logger.info(f"=" * 80)
     logger.info(f"DEBUG: Starting Scenario {progress_info}: {scenario.name}")
+    logger.info(f"DEBUG: Feature: {feature_name}")
     
     # context.scenario = scenario
     # try:
@@ -282,13 +286,16 @@ def take_screenshot(scenario_name):
 
 def after_scenario(context, scenario):
     # 获取总数和进度信息
-    total = context.total_scenarios
-    progress_info = f"({context.scenario_counter}/{total})" if total > 0 else f"#{context.scenario_counter}"
+    total = getattr(context, 'total_scenarios', 0)
+    scenario_counter = getattr(context, 'scenario_counter', 0)
+    progress_info = f"({scenario_counter}/{total})" if total > 0 else f"#{scenario_counter}"
     
     # 打印scenario结束信息
     status = "PASSED" if scenario.status == "passed" else "FAILED"
+    feature_name = scenario.feature.name if scenario.feature else "Unknown Feature"
     logger.info(f"-" * 80)
     logger.info(f"DEBUG: Finished Scenario {progress_info}: {scenario.name} - {status}")
+    logger.info(f"DEBUG: Feature: {feature_name}")
     
     # Clean up temporary profile directory if it exists
     if hasattr(context, 'profile_path'):
