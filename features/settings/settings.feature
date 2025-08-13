@@ -33,11 +33,12 @@ Feature: Settings functionality
   Scenario: Restore previous session tabs
     Given Edge is launched
     And I input "edge://settings/startHomeNTP" to the address bar
-    When I select the option "Open tabs from the previous session"
-    When I navigate to "www.bing.com" in a new tab
-    And I navigate to "www.google.com" in a new tab
+    And I select the option "Open tabs from the previous session"
+    And I open a new tab
+    And I navigate to "https://www.bing.com"
     And I close and restart Edge
-    Then edge should open with "edge://settings/startHomeNTP","www.bing.com" and "www.google.com"
+    Then "edge://settings/startHomeNTP" website should be restored
+    And "https://www.bing.com" website should be restored
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56511626
   @regression @p0 @settings
@@ -45,8 +46,8 @@ Feature: Settings functionality
     Given Edge is launched
     And I input "edge://settings/startHomeNTP" to the address bar
     When I select the option "Open the new tab page"
-    And I new a tab
-    And I navigate to "www.bing.com"
+    And I open a new tab
+    And I navigate to "https://www.bing.com"
     And I close and restart Edge
     Then edge should open with a page titled "New Tab"
 
@@ -112,6 +113,13 @@ Feature: Settings functionality
   Scenario: Delete custom sites
     Given Edge is launched
     And I input "edge://settings/startHomeNTP" to the address bar
+    When I select the option "Open custom sites"
+    And I click the "Add site" button
+    Then the "Add site" dialog should be opened
+    When I input "https://www.bing.com" in the URL field on the "Add site" dialog
+    And I click the "Add" button on the "Add site" dialog
+    Then the "Add site" dialog should be closed
+    And url "https://www.bing.com" should be added to the custom sites list
     When I click the "More actions" button next to the custom site "https://www.bing.com"
     And I click the "Delete" button from the dropdown menu
     When I close and restart Edge
@@ -121,7 +129,7 @@ Feature: Settings functionality
   @regression @p0 @settings
   Scenario: Restore by use all open tabs
     Given Edge is launched
-    And I navigate to "www.google.com" in a new tab
+    And I input to "www.google.com" to the address bar
     And I navigate to "edge://settings/startHomeNTP" in a new tab
     When I select the option "Open custom sites"
     And I click the "Use all open tabs" button
