@@ -68,7 +68,7 @@ Feature: ominibox
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56908761
   @p0
   Scenario: Delete and edit all URL to navigate to new site
-    Given edge is launched
+    Given Edge is launched
     When I navigate to "https://www.apple.com"
     And the address bar should display the complete URL "https://www.apple.com"
     When I select all text in address bar
