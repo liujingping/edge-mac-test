@@ -96,20 +96,6 @@ def before_all(context):
     setattr(context, 'scenario_counter', before_all._global_counter)
     setattr(context, 'total_scenarios', before_all._total_scenarios)
 
-    # ===== 录屏功能初始化（新增）=====
-    # Setup recording directory and initialize recording context variables
-    try:
-        context.recording_dir = setup_recording_directory()
-        context.current_recording = None
-        context.recording_started = False
-    except Exception as e:
-        logger.warning(f"⚠️ Recording setup failed (non-critical): {e}")
-        # Set dummy values to prevent errors
-        context.recording_dir = pathlib.Path.cwd() / "recordings"
-        context.current_recording = None
-        context.recording_started = False
-    # ===== 录屏功能初始化结束 =====
-
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
     session_ready = threading.Event()
@@ -213,132 +199,6 @@ def get_tool_json(result):
     return None
 
 
-# ===== 录屏功能相关函数（新增）=====
-
-def setup_recording_directory():
-    """Setup directory for screen recordings using environment variables"""
-    # Try to get recording directory from environment variable
-    recording_dir = os.environ.get('SCREENSHOT_DIR')
-    
-    if not recording_dir:
-        # Fallback to project directory
-        current_dir = pathlib.Path(__file__).parent.parent
-        recording_dir = current_dir / "recordings"
-    else:
-        recording_dir = pathlib.Path(recording_dir)
-    
-    # Create directory if it doesn't exist
-    recording_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Set environment variable for the tools to use
-    os.environ['SCREENSHOT_DIR'] = str(recording_dir)
-    
-    logger.info(f"🎬 Screen recordings will be saved to: {recording_dir}")
-    return recording_dir
-
-
-def start_recording(context, scenario_name):
-    """Start screen recording for the scenario"""
-    try:
-        logger.info(f"🎬 Starting screen recording for scenario: {scenario_name}")
-        
-        # Configure recording options for Mac
-        recording_options = {
-            'fps': 15,
-            'captureCursor': True,
-            'captureClicks': True,
-            'deviceId': 0,
-            'timeLimit': 1800,  # 30 minutes max
-            'preset': 'veryfast'
-        }
-        
-        result = call_tool_sync(
-            context, 
-            context.session.call_tool(
-                name="start_screen_recording", 
-                arguments={
-                    "caller": "behave-automation-mac",
-                    "scenario": scenario_name,
-                    "step": "Start scenario recording",
-                    **recording_options
-                }
-            ),
-            timeout=30
-        )
-        
-        result_json = get_tool_json(result)
-        if result_json and result_json.get("status") == "success":
-            logger.info("✅ Screen recording started successfully")
-            context.recording_started = True
-            context.recording_start_time = datetime.now()
-        else:
-            error_msg = result_json.get('error', 'Unknown error') if result_json else 'No response'
-            logger.warning(f"⚠️ Failed to start screen recording: {error_msg}")
-            context.recording_started = False
-            
-    except Exception as e:
-        logger.warning(f"⚠️ Exception while starting screen recording (non-critical): {e}")
-        context.recording_started = False
-
-
-def stop_recording(context, scenario_name, scenario_status):
-    """Stop screen recording and save the video"""
-    if not getattr(context, 'recording_started', False):
-        logger.debug("⚠️ No active recording to stop")
-        return
-        
-    try:
-        logger.info(f"⏹️ Stopping screen recording for scenario: {scenario_name}")
-        
-        # Generate filename with scenario name and timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        safe_scenario_name = clean_test_name(scenario_name)  # 使用现有的清理函数
-        
-        # Include scenario status in filename
-        status_suffix = "PASS" if scenario_status == "passed" else "FAIL"
-        filename = f"recording_{safe_scenario_name}_{status_suffix}_{timestamp}.mp4"
-        save_path = os.path.join(context.recording_dir, filename)
-        
-        result = call_tool_sync(
-            context,
-            context.session.call_tool(
-                name="stop_screen_recording",
-                arguments={
-                    "caller": "behave-automation-mac", 
-                    "scenario": scenario_name,
-                    "step": "Stop scenario recording",
-                    "save_path": save_path
-                }
-            ),
-            timeout=60
-        )
-        
-        result_json = get_tool_json(result)
-        if result_json and result_json.get("status") == "success":
-            data = result_json.get("data", {})
-            video_path = data.get("video_saved", save_path)
-            file_size_mb = data.get("file_size_mb", 0)
-            
-            duration = datetime.now() - getattr(context, 'recording_start_time', datetime.now())
-            duration_str = str(duration).split('.')[0]  # Remove microseconds
-            
-            logger.info(f"✅ Screen recording saved: {video_path}")
-            logger.info(f"   📁 File size: {file_size_mb} MB")
-            logger.info(f"   ⏱️  Duration: {duration_str}")
-            
-            context.current_recording = video_path
-        else:
-            error_msg = result_json.get('error', 'Unknown error') if result_json else 'No response'
-            logger.warning(f"⚠️ Failed to stop screen recording: {error_msg}")
-            
-    except Exception as e:
-        logger.warning(f"⚠️ Exception while stopping screen recording (non-critical): {e}")
-    finally:
-        context.recording_started = False
-
-# ===== 录屏功能相关函数结束 =====
-
-
 def before_scenario(context, scenario):
     # 递增全局scenario计数器
     before_all._global_counter += 1
@@ -354,14 +214,6 @@ def before_scenario(context, scenario):
     logger.info(f"=" * 80)
     logger.info(f"DEBUG: Starting Scenario {progress_info}: {scenario.name}")
     logger.info(f"DEBUG: Feature: {feature_name}")
-    
-    # ===== 录屏功能启动（新增）=====
-    # Start screen recording for this scenario
-    try:
-        start_recording(context, scenario.name)
-    except Exception as e:
-        logger.warning(f"⚠️ Failed to start recording (non-critical): {e}")
-    # ===== 录屏功能启动结束 =====
     
     # context.scenario = scenario
     # try:
@@ -444,14 +296,6 @@ def after_scenario(context, scenario):
     logger.info(f"-" * 80)
     logger.info(f"DEBUG: Finished Scenario {progress_info}: {scenario.name} - {status}")
     logger.info(f"DEBUG: Feature: {feature_name}")
-    
-    # ===== 录屏功能停止（新增）=====
-    # Stop screen recording for this scenario
-    try:
-        stop_recording(context, scenario.name, scenario.status.name.lower())
-    except Exception as e:
-        logger.warning(f"⚠️ Failed to stop recording (non-critical): {e}")
-    # ===== 录屏功能停止结束 =====
     
     # Clean up temporary profile directory if it exists
     if hasattr(context, 'profile_path'):
