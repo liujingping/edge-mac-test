@@ -6,7 +6,7 @@ requires-python = ">=3.10"
 dependencies = [
     "mcp",
     "janus",
-    "behave",
+    "behave>=1.2.6",
     "psutil",
     "pillow",
     "pywinauto",
