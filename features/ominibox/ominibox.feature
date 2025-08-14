@@ -26,12 +26,13 @@ Feature: ominibox
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56908759
   @p0
   Scenario: Type URL by autocompleting to navigate directly to site
-    Given I have visited "https://www.apple.com"
+    Given Edge is launched
+    When I navigate to "https://www.apple.com"
     And I open a new tab
     When I type "www.app" in the address bar
     And I press the "Enter" key
     Then I should navigate to "https://www.apple.com" successfully
-    And the address bar should display the complete
+    And the address bar should display the complete URL "https://www.apple.com"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56908761
   @p0
