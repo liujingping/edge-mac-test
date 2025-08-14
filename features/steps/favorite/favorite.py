@@ -1564,91 +1564,92 @@ def step_impl(context):
     )
 
 
-# --- auto-generated step ---
-@step('I click on "Sort favorites" button in Favorites hub')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Sort favorites',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+# # --- auto-generated step ---
+# @step('I click on "Sort favorites" button in Favorites hub')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='click_element',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+#                 'locator_value': 'Sort favorites',
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
 
-# --- auto-generated step ---
-@step('I select "A to Z" from the drop-down menu')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeMenuItem[@label="Sort By, Group, A to Z"]',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+# # --- auto-generated step ---
+# @step('I select "A to Z" from the drop-down menu')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='click_element',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.XPATH',
+#                 'locator_value': '//XCUIElementTypeMenuItem[@label="Sort By, Group, A to Z"]',
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
 
-# --- auto-generated step ---
-@then('the "https://www.bing.com" website should be displayed first')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeOutlineRow[@title='Search - Microsoft "
-                "Bing'][1]",
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+# # --- auto-generated step ---
+# @then('the "https://www.bing.com" website should be displayed first')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='verify_element_exists',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.XPATH',
+#                 'locator_value': "//XCUIElementTypeOutlineRow[@title='Search - Microsoft "
+#                 "Bing'][1]",
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
 
-# --- auto-generated step ---
-@step('the "https://www.youtube.com" website should be displayed second')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_elements_order',
-            arguments={
-                'caller': 'behave-automation',
-                'direction': 'vertical',
-                'element_xpaths': [
-                    "//XCUIElementTypeOutlineRow[@title='Search - Microsoft Bing']",
-                    "//XCUIElementTypeOutlineRow[@title='YouTube']",
-                ],
-                'expected_orders': [],
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+# # --- auto-generated step ---
+# @step('the "https://www.youtube.com" website should be displayed second')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='verify_elements_order',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'direction': 'vertical',
+#                 'element_xpaths': [
+#                     "//XCUIElementTypeOutlineRow[@title='Search - Microsoft Bing']",
+#                     "//XCUIElementTypeOutlineRow[@title='YouTube']",
+#                 ],
+#                 'expected_orders': [],
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
+
 
