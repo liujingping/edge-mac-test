@@ -112,7 +112,7 @@ def step_impl(context):
                 'caller': 'behave-automation',
                 'duration': 2.0,
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeOutlineRow[contains(@title, 'sample-1')]",
+                'locator_value': "//XCUIElementTypeStaticText[contains(@value, 'sample-1')]",
                 'need_snapshot': 0,
             },
         ),
