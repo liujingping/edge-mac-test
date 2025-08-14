@@ -39,7 +39,7 @@ Feature: Download functionality in Microsoft Edge
   @p0 @regression @download
   Scenario: Download a webpage file
     Given Edge is launched
-    When I navigate to "www.bing.com"
+    When I navigate to "https://www.bing.com"
     And I right click on the page without selecting any text or element
     And I click "Save As..." in the context menu
     Then Save As window should appear
@@ -56,7 +56,7 @@ Feature: Download functionality in Microsoft Edge
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533112
   Scenario: Cancel downloading a webpage file
     Given Edge is launched
-    When I navigate to "www.bing.com"
+    When I navigate to "https://www.bing.com"
     And I right click on the page without selecting any text or element
     And I click "Save As..." in the context menu
     Then Save As window should appear
