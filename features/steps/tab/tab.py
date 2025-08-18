@@ -692,16 +692,15 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('a new tab group should be created with the "Google" tab')
+@step('Close edit tab group dialog')
 def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='verify_element_exists',
+            name='press_key',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Google tab group ("Google") - Expanded',
+                'key': 'escape',
                 'need_snapshot': 0,
             },
         ),
@@ -713,52 +712,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('the tab group should be named "Google"')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_attribute',
-            arguments={
-                'attribute_name': 'label',
-                'caller': 'behave-automation',
-                'expected_value': 'Google tab group ("Google") - Expanded',
-                'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Google tab group ("Google") - Expanded',
-                'need_snapshot': 0,
-                'rule': 'contains',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@step('I right click on the tab title contains "Google"')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='right_click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Google',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@step('I click "Add tab to new group" from the context menu')
+@step('I click "Add tab to new group" from the right-click context menu')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -766,7 +720,7 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.NAME',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
                 'locator_value': 'Add Tab to New Group',
                 'need_snapshot': 0,
             },
@@ -779,16 +733,125 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('Close edit tab group dialog')
+@when('I new a tab and navigate to "https://www.youtube.com"')
 def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'New Tab',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Address and search bar',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='send_keys',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Address and search bar',
+                'need_snapshot': 0,
+                'text': 'https://www.youtube.com',
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='press_key',
             arguments={
                 'caller': 'behave-automation',
-                'key': 'escape',
+                'key': 'return',
                 'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='time_sleep',
+            arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 3},
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@then('a new tab group should be created with the "Youtube" tab')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'YouTube tab group ("YouTube") - Expanded',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('the tab group should be named "YouTube"')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_attribute',
+            arguments={
+                'attribute_name': 'label',
+                'caller': 'behave-automation',
+                'expected_value': 'YouTube tab group ("YouTube") - Expanded',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'YouTube tab group ("YouTube") - Expanded',
+                'need_snapshot': 0,
+                'rule': 'contains',
             },
         ),
     )
