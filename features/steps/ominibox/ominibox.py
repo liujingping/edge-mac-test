@@ -174,27 +174,6 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('the "cat" should be displayed in the Bing search box')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': "//XCUIElementTypeSearchField[@value='cat']",
-                'locator_strategy': 'AppiumBy.XPATH',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
 @when('I type "www.app" in the address bar')
 def step_impl(context):
     result = call_tool_sync(
@@ -849,6 +828,42 @@ def step_impl(context):
         context.session.call_tool(
             name='time_sleep',
             arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 3},
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('the page title should be "cat - Search"')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='time_sleep',
+            arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 2},
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_attribute',
+            arguments={
+                'attribute_name': 'title',
+                'caller': 'behave-automation',
+                'expected_value': 'cat - Search',
+                'locator_strategy': 'AppiumBy.NAME',
+                'locator_value': 'cat - Search',
+                'need_snapshot': 0,
+                'rule': '==',
+            },
         ),
     )
     result_json = get_tool_json(result)

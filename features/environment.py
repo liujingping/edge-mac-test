@@ -51,39 +51,42 @@ def count_all_scenarios():
     """Count total scenarios across all feature files"""
     from behave.parser import parse_file
     import glob
-    
+
     total_scenarios = 0
     current_dir = pathlib.Path(__file__).parent
-    feature_files = glob.glob(str(current_dir / "**/*.feature"), recursive=True)
-    
+    feature_files = glob.glob(str(current_dir / '**/*.feature'), recursive=True)
+
     for feature_file in feature_files:
         try:
             feature = parse_file(feature_file)
             total_scenarios += len(feature.scenarios)
-            logger.debug(f"Feature {feature_file}: {len(feature.scenarios)} scenarios")
+            logger.debug(f'Feature {feature_file}: {len(feature.scenarios)} scenarios')
         except Exception as e:
-            logger.warning(f"Failed to parse {feature_file}: {e}")
-    
-    logger.info(f"Total scenarios found across all features: {total_scenarios}")
+            logger.warning(f'Failed to parse {feature_file}: {e}')
+
+    logger.info(f'Total scenarios found across all features: {total_scenarios}')
     return total_scenarios
 
 
 def before_all(context):
     import threading
 
-    # 配置日志 - 简化版本
-    logger.handlers.clear()
-    logger.setLevel(logging.DEBUG)  # Logger 级别控制
-    logger.propagate = False
+    # 配置日志 - 为所有logger配置
+    # 获取根logger来配置全局日志
+    root_logger = logging.getLogger()
+    root_logger.handlers.clear()
+    root_logger.setLevel(logging.DEBUG)
 
-    # 添加控制台处理器（使用 Logger 的级别，不重复设置）
+    # 添加控制台处理器
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     console_handler = logging.StreamHandler()
     console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+    root_logger.addHandler(console_handler)
 
+    # 确保特定的logger也能正常工作
+    logger.setLevel(logging.DEBUG)
     logger.info('Logging configured successfully')
 
     # 初始化全局scenario计数器和总数
@@ -91,7 +94,7 @@ def before_all(context):
     if not hasattr(before_all, '_global_counter'):
         before_all._global_counter = 0
         before_all._total_scenarios = count_all_scenarios()
-    
+
     # 使用 setattr 来避免 ContextMaskWarning
     setattr(context, 'scenario_counter', before_all._global_counter)
     setattr(context, 'total_scenarios', before_all._total_scenarios)
@@ -204,17 +207,21 @@ def before_scenario(context, scenario):
     before_all._global_counter += 1
     # 使用 setattr 来避免 ContextMaskWarning
     setattr(context, 'scenario_counter', before_all._global_counter)
-    
+
     # 获取总数和进度信息
     total = getattr(context, 'total_scenarios', 0)
-    progress_info = f"({context.scenario_counter}/{total})" if total > 0 else f"#{context.scenario_counter}"
-    
+    progress_info = (
+        f'({context.scenario_counter}/{total})'
+        if total > 0
+        else f'#{context.scenario_counter}'
+    )
+
     # 打印当前scenario信息，包括feature名称
-    feature_name = scenario.feature.name if scenario.feature else "Unknown Feature"
-    logger.info(f"=" * 80)
-    logger.info(f"DEBUG: Starting Scenario {progress_info}: {scenario.name}")
-    logger.info(f"DEBUG: Feature: {feature_name}")
-    
+    feature_name = scenario.feature.name if scenario.feature else 'Unknown Feature'
+    logger.info(f'=' * 80)
+    logger.info(f'DEBUG: Starting Scenario {progress_info}: {scenario.name}')
+    logger.info(f'DEBUG: Feature: {feature_name}')
+
     # context.scenario = scenario
     # try:
     #     result = call_tool_sync(context, context.session.call_tool(name="app_launch", arguments={"caller": "behave"}), timeout=60)
@@ -288,15 +295,17 @@ def after_scenario(context, scenario):
     # 获取总数和进度信息
     total = getattr(context, 'total_scenarios', 0)
     scenario_counter = getattr(context, 'scenario_counter', 0)
-    progress_info = f"({scenario_counter}/{total})" if total > 0 else f"#{scenario_counter}"
-    
+    progress_info = (
+        f'({scenario_counter}/{total})' if total > 0 else f'#{scenario_counter}'
+    )
+
     # 打印scenario结束信息
-    status = "PASSED" if scenario.status == "passed" else "FAILED"
-    feature_name = scenario.feature.name if scenario.feature else "Unknown Feature"
-    logger.info(f"-" * 80)
-    logger.info(f"DEBUG: Finished Scenario {progress_info}: {scenario.name} - {status}")
-    logger.info(f"DEBUG: Feature: {feature_name}")
-    
+    status = 'PASSED' if scenario.status == 'passed' else 'FAILED'
+    feature_name = scenario.feature.name if scenario.feature else 'Unknown Feature'
+    logger.info(f'-' * 80)
+    logger.info(f'DEBUG: Finished Scenario {progress_info}: {scenario.name} - {status}')
+    logger.info(f'DEBUG: Feature: {feature_name}')
+
     # Clean up temporary profile directory if it exists
     if hasattr(context, 'profile_path'):
         try:
@@ -315,7 +324,7 @@ def after_scenario(context, scenario):
     except Exception as e:
         logger.warning(f'Screenshot failed for scenario {scenario.name}: {str(e)}')
 
-    logger.info(f"-" * 80)
+    logger.info(f'-' * 80)
 
 
 def clean_test_name(name):
