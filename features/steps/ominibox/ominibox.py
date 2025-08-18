@@ -174,27 +174,6 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-# @step('the "cat" should be displayed in the Bing search box')
-# def step_impl(context):
-#     result = call_tool_sync(
-#         context,
-#         context.session.call_tool(
-#             name='verify_element_exists',
-#             arguments={
-#                 'caller': 'behave-automation',
-#                 'locator_value': "//XCUIElementTypeTab[@value='cat']",
-#                 'locator_strategy': 'AppiumBy.XPATH',
-#                 'need_snapshot': 0,
-#             },
-#         ),
-#     )
-#     result_json = get_tool_json(result)
-#     assert result_json.get('status') == 'success', (
-#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-#     )
-
-
-# --- auto-generated step ---
 @when('I type "www.app" in the address bar')
 def step_impl(context):
     result = call_tool_sync(
