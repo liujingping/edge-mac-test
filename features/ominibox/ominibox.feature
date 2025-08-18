@@ -20,7 +20,7 @@ Feature: ominibox
     And I open a new tab
     When I input "cat" in address bar
     And I press the "Enter" key
-    And the "cat" should be displayed in the Bing search box
+    And the page title should be "cat - Search"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56908759
   @p0

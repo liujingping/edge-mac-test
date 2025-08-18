@@ -8,7 +8,7 @@ import atexit
 import logging
 
 
-logger = logging.getLogger('behave_common_steps')
+logger = logging.getLogger('behave_environment')  # 使用与environment.py相同的logger名称
 
 
 # 全局变量存储需要清理的临时目录
@@ -55,15 +55,22 @@ def create_profile_directory():
     return profile_path
 
 
-@given('Edge is launched')
-def step_impl(context):
-
-    # 创建 profile 目录
-    profile_path = create_profile_directory()
-    logger.info(f'DEBUG: Using profile path: {profile_path}')
-
-    # 将profile路径存储到context中，以便后续可能的清理
-    context.profile_path = profile_path
+def launch_edge_implementation(context):
+    """启动Edge应用程序的具体实现"""
+    # 检查context中是否已经有profile_path，如果有就复用，没有就创建新的
+    if (
+        hasattr(context, 'profile_path')
+        and context.profile_path
+        and os.path.exists(context.profile_path)
+    ):
+        profile_path = context.profile_path
+        logger.info(f'DEBUG: Reusing existing profile path: {profile_path}')
+    else:
+        # 创建 profile 目录
+        profile_path = create_profile_directory()
+        logger.info(f'DEBUG: Created new profile path: {profile_path}')
+        # 将profile路径存储到context中，以便后续可能的清理
+        context.profile_path = profile_path
 
     # Launch the Edge application
     result = call_tool_sync(
@@ -84,3 +91,14 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+    logger.info('DEBUG: Edge application launched successfully')
+
+
+@given('Edge is launched')
+def given_edge_launched(context):
+    launch_edge_implementation(context)
+
+
+@step('I close and restart Edge')
+def step_close_and_restart_edge(context):
+    launch_edge_implementation(context)

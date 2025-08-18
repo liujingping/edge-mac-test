@@ -1651,5 +1651,3 @@ def step_impl(context):
 #     assert result_json.get('status') == 'success', (
 #         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
 #     )
-
-

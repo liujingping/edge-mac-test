@@ -32,7 +32,7 @@ Feature: Settings functionality
   @regression @p0 @settings
   Scenario: Restore previous session tabs
     Given Edge is launched
-    And I input "edge://settings/startHomeNTP" to the address bar
+    When I input "edge://settings/startHomeNTP" to the address bar
     And I select the option "Open tabs from the previous session"
     And I open a new tab
     And I navigate to "https://www.bing.com"
