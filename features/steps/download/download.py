@@ -310,7 +310,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeStaticText[@value='/Users/edgetest/Desktop']",
+                'locator_value': "//XCUIElementTypeStaticText[contains(@value, 'Desktop')]",
                 'need_snapshot': 0,
             },
         ),

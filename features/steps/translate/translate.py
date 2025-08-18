@@ -57,11 +57,16 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
+    # Wait longer for the Chinese website to load completely
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='time_sleep',
-            arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 3},
+            arguments={
+                'caller': 'behave-automation',
+                'need_snapshot': 0,
+                'seconds': 10,
+            },
         ),
     )
     result_json = get_tool_json(result)
