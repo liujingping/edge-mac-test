@@ -325,8 +325,8 @@ def step_impl(context):
             name='send_keys',
             arguments={
                 'caller': 'behave-automation',
-                'locator_value': "//XCUIElementTypeTextField[@title='Search history']",
-                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': 'Search history',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
                 'text': 'cgtn',
                 'need_snapshot': 0,
             },
@@ -364,8 +364,8 @@ def step_impl(context):
             name='send_keys',
             arguments={
                 'caller': 'behave-automation',
-                'locator_value': "//XCUIElementTypeTextField[@title='Search history']",
-                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': 'Search history',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
                 'text': 'mscaaa',
                 'need_snapshot': 0,
             },
