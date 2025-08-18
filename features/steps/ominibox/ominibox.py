@@ -837,30 +837,19 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('the page title should be "cat - Search"')
+@step('the "cat" should be displayed in the Bing search box')
 def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='time_sleep',
-            arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 2},
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='verify_element_attribute',
             arguments={
-                'attribute_name': 'title',
+                'attribute_name': 'value',
                 'caller': 'behave-automation',
-                'expected_value': 'cat - Search',
+                'expected_value': 'cat',
                 'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'cat - Search',
+                'locator_value': 'Enter your search here - Search suggestions will show as you '
+                'type',
                 'need_snapshot': 0,
                 'rule': '==',
             },

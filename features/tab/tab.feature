@@ -31,12 +31,11 @@ Feature: tab
   @p0
   Scenario: add tab to new tab group in horizontal mode
     Given Edge is launched
-    When I navigate to "https://www.apple.com"
-    And I new a tab and navigate to "https://www.google.com/"
-    And I right click on the tab title contains "Google"
-    And I click "Add tab to new group" from the context menu
-    Then a new tab group should be created with the "Google" tab
-    And the tab group should be named "Google"
+    When I new a tab and navigate to "https://www.youtube.com"
+    And I right click on the tab header of "Youtube" tab
+    And I click "Add tab to new group" from the right-click context menu
+    Then a new tab group should be created with the "Youtube" tab
+    And the tab group should be named "Youtube"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/43626630
   @p0
