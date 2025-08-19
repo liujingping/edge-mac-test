@@ -187,11 +187,14 @@ class SystemDialogHandler:
                                   capture_output=True, text=True, timeout=1)
             
             if result.stdout.strip():
+                logger.info(f"Detected system processes with dialogs: {result.stdout.strip()}")
                 processes = result.stdout.strip().split(', ')
                 for proc in processes:
                     for dialog in self.dialogs:
                         if dialog.get('process') == proc:
-                            detected_dialogs.append(dialog.get('name', proc))
+                            dialog_name = dialog.get('name', proc)
+                            detected_dialogs.append(dialog_name)
+                            logger.info(f"Found system dialog: {dialog_name} (process: {proc})")
             
         except Exception as e:
             logger.debug(f"Error during quick check: {e}")
