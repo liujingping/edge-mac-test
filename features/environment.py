@@ -16,6 +16,18 @@ from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client, StdioServerParameters
 
+# 导入系统弹窗处理器
+try:
+    from features.utils.system_dialog_handler import (
+        get_dialog_handler,
+        check_and_handle_system_dialogs,
+        enable_dialog_handling
+    )
+    DIALOG_HANDLER_AVAILABLE = True
+except ImportError:
+    DIALOG_HANDLER_AVAILABLE = False
+    logging.warning("System dialog handler not available")
+
 logger = logging.getLogger('behave_environment')
 
 session_ready = threading.Event()
@@ -88,6 +100,20 @@ def before_all(context):
     # 确保特定的logger也能正常工作
     logger.setLevel(logging.DEBUG)
     logger.info('Logging configured successfully')
+    
+    # 初始化系统弹窗处理器
+    if DIALOG_HANDLER_AVAILABLE:
+        dialog_handler = get_dialog_handler()
+        context.dialog_handler = dialog_handler
+        logger.info('System dialog handler initialized')
+        
+        # 检查是否通过环境变量禁用弹窗处理
+        if os.environ.get('DISABLE_DIALOG_HANDLER', '').lower() == 'true':
+            enable_dialog_handling(False)
+            logger.info('System dialog handling disabled via environment variable')
+        else:
+            enable_dialog_handling(True)
+            logger.info('System dialog handling enabled')
 
     # 初始化全局scenario计数器和总数
     # 使用全局变量来确保跨feature文件的连续性
@@ -237,6 +263,25 @@ def before_scenario(context, scenario):
     #     print(f"Warning: app_launch error: {str(e)}")
     # Allow the test to continue even if this fails
     pass
+
+
+def before_step(context, step):
+    """在每个测试步骤前检查并处理系统弹窗"""
+    if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
+        try:
+            # 快速检查是否有弹窗
+            detected = context.dialog_handler.quick_check()
+            if detected:
+                logger.debug(f'Detected system dialogs: {detected}')
+                
+            # 处理弹窗
+            if context.dialog_handler.check_and_handle_dialogs():
+                logger.info(f'Handled system dialog before step: {step.name}')
+                # 稍微等待一下确保弹窗处理完成
+                time.sleep(0.5)
+        except Exception as e:
+            logger.debug(f'Error checking for system dialogs: {e}')
+            # 不要因为弹窗处理失败而中断测试
 
 
 def take_screenshot(scenario_name):
