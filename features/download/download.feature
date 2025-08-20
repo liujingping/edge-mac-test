@@ -65,15 +65,17 @@ Feature: Download functionality in Microsoft Edge
     And the Downloads panel should not appear
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446069
-  @p0 @regression @download @slow_download
+  @p0 @regression @download
   Scenario: Pause and Resume download file
     Given Edge is launched
-    When I navigate to "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/2de44c02-6f01-4ed9-85f4-9e958c33f182/MicrosoftEdgeDev-140.0.3430.1.dmg?platform=Mac&channel=Dev&brand=M103&_.%25%E2%80%8B="
+    When I enable slow network
+    And I navigate to "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/2de44c02-6f01-4ed9-85f4-9e958c33f182/MicrosoftEdgeDev-140.0.3430.1.dmg?platform=Mac&channel=Dev&brand=M103&_.%25%E2%80%8B="
     Then the Downloads panel should appear
     When I click Downloads panel
     And I hover over the file name containing "MicrosoftEdgeDev" in the Downloads panel
     And I click the "Pause" button
     Then "Resume" button should be displayed in the Downloads panel
     When I click the "Resume" button
+    When I disable slow network
     And I wait for 120 seconds
     Then "Show in Finder" button should be displayed in the Downloads panel

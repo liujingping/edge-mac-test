@@ -21,24 +21,26 @@ try:
     from features.utils.system_dialog_handler import (
         get_dialog_handler,
         check_and_handle_system_dialogs,
-        enable_dialog_handling
+        enable_dialog_handling,
     )
+
     DIALOG_HANDLER_AVAILABLE = True
 except ImportError as e:
     DIALOG_HANDLER_AVAILABLE = False
-    logging.warning(f"System dialog handler not available: {e}")
+    logging.warning(f'System dialog handler not available: {e}')
 
 # 导入网络限速管理器
 try:
     from features.utils.network_throttling import (
         get_throttling_manager,
         apply_profile,
-        THROTTLING_PROFILES
+        THROTTLING_PROFILES,
     )
+
     NETWORK_THROTTLING_AVAILABLE = True
 except ImportError as e:
     NETWORK_THROTTLING_AVAILABLE = False
-    logging.warning(f"Network throttling not available: {e}")
+    logging.warning(f'Network throttling not available: {e}')
 
 logger = logging.getLogger('behave_environment')
 
@@ -112,13 +114,13 @@ def before_all(context):
     # 确保特定的logger也能正常工作
     logger.setLevel(logging.DEBUG)
     logger.info('Logging configured successfully')
-    
+
     # 初始化系统弹窗处理器
     if DIALOG_HANDLER_AVAILABLE:
         dialog_handler = get_dialog_handler()
         context.dialog_handler = dialog_handler
         logger.info('System dialog handler initialized')
-        
+
         # 检查是否通过环境变量禁用弹窗处理
         if os.environ.get('DISABLE_DIALOG_HANDLER', '').lower() == 'true':
             enable_dialog_handling(False)
@@ -263,7 +265,7 @@ def before_scenario(context, scenario):
     # 处理网络限速标签
     if NETWORK_THROTTLING_AVAILABLE:
         throttling_manager = get_throttling_manager()
-        
+
         # 检查是否有网络限速相关的标签
         throttling_applied = False
         for tag in scenario.tags:
@@ -278,7 +280,7 @@ def before_scenario(context, scenario):
                 else:
                     logger.error(f'Failed to apply network throttling profile: {tag}')
                 break
-            
+
             # 检查通用的慢速网络标签
             elif tag in ['slow_network', 'throttled', 'limited_bandwidth']:
                 logger.info('Applying default slow network throttling')
@@ -290,7 +292,7 @@ def before_scenario(context, scenario):
                 else:
                     logger.error('Failed to apply default slow network throttling')
                 break
-        
+
         if not throttling_applied:
             setattr(context, 'network_throttling_active', False)
     else:
@@ -321,7 +323,7 @@ def before_step(context, step):
             detected = context.dialog_handler.quick_check()
             if detected:
                 logger.debug(f'Detected system dialogs: {detected}')
-                
+
             # 处理弹窗
             if context.dialog_handler.check_and_handle_dialogs():
                 logger.info(f'Handled system dialog before step: {step.name}')
@@ -400,7 +402,9 @@ def after_scenario(context, scenario):
     logger.info(f'DEBUG: Feature: {feature_name}')
 
     # 移除网络限速（如果已应用）
-    if NETWORK_THROTTLING_AVAILABLE and getattr(context, 'network_throttling_active', False):
+    if NETWORK_THROTTLING_AVAILABLE and getattr(
+        context, 'network_throttling_active', False
+    ):
         throttling_manager = get_throttling_manager()
         profile = getattr(context, 'network_throttling_profile', 'unknown')
         logger.info(f'Removing network throttling profile: {profile}')
