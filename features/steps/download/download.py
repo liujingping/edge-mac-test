@@ -618,7 +618,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when(
+@step(
     'I navigate to "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/2de44c02-6f01-4ed9-85f4-9e958c33f182/MicrosoftEdgeDev-140.0.3430.1.dmg?platform=Mac&channel=Dev&brand=M103&_.%25%E2%80%8B="'
 )
 def step_impl(context):

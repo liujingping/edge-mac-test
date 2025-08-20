@@ -16,6 +16,32 @@ from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client, StdioServerParameters
 
+# 导入系统弹窗处理器
+try:
+    from features.utils.system_dialog_handler import (
+        get_dialog_handler,
+        check_and_handle_system_dialogs,
+        enable_dialog_handling,
+    )
+
+    DIALOG_HANDLER_AVAILABLE = True
+except ImportError as e:
+    DIALOG_HANDLER_AVAILABLE = False
+    logging.warning(f'System dialog handler not available: {e}')
+
+# 导入网络限速管理器
+try:
+    from features.utils.network_throttling import (
+        get_throttling_manager,
+        apply_profile,
+        THROTTLING_PROFILES,
+    )
+
+    NETWORK_THROTTLING_AVAILABLE = True
+except ImportError as e:
+    NETWORK_THROTTLING_AVAILABLE = False
+    logging.warning(f'Network throttling not available: {e}')
+
 logger = logging.getLogger('behave_environment')
 
 session_ready = threading.Event()
@@ -88,6 +114,20 @@ def before_all(context):
     # 确保特定的logger也能正常工作
     logger.setLevel(logging.DEBUG)
     logger.info('Logging configured successfully')
+
+    # 初始化系统弹窗处理器
+    if DIALOG_HANDLER_AVAILABLE:
+        dialog_handler = get_dialog_handler()
+        context.dialog_handler = dialog_handler
+        logger.info('System dialog handler initialized')
+
+        # 检查是否通过环境变量禁用弹窗处理
+        if os.environ.get('DISABLE_DIALOG_HANDLER', '').lower() == 'true':
+            enable_dialog_handling(False)
+            logger.info('System dialog handling disabled via environment variable')
+        else:
+            enable_dialog_handling(True)
+            logger.info('System dialog handling enabled')
 
     # 初始化全局scenario计数器和总数
     # 使用全局变量来确保跨feature文件的连续性
@@ -222,6 +262,42 @@ def before_scenario(context, scenario):
     logger.info(f'DEBUG: Starting Scenario {progress_info}: {scenario.name}')
     logger.info(f'DEBUG: Feature: {feature_name}')
 
+    # 处理网络限速标签
+    if NETWORK_THROTTLING_AVAILABLE:
+        throttling_manager = get_throttling_manager()
+
+        # 检查是否有网络限速相关的标签
+        throttling_applied = False
+        for tag in scenario.tags:
+            # 检查预定义的限速配置文件标签
+            if tag in THROTTLING_PROFILES:
+                logger.info(f'Applying network throttling profile: {tag}')
+                if apply_profile(throttling_manager, tag):
+                    throttling_applied = True
+                    setattr(context, 'network_throttling_active', True)
+                    setattr(context, 'network_throttling_profile', tag)
+                    logger.info(f'Network throttling "{tag}" applied successfully')
+                else:
+                    logger.error(f'Failed to apply network throttling profile: {tag}')
+                break
+
+            # 检查通用的慢速网络标签
+            elif tag in ['slow_network', 'throttled', 'limited_bandwidth']:
+                logger.info('Applying default slow network throttling')
+                if apply_profile(throttling_manager, 'slow_download'):
+                    throttling_applied = True
+                    setattr(context, 'network_throttling_active', True)
+                    setattr(context, 'network_throttling_profile', 'slow_download')
+                    logger.info('Default slow network throttling applied')
+                else:
+                    logger.error('Failed to apply default slow network throttling')
+                break
+
+        if not throttling_applied:
+            setattr(context, 'network_throttling_active', False)
+    else:
+        setattr(context, 'network_throttling_active', False)
+
     # context.scenario = scenario
     # try:
     #     result = call_tool_sync(context, context.session.call_tool(name="app_launch", arguments={"caller": "behave"}), timeout=60)
@@ -237,6 +313,25 @@ def before_scenario(context, scenario):
     #     print(f"Warning: app_launch error: {str(e)}")
     # Allow the test to continue even if this fails
     pass
+
+
+def before_step(context, step):
+    """在每个测试步骤前检查并处理系统弹窗"""
+    if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
+        try:
+            # 快速检查是否有弹窗
+            detected = context.dialog_handler.quick_check()
+            if detected:
+                logger.debug(f'Detected system dialogs: {detected}')
+
+            # 处理弹窗
+            if context.dialog_handler.check_and_handle_dialogs():
+                logger.info(f'Handled system dialog before step: {step.name}')
+                # 稍微等待一下确保弹窗处理完成
+                time.sleep(0.5)
+        except Exception as e:
+            logger.debug(f'Error checking for system dialogs: {e}')
+            # 不要因为弹窗处理失败而中断测试
 
 
 def take_screenshot(scenario_name):
@@ -305,6 +400,18 @@ def after_scenario(context, scenario):
     logger.info(f'-' * 80)
     logger.info(f'DEBUG: Finished Scenario {progress_info}: {scenario.name} - {status}')
     logger.info(f'DEBUG: Feature: {feature_name}')
+
+    # 移除网络限速（如果已应用）
+    if NETWORK_THROTTLING_AVAILABLE and getattr(
+        context, 'network_throttling_active', False
+    ):
+        throttling_manager = get_throttling_manager()
+        profile = getattr(context, 'network_throttling_profile', 'unknown')
+        logger.info(f'Removing network throttling profile: {profile}')
+        if throttling_manager.remove_throttling():
+            logger.info('Network throttling removed successfully')
+        else:
+            logger.error('Failed to remove network throttling')
 
     # Clean up temporary profile directory if it exists
     if hasattr(context, 'profile_path'):

@@ -7,6 +7,19 @@ import shutil
 import atexit
 import logging
 
+# 导入网络限速管理器
+try:
+    from features.utils.network_throttling import (
+        get_throttling_manager,
+        apply_profile,
+        THROTTLING_PROFILES,
+    )
+
+    NETWORK_THROTTLING_AVAILABLE = True
+except ImportError as e:
+    NETWORK_THROTTLING_AVAILABLE = False
+    logging.warning(f'Network throttling not available: {e}')
+
 
 logger = logging.getLogger('behave_environment')  # 使用与environment.py相同的logger名称
 
@@ -38,7 +51,6 @@ def create_profile_directory():
     """
     # 使用系统临时目录
     profile_root = tempfile.gettempdir()
-    logger.info(f'DEBUG: Using system temp directory: {profile_root}')
 
     # 生成随机文件夹名
     random_folder_name = f'edge-profile-{uuid.uuid4().hex[:8]}'
@@ -50,7 +62,6 @@ def create_profile_directory():
 
     # 添加到清理列表
     _temp_directories_to_cleanup.append(profile_path)
-    logger.info(f'DEBUG: Added to cleanup list: {profile_path}')
 
     return profile_path
 
@@ -68,7 +79,6 @@ def launch_edge_implementation(context):
     else:
         # 创建 profile 目录
         profile_path = create_profile_directory()
-        logger.info(f'DEBUG: Created new profile path: {profile_path}')
         # 将profile路径存储到context中，以便后续可能的清理
         context.profile_path = profile_path
 
@@ -102,3 +112,79 @@ def given_edge_launched(context):
 @step('I close and restart Edge')
 def step_close_and_restart_edge(context):
     launch_edge_implementation(context)
+
+
+@step('I enable slow network')
+def enable_slow_network(context):
+    """
+    启用低网速模式
+    使用默认的slow_download配置文件
+    """
+    if not NETWORK_THROTTLING_AVAILABLE:
+        logger.warning('Network throttling is not available on this system')
+        return
+
+    try:
+        manager = get_throttling_manager()
+
+        # 使用slow_download配置文件
+        profile_name = 'slow_download'
+        success = apply_profile(manager, profile_name)
+
+        if success:
+            # 在context中标记网络节流已激活
+            setattr(context, 'network_throttling_active', True)
+            setattr(context, 'network_throttling_profile', profile_name)
+
+            profile = THROTTLING_PROFILES[profile_name]
+            logger.info(
+                f"Enabled slow network with profile '{profile_name}': {profile['description']}"
+            )
+        else:
+            logger.error(f"Failed to enable slow network with profile '{profile_name}'")
+            raise Exception(
+                f"Failed to enable slow network with profile '{profile_name}'"
+            )
+
+    except Exception as e:
+        logger.error(f'Error enabling slow network: {e}')
+        raise
+
+
+@step('I disable slow network')
+def disable_slow_network(context):
+    """
+    禁用低网速模式，恢复正常网速
+    """
+    if not NETWORK_THROTTLING_AVAILABLE:
+        logger.warning('Network throttling is not available on this system')
+        return
+
+    try:
+        manager = get_throttling_manager()
+
+        # 检查是否已激活网络节流
+        is_active = getattr(context, 'network_throttling_active', False)
+        current_profile = getattr(context, 'network_throttling_profile', 'unknown')
+
+        if not is_active:
+            logger.info('Network throttling is not currently active')
+            return
+
+        success = manager.remove_throttling()
+
+        if success:
+            # 清除context中的网络节流标记
+            setattr(context, 'network_throttling_active', False)
+            setattr(context, 'network_throttling_profile', None)
+
+            logger.info(
+                f"Disabled slow network (was using profile '{current_profile}')"
+            )
+        else:
+            logger.error('Failed to disable slow network')
+            raise Exception('Failed to disable slow network')
+
+    except Exception as e:
+        logger.error(f'Error disabling slow network: {e}')
+        raise

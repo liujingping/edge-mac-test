@@ -1,0 +1,23 @@
+{
+  "enabled": true,
+  "check_interval": 0.5,
+  "dialogs": [
+    {
+      "name": "Local Network Discovery Permission",
+      "process": "UserNotificationCenter",
+      "window": null,
+      "buttons": [
+        {
+          "name": "Allow",
+          "action": "click",
+          "priority": 1
+        },
+        {
+          "name": "Don't Allow",
+          "action": "skip",
+          "priority": 2
+        }
+      ]
+    }
+  ]
+}
