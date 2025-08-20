@@ -247,8 +247,8 @@ dummynet out proto tcp pipe 2
 # Predefined throttling profiles for common test scenarios
 THROTTLING_PROFILES = {
     'slow_download': {
-        'download_speed_kbps': 50,
-        'upload_speed_kbps': 50,
+        'download_speed_kbps': 200,
+        'upload_speed_kbps': 200,
         'latency_ms': 100,
         'packet_loss_percent': 0.0,
         'description': 'Slow connection for download testing',
