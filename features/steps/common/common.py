@@ -38,7 +38,6 @@ def create_profile_directory():
     """
     # 使用系统临时目录
     profile_root = tempfile.gettempdir()
-    logger.info(f'DEBUG: Using system temp directory: {profile_root}')
 
     # 生成随机文件夹名
     random_folder_name = f'edge-profile-{uuid.uuid4().hex[:8]}'
@@ -50,7 +49,6 @@ def create_profile_directory():
 
     # 添加到清理列表
     _temp_directories_to_cleanup.append(profile_path)
-    logger.info(f'DEBUG: Added to cleanup list: {profile_path}')
 
     return profile_path
 
@@ -68,7 +66,6 @@ def launch_edge_implementation(context):
     else:
         # 创建 profile 目录
         profile_path = create_profile_directory()
-        logger.info(f'DEBUG: Created new profile path: {profile_path}')
         # 将profile路径存储到context中，以便后续可能的清理
         context.profile_path = profile_path
 

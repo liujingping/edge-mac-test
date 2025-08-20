@@ -36,9 +36,9 @@ try:
         THROTTLING_PROFILES
     )
     NETWORK_THROTTLING_AVAILABLE = True
-except ImportError:
+except ImportError as e:
     NETWORK_THROTTLING_AVAILABLE = False
-    logging.warning("Network throttling not available")
+    logging.warning(f"Network throttling not available: {e}")
 
 logger = logging.getLogger('behave_environment')
 
