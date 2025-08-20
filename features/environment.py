@@ -256,11 +256,8 @@ def before_scenario(context, scenario):
         else f'#{context.scenario_counter}'
     )
 
-    # 打印当前scenario信息，包括feature名称
-    feature_name = scenario.feature.name if scenario.feature else 'Unknown Feature'
     logger.info(f'=' * 80)
     logger.info(f'DEBUG: Starting Scenario {progress_info}: {scenario.name}')
-    logger.info(f'DEBUG: Feature: {feature_name}')
 
     # 处理网络限速标签
     if NETWORK_THROTTLING_AVAILABLE:
@@ -281,57 +278,32 @@ def before_scenario(context, scenario):
                     logger.error(f'Failed to apply network throttling profile: {tag}')
                 break
 
-            # 检查通用的慢速网络标签
-            elif tag in ['slow_network', 'throttled', 'limited_bandwidth']:
-                logger.info('Applying default slow network throttling')
-                if apply_profile(throttling_manager, 'slow_download'):
-                    throttling_applied = True
-                    setattr(context, 'network_throttling_active', True)
-                    setattr(context, 'network_throttling_profile', 'slow_download')
-                    logger.info('Default slow network throttling applied')
-                else:
-                    logger.error('Failed to apply default slow network throttling')
-                break
-
         if not throttling_applied:
             setattr(context, 'network_throttling_active', False)
     else:
         setattr(context, 'network_throttling_active', False)
 
-    # context.scenario = scenario
-    # try:
-    #     result = call_tool_sync(context, context.session.call_tool(name="app_launch", arguments={"caller": "behave"}), timeout=60)
-    #     # Add error checking to prevent test from failing silently
-    #     tool_json = get_tool_json(result)
-    #     if tool_json and tool_json.get("status") != "success":
-    #         print(f"Warning: app_launch failed with error: {tool_json.get('error')}")
-    # except TimeoutError as e:
-    #     print(f"Warning: app_launch timed out: {str(e)}")
-    #     # Allow the test to continue even if this fails
-    #     pass
-    # except Exception as e:
-    #     print(f"Warning: app_launch error: {str(e)}")
-    # Allow the test to continue even if this fails
     pass
 
 
 def before_step(context, step):
-    """在每个测试步骤前检查并处理系统弹窗"""
-    if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
-        try:
-            # 快速检查是否有弹窗
-            detected = context.dialog_handler.quick_check()
-            if detected:
-                logger.debug(f'Detected system dialogs: {detected}')
+    # """在每个测试步骤前检查并处理系统弹窗"""
+    # if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
+    #     try:
+    #         # 快速检查是否有弹窗
+    #         detected = context.dialog_handler.quick_check()
+    #         if detected:
+    #             logger.debug(f'Detected system dialogs: {detected}')
 
-            # 处理弹窗
-            if context.dialog_handler.check_and_handle_dialogs():
-                logger.info(f'Handled system dialog before step: {step.name}')
-                # 稍微等待一下确保弹窗处理完成
-                time.sleep(0.5)
-        except Exception as e:
-            logger.debug(f'Error checking for system dialogs: {e}')
-            # 不要因为弹窗处理失败而中断测试
+    #         # 处理弹窗
+    #         if context.dialog_handler.check_and_handle_dialogs():
+    #             logger.info(f'Handled system dialog before step: {step.name}')
+    #             # 稍微等待一下确保弹窗处理完成
+    #             time.sleep(0.5)
+    #     except Exception as e:
+    #         logger.debug(f'Error checking for system dialogs: {e}')
+    #         # 不要因为弹窗处理失败而中断测试
+    pass
 
 
 def take_screenshot(scenario_name):
@@ -387,19 +359,10 @@ def take_screenshot(scenario_name):
 
 
 def after_scenario(context, scenario):
-    # 获取总数和进度信息
-    total = getattr(context, 'total_scenarios', 0)
-    scenario_counter = getattr(context, 'scenario_counter', 0)
-    progress_info = (
-        f'({scenario_counter}/{total})' if total > 0 else f'#{scenario_counter}'
-    )
-
     # 打印scenario结束信息
     status = 'PASSED' if scenario.status == 'passed' else 'FAILED'
-    feature_name = scenario.feature.name if scenario.feature else 'Unknown Feature'
     logger.info(f'-' * 80)
-    logger.info(f'DEBUG: Finished Scenario {progress_info}: {scenario.name} - {status}')
-    logger.info(f'DEBUG: Feature: {feature_name}')
+    logger.info(f'DEBUG: Finished Scenario: {scenario.name} - {status}')
 
     # 移除网络限速（如果已应用）
     if NETWORK_THROTTLING_AVAILABLE and getattr(
