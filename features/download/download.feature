@@ -65,7 +65,7 @@ Feature: Download functionality in Microsoft Edge
     And the Downloads panel should not appear
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446069
-  @p0 @regression @download
+  @p0 @regression @download @slow_download
   Scenario: Pause and Resume download file
     Given Edge is launched
     When I navigate to "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/2de44c02-6f01-4ed9-85f4-9e958c33f182/MicrosoftEdgeDev-140.0.3430.1.dmg?platform=Mac&channel=Dev&brand=M103&_.%25%E2%80%8B="
