@@ -128,7 +128,9 @@ anchor "{self.pf_anchor}"
             # Apply pfctl configuration
             process = subprocess.Popen(['sudo', 'pfctl', '-f', '-'], 
                                      stdin=subprocess.PIPE, 
-                                     capture_output=True, text=True)
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE,
+                                     text=True)
             stdout, stderr = process.communicate(input=pf_rules)
             
             if process.returncode != 0:
@@ -143,7 +145,9 @@ dummynet out proto tcp pipe 2
             
             process = subprocess.Popen(['sudo', 'pfctl', '-a', self.pf_anchor, '-f', '-'], 
                                      stdin=subprocess.PIPE, 
-                                     capture_output=True, text=True)
+                                     stdout=subprocess.PIPE,
+                                     stderr=subprocess.PIPE,
+                                     text=True)
             stdout, stderr = process.communicate(input=dummynet_rules)
             
             if process.returncode != 0:
