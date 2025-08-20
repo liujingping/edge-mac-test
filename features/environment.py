@@ -24,9 +24,9 @@ try:
         enable_dialog_handling
     )
     DIALOG_HANDLER_AVAILABLE = True
-except ImportError:
+except ImportError as e:
     DIALOG_HANDLER_AVAILABLE = False
-    logging.warning("System dialog handler not available")
+    logging.warning(f"System dialog handler not available: {e}")
 
 # 导入网络限速管理器
 try:
