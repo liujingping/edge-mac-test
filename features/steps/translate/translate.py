@@ -118,27 +118,6 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('webpage should be displayed in English language')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Set it as the home page',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
 @when('I click "Translated" button on the address bar')
 def step_impl(context):
     result = call_tool_sync(
@@ -160,7 +139,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I select "Show original" in Translate popup')
+@step('I select "Show Original" in Translate popup')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -170,27 +149,6 @@ def step_impl(context):
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
                 'locator_value': 'Show Original',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@then('webpage should be displayed in Chinese language')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': '设为首页',
                 'need_snapshot': 0,
             },
         ),
@@ -241,3 +199,29 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+# --- auto-generated step ---
+@then('tab name is "Sina.com"')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="find_element", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.XPATH',
+            'locator_value': "//XCUIElementTypeTab[@label='Sina.com']",
+            'need_snapshot': 0}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@then('tab name is "新浪网"')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="find_element", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.XPATH',
+            'locator_value': "//XCUIElementTypeTab[@label='新浪网']",
+            'need_snapshot': 0}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
