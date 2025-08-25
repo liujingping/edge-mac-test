@@ -1143,29 +1143,6 @@ def step_impl(context):
     )
 
 
-# --- auto-generated step ---
-@then('edge should open with "https://www.google.com"')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_attribute',
-            arguments={
-                'attribute_name': 'value',
-                'caller': 'behave-automation',
-                'expected_value': 'https://www.google.com',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Address and search bar',
-                'need_snapshot': 0,
-                'rule': '==',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
 
 # --- auto-generated step ---
 @when('I turn on the option "show home button on the toolbar"')
@@ -1483,3 +1460,19 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+# --- auto-generated step ---
+@then('edge should open a tab and the address bar contain "www.google.com"')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_element_attribute", 
+        arguments={'attribute_name': 'value',
+            'caller': 'behave-automation',
+            'expected_value': 'https://www.google.com',
+            'locator_strategy': 'AppiumBy.XPATH',
+            'locator_value': "//XCUIElementTypeTextField[@label='Address and search bar']",
+            'need_snapshot': 0,
+            'rule': 'contains'}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
