@@ -135,7 +135,7 @@ Feature: Settings functionality
     And I click the "Use all open tabs" button
     Then url "https://www.google.com" should be added to the custom sites list
     When I close and restart Edge
-    Then edge should open with "https://www.google.com"
+    Then edge should open a tab and the address bar contain "www.google.com"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56614562
   @settings @smoke @p0
