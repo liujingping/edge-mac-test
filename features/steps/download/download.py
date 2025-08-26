@@ -619,7 +619,7 @@ def step_impl(context):
 
 # --- auto-generated step ---
 @step(
-    'I navigate to "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/2de44c02-6f01-4ed9-85f4-9e958c33f182/MicrosoftEdgeDev-140.0.3430.1.dmg?platform=Mac&channel=Dev&brand=M103&_.%25%E2%80%8B="'
+    'I navigate to "https://disk.sample.cat/samples/avi/1416529-hd_1920_1080_30fps.avi"'
 )
 def step_impl(context):
     result = call_tool_sync(
@@ -648,7 +648,7 @@ def step_impl(context):
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
                 'locator_value': 'Address and search bar',
                 'need_snapshot': 0,
-                'text': 'https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/2de44c02-6f01-4ed9-85f4-9e958c33f182/MicrosoftEdgeDev-140.0.3430.1.dmg?platform=Mac&channel=Dev&brand=M103&_.%25%E2%80%8B=',
+                'text': 'https://disk.sample.cat/samples/avi/1416529-hd_1920_1080_30fps.avi',
             },
         ),
     )
@@ -675,7 +675,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I hover over the file name containing "MicrosoftEdgeDev" in the Downloads panel')
+@step('I hover over the file name containing "1416529-hd_1920_1080_30fps" in the Downloads panel')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -686,7 +686,7 @@ def step_impl(context):
                 'duration': 2.0,
                 'locator_strategy': 'AppiumBy.XPATH',
                 'locator_value': '//XCUIElementTypeStaticText[contains(@value, '
-                '"MicrosoftEdgeDev")]',
+                '"1416529-hd_1920_1080_30fps")]',
                 'need_snapshot': 0,
             },
         ),

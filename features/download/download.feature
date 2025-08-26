@@ -69,10 +69,10 @@ Feature: Download functionality in Microsoft Edge
   Scenario: Pause and Resume download file
     Given Edge is launched
     When I enable slow network
-    And I navigate to "https://msedge.sf.dl.delivery.mp.microsoft.com/filestreamingservice/files/2de44c02-6f01-4ed9-85f4-9e958c33f182/MicrosoftEdgeDev-140.0.3430.1.dmg?platform=Mac&channel=Dev&brand=M103&_.%25%E2%80%8B="
+    And I navigate to "https://disk.sample.cat/samples/avi/1416529-hd_1920_1080_30fps.avi"
     Then the Downloads panel should appear
     When I click Downloads panel
-    And I hover over the file name containing "MicrosoftEdgeDev" in the Downloads panel
+    And I hover over the file name containing "1416529-hd_1920_1080_30fps" in the Downloads panel
     And I click the "Pause" button
     Then "Resume" button should be displayed in the Downloads panel
     When I click the "Resume" button
