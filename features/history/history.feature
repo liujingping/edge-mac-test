@@ -5,7 +5,7 @@ Feature: History functionality in Microsoft Edge
   Scenario: Click "X" to delete the browsing history
     Given Edge is launched
     When I navigate to "https://www.cgtn.com"
-    Then the "cgtn" website should be opnened
+    Then the "cgtn" website should be opened
     When I click "Settings and more" button in toolbar
     And I click "History" button
     And I hover over the "cgtn" website in History panel
@@ -26,7 +26,7 @@ Feature: History functionality in Microsoft Edge
   Scenario: Search words in history panel
     Given Edge is launched
     When I navigate to "https://www.cgtn.com"
-    Then the "cgtn" website should be opnened
+    Then the "cgtn" website should be opened
     When I click "Settings and more" button in toolbar
     And I click "History" button
     And I input "cgtn" in Search history box
@@ -39,7 +39,7 @@ Feature: History functionality in Microsoft Edge
   Scenario: Find closed website in Recently closed
     Given Edge is launched
     When I navigate to "https://www.cgtn.com"
-    Then the "cgtn" website should be opnened
+    Then the "cgtn" website should be opened
     When I open a new tab
     And I click "Close tab" button on the "cgtn" tab
     Then the "cgtn" tab cannot be found in the tab bar
@@ -52,13 +52,13 @@ Feature: History functionality in Microsoft Edge
   Scenario: Open viewed website in history hub
     Given Edge is launched
     When I navigate to "https://www.cgtn.com"
-    Then the "cgtn" website should be opnened
+    Then the "cgtn" website should be opened
     When I open a new tab
     And I click "Close tab" button on the "cgtn" tab
     And I press "cmd" and "Y" keys
     Then the "cgtn" website should be displayed in "All" in History panel
     And I click "cgtn" website in "All" in History panel
-    Then the "cgtn" website should be opened in new tab
+    Then the "cgtn" website should be opened
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/52566640
   @p0 @regression @history

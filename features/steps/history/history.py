@@ -599,13 +599,32 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('the "cgtn" website should be opened in new tab')
+@then('the "cgtn" website should be opened')
 def step_impl(context):
+    # Wait for page to load
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='time_sleep',
             arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 3},
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+    
+    # Verify that the CGTN website is opened by checking the tab title or URL
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_value': '//XCUIElementTypeTab[contains(@label,"CGTN")]',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'need_snapshot': 0,
+            },
         ),
     )
     result_json = get_tool_json(result)
