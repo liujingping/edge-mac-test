@@ -8,6 +8,7 @@ Feature: favorite
     And I click the "Add this page to favorites(⌘D)" button in the address bar
     And I click "Done" button in the favorite added dialog
     Then the favorite added dialog should be closed
+    And analyze the screenshot to verify the star icon is blue
     When I press "alt+cmd+B" to open Favorite hub
     And I click "Favorites bar" folder in hub
     Then "Search - Microsoft Bing" should appear in Favorites Bar
