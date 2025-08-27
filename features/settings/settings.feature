@@ -159,3 +159,23 @@ Feature: Settings functionality
     And I select the option "New tab page"
     When I click "Home" button to the left of the address bar
     Then should open a page titled "New Tab"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/58971089
+  @settings @smoke @p0
+  Scenario: Change browser theme in light mode
+    Given Edge is launched
+    When I navigate to "edge://settings/appearance"
+    And I select the option "light"
+    Then Analyze the screenshot to verify the Edge browser theme is light
+    When I select the "Juicy plum" in the theme color
+    Then Analyze the screenshot to verify the title bar and toolbar change color to purple
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/58971090
+  @settings @smoke @p0
+  Scenario: Change browser theme in dark mode
+    Given Edge is launched
+    When I navigate to "edge://settings/appearance"
+    And I select the option "Dark"
+    Then Analyze the screenshot to verify the Edge browser theme is dark
+    When I select the "Mystical forest" in the theme color
+    Then Analyze the screenshot to verify the title bar and toolbar change color to green
