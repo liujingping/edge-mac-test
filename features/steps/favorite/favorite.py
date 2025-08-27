@@ -112,6 +112,30 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
+@step('analyze the screenshot to verify the star icon is blue')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_visual_task',
+            arguments={
+                'caller': 'behave-automation',
+                'need_snapshot': 0,
+                'task_description': 'Verify that the star icon in the address bar is blue, '
+                'indicating the page is favorited. The star icon should be '
+                'located in the toolbar area near the address bar and '
+                "should appear in blue color to show it's been added to "
+                'favorites.',
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
 @then('the favorite added dialog should be closed')
 def step_impl(context):
     result = call_tool_sync(
