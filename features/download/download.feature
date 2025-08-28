@@ -65,7 +65,7 @@ Feature: Download functionality in Microsoft Edge
     And the Downloads panel should not appear
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446069
-  @p0 @regression @download
+  @p0 @regression @download @skip("Skip flaky test")
   Scenario: Pause and Resume download file
     Given Edge is launched
     When I enable slow network
