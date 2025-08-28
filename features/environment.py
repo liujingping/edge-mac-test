@@ -15,6 +15,7 @@ from datetime import datetime
 from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client, StdioServerParameters
+from behave.contrib.scenario_autoretry import patch_scenario_with_autoretry
 
 # 导入系统弹窗处理器
 try:
@@ -283,34 +284,43 @@ def before_scenario(context, scenario):
     else:
         setattr(context, 'network_throttling_active', False)
 
-    pass
+    # 检查并处理系统弹窗
+    if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
+        try:
+            # 快速检查是否有弹窗
+            detected = context.dialog_handler.quick_check()
+            if detected:
+                logger.info(f'Detected system dialogs: {detected}')
+                # 检测到系统弹窗时立即截图
+                screenshot_path = take_system_dialog_screenshot(scenario.name, str(detected))
+                if screenshot_path:
+                    logger.info(f'System dialog screenshot captured before handling')
+
+            # 处理弹窗
+            if context.dialog_handler.check_and_handle_dialogs():
+                logger.info(f'Handled system dialog before scenario: {scenario.name}')
+                # 稍微等待一下确保弹窗处理完成
+                time.sleep(0.5)
+        except Exception as e:
+            logger.info(f'Error checking for system dialogs: {e}')
+            # 不要因为弹窗处理失败而中断测试
 
 
 def before_step(context, step):
-    # """在每个测试步骤前检查并处理系统弹窗"""
-    # if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
-    #     try:
-    #         # 快速检查是否有弹窗
-    #         detected = context.dialog_handler.quick_check()
-    #         if detected:
-    #             logger.debug(f'Detected system dialogs: {detected}')
-
-    #         # 处理弹窗
-    #         if context.dialog_handler.check_and_handle_dialogs():
-    #             logger.info(f'Handled system dialog before step: {step.name}')
-    #             # 稍微等待一下确保弹窗处理完成
-    #             time.sleep(0.5)
-    #     except Exception as e:
-    #         logger.debug(f'Error checking for system dialogs: {e}')
-    #         # 不要因为弹窗处理失败而中断测试
     pass
 
 
-def take_screenshot(scenario_name):
+def _take_screenshot_internal(scenario_name, screenshot_type="", dialog_info=""):
     """
-    Take a full screen screenshot on macOS and save it with the scenario name
-    Screenshot naming convention: *{test_name}*.png
-    Storage location: SCREENSHOT_DIR environment variable
+    Internal function to take screenshots with different types
+    
+    Args:
+        scenario_name: Name of the scenario
+        screenshot_type: Type of screenshot ("system_dialog" or "")
+        dialog_info: Additional dialog information for logging
+    
+    Returns:
+        str: Path to saved screenshot or None if failed
     """
     try:
         # Get screenshot directory from environment variable
@@ -328,16 +338,15 @@ def take_screenshot(scenario_name):
         # Create screenshots directory if it doesn't exist
         screenshot_dir.mkdir(parents=True, exist_ok=True)
 
-        # Get testcase name (scenario_name is the testcase name)
-        name = scenario_name
+        # Clean test name for use as filename
+        test_name_pattern = clean_test_name(scenario_name)
 
-        # Clean test name for use as filename - replace spaces with underscores
-        # Screenshot naming convention: *{test_name}*.png
-        test_name_pattern = clean_test_name(name)
-
-        # Add timestamp to avoid filename conflicts while following the pattern
+        # Add timestamp and type indicator
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f'{test_name_pattern}_{timestamp}.png'
+        if screenshot_type:
+            filename = f'{test_name_pattern}_{screenshot_type}_{timestamp}.png'
+        else:
+            filename = f'{test_name_pattern}_{timestamp}.png'
 
         # Full path for the screenshot
         screenshot_path = screenshot_dir / filename
@@ -347,7 +356,12 @@ def take_screenshot(scenario_name):
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode == 0:
-            logger.info(f'Screenshot saved: {screenshot_path}')
+            if screenshot_type == "system_dialog":
+                logger.info(f'System dialog screenshot saved: {screenshot_path}')
+                if dialog_info:
+                    logger.info(f'Dialog details: {dialog_info}')
+            else:
+                logger.info(f'Screenshot saved: {screenshot_path}')
             return str(screenshot_path)
         else:
             logger.error(f'Screenshot failed: {result.stderr}')
@@ -356,6 +370,24 @@ def take_screenshot(scenario_name):
     except Exception as e:
         logger.error(f'Error taking screenshot: {str(e)}')
         return None
+
+
+def take_system_dialog_screenshot(scenario_name, dialog_info=""):
+    """
+    Take a screenshot when system dialog is detected
+    Screenshot naming convention: *{test_name}_system_dialog*.png
+    Storage location: SCREENSHOT_DIR environment variable
+    """
+    return _take_screenshot_internal(scenario_name, "system_dialog", dialog_info)
+
+
+def take_screenshot(scenario_name):
+    """
+    Take a full screen screenshot on macOS and save it with the scenario name
+    Screenshot naming convention: *{test_name}*.png
+    Storage location: SCREENSHOT_DIR environment variable
+    """
+    return _take_screenshot_internal(scenario_name)
 
 
 def after_scenario(context, scenario):
@@ -425,3 +457,8 @@ def clean_test_name(name):
     cleaned = cleaned.strip('_')
 
     return cleaned
+
+
+def before_feature(context, feature):
+    for scenario in feature.scenarios:
+        patch_scenario_with_autoretry(scenario, max_attempts=2)
