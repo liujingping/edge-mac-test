@@ -617,188 +617,188 @@ def step_impl(context):
     )
 
 
-# --- auto-generated step ---
-@step(
-    'I navigate to "https://disk.sample.cat/samples/avi/1416529-hd_1920_1080_30fps.avi"'
-)
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Address and search bar',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+# # --- auto-generated step ---
+# @step(
+#     'I navigate to "https://disk.sample.cat/samples/avi/1416529-hd_1920_1080_30fps.avi"'
+# )
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='click_element',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+#                 'locator_value': 'Address and search bar',
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='send_keys',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Address and search bar',
-                'need_snapshot': 0,
-                'text': 'https://disk.sample.cat/samples/avi/1416529-hd_1920_1080_30fps.avi',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='send_keys',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+#                 'locator_value': 'Address and search bar',
+#                 'need_snapshot': 0,
+#                 'text': 'https://disk.sample.cat/samples/avi/1416529-hd_1920_1080_30fps.avi',
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='press_key',
-            arguments={
-                'caller': 'behave-automation',
-                'key': 'return',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@step('I hover over the file name containing "1416529-hd_1920_1080_30fps" in the Downloads panel')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='mouse_hover',
-            arguments={
-                'caller': 'behave-automation',
-                'duration': 2.0,
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeStaticText[contains(@value, '
-                '"1416529-hd_1920_1080_30fps")]',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='press_key',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'key': 'return',
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
 
-# --- auto-generated step ---
-@step('I click the "Pause" button')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Pause',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+# # --- auto-generated step ---
+# @step('I hover over the file name containing "1416529-hd_1920_1080_30fps" in the Downloads panel')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='mouse_hover',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'duration': 2.0,
+#                 'locator_strategy': 'AppiumBy.XPATH',
+#                 'locator_value': '//XCUIElementTypeStaticText[contains(@value, '
+#                 '"1416529-hd_1920_1080_30fps")]',
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
 
-# --- auto-generated step ---
-@then('"Resume" button should be displayed in the Downloads panel')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Resume',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+# # --- auto-generated step ---
+# @step('I click the "Pause" button')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='click_element',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+#                 'locator_value': 'Pause',
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
 
-# --- auto-generated step ---
-@when('I click the "Resume" button')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Resume',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+# # --- auto-generated step ---
+# @then('"Resume" button should be displayed in the Downloads panel')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='verify_element_exists',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+#                 'locator_value': 'Resume',
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
 
-# --- auto-generated step ---
-@step('I wait for 120 seconds')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='time_sleep',
-            arguments={
-                'caller': 'behave-automation',
-                'need_snapshot': 0,
-                'seconds': 120,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+# # --- auto-generated step ---
+# @when('I click the "Resume" button')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='click_element',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+#                 'locator_value': 'Resume',
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
 
-# --- auto-generated step ---
-@then('"Show in Finder" button should be displayed in the Downloads panel')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Show in Finder',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+# # --- auto-generated step ---
+# @step('I wait for 120 seconds')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='time_sleep',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'need_snapshot': 0,
+#                 'seconds': 120,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
+
+
+# # --- auto-generated step ---
+# @then('"Show in Finder" button should be displayed in the Downloads panel')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='verify_element_exists',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+#                 'locator_value': 'Show in Finder',
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
 
 
 # --- auto-generated step ---
