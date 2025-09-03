@@ -214,12 +214,12 @@ Feature: favorite
   # And the "https://www.youtube.com" website should be displayed second
   # Verify the fav icon is blue
   @P0 @Regression @Favorites
-  Scenario: Favourite a website and verify the fav icon is blue color
+  Scenario: Favorite a website and verify the fav icon is blue color
     Given Edge is launched
-    When I right click on the "Favourites" button on the toolbar
+    When I right click on the "Favorites" button on the toolbar
     And I click "Unpin" in the pop up dialog
     And I open a new tab and navigate to "https://www.google.com"
     And I press "cmd+D" to add the current page to favorites
     And I press "enter"
     Then the favorite added dialog should be closed
-    And Analyze the screenshot to verify the colour of the "Edit favourite for this page" icon on the address bar is blue
+    And Analyze the screenshot to verify the colour of the "Edit favorite for this page" icon on the address bar is blue

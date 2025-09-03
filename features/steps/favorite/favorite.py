@@ -1654,7 +1654,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I right click on the "Favourites" button on the toolbar')
+@when('I right click on the "Favorites" button on the toolbar')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -1663,7 +1663,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Favourites',
+                'locator_value': 'Favorites',
                 'need_snapshot': 0,
             },
         ),
@@ -1808,7 +1808,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('Analyze the screenshot to verify the colour of the "Edit favourite for this page" icon on the address bar is blue')
+@step('Analyze the screenshot to verify the colour of the "Edit favorite for this page" icon on the address bar is blue')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -1818,7 +1818,7 @@ def step_impl(context):
                 'caller': 'behave-automation',
                 'need_snapshot': 0,
                 'task_description': 'Look at the address bar in the browser and identify the '
-                '"Edit favourite for this page" icon (star icon) and '
+                '"Edit favorite for this page" icon (star icon) and '
                 'verify that its color is blue. The icon should be located '
                 'on the right side of the address bar.',
             },
