@@ -37,8 +37,6 @@ class SystemDialogHandler:
         self.quick_check_timeout = 3
         self.button_click_timeout = 5
         
-        logger.debug(f'Dialog handler initialized with timeouts: quick_check={self.quick_check_timeout}s, button_click={self.button_click_timeout}s')
-
     def _load_config(self, config_path):
         """加载配置文件"""
         try:
