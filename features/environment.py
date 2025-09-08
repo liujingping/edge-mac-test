@@ -21,7 +21,6 @@ from behave.contrib.scenario_autoretry import patch_scenario_with_autoretry
 try:
     from features.utils.system_dialog_handler import (
         get_dialog_handler,
-        check_and_handle_system_dialogs,
         enable_dialog_handling,
     )
 
@@ -287,8 +286,16 @@ def before_scenario(context, scenario):
     # 检查并处理系统弹窗
     if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
         try:
-            # 快速检查是否有弹窗
-            detected = context.dialog_handler.quick_check()
+            # 快速检查是否有弹窗，设置较短的超时时间避免阻塞
+            logger.debug('Starting quick dialog check...')
+            detected = []
+            
+            try:
+                detected = context.dialog_handler.quick_check()
+            except Exception as e:
+                logger.debug(f'Dialog check failed: {e}')
+                detected = []
+                    
             if detected:
                 logger.info(f'Detected system dialogs: {detected}')
                 # 检测到系统弹窗时立即截图
@@ -296,14 +303,22 @@ def before_scenario(context, scenario):
                 if screenshot_path:
                     logger.info(f'System dialog screenshot captured before handling')
 
-            # 处理弹窗
-            if context.dialog_handler.check_and_handle_dialogs():
-                logger.info(f'Handled system dialog before scenario: {scenario.name}')
-                # 稍微等待一下确保弹窗处理完成
-                time.sleep(0.5)
+                # 处理弹窗 - 只处理实际检测到的弹窗
+                logger.debug('Attempting to handle detected dialogs...')
+                if context.dialog_handler.check_and_handle_dialogs(detected):
+                    logger.info(f'Handled system dialog before scenario: {scenario.name}')
+                    # 稍微等待一下确保弹窗处理完成
+                    time.sleep(0.5)
+                else:
+                    logger.warning(f'Failed to handle detected dialogs for scenario: {scenario.name}')
+            else:
+                logger.debug('No system dialogs detected, skipping dialog handling')
         except Exception as e:
-            logger.info(f'Error checking for system dialogs: {e}')
+            logger.warning(f'Error checking for system dialogs: {e}')
             # 不要因为弹窗处理失败而中断测试
+            # 但记录详细错误信息以便调试
+            import traceback
+            logger.debug(f'Dialog handling exception details: {traceback.format_exc()}')
 
 
 def before_step(context, step):
