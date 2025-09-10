@@ -799,30 +799,6 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step(
-    'I drag the "https://www.youtube.com" item from "Favorites bar" to "Other favorites"'
-)
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='drag_element_to_element',
-            arguments={
-                'caller': 'behave-automation',
-                'drop_position': 'center',
-                'need_snapshot': 0,
-                'source_xpath': "//XCUIElementTypeStaticText[@value='YouTube']",
-                'target_xpath': "//XCUIElementTypeStaticText[@value='Other Favorites']",
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
 @when('I click "Other favorites" folder in hub')
 def step_impl(context):
     result = call_tool_sync(
@@ -833,28 +809,6 @@ def step_impl(context):
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
                 'locator_value': 'Other Favorites',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@then('the "https://www.youtube.com" should be shown in "Other favorites" folder')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeOutlineRow[@title='Other "
-                "Favorites']//XCUIElementTypeStaticText[@value='YouTube']",
                 'need_snapshot': 0,
             },
         ),
@@ -1808,7 +1762,9 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('Analyze the screenshot to verify the colour of the "Edit favorite for this page" icon on the address bar is blue')
+@step(
+    'Analyze the screenshot to verify the colour of the "Edit favorite for this page" icon on the address bar is blue'
+)
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -1821,6 +1777,68 @@ def step_impl(context):
                 '"Edit favorite for this page" icon (star icon) and '
                 'verify that its color is blue. The icon should be located '
                 'on the right side of the address bar.',
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('Waiting for page to load')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='time_sleep',
+            arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 3},
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step(
+    'I drag the "https://www.apple.com" item from "Favorites bar" to "Other favorites"'
+)
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='drag_element_to_element',
+            arguments={
+                'caller': 'behave-automation',
+                'drop_position': 'center',
+                'need_snapshot': 0,
+                'source_xpath': "//XCUIElementTypeOutlineRow[@title='Apple']",
+                'target_xpath': "//XCUIElementTypeOutlineRow[@title='Other Favorites']",
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@then('the "https://www.apple.com" should be shown in "Other favorites" folder')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeOutlineRow[@title='Other "
+                "Favorites']//XCUIElementTypeOutlineRow[@title='Apple']",
+                'need_snapshot': 0,
             },
         ),
     )
