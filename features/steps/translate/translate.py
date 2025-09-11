@@ -4,7 +4,7 @@ from features.environment import call_tool_sync, get_tool_json
 
 
 # --- auto-generated step ---
-@when('I navigate to "www.sina.com.cn"')
+@when('I navigate to "https://www.sina.com.cn"')
 def step_impl(context):
     result = call_tool_sync(
         context,
