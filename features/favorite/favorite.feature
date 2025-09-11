@@ -88,14 +88,14 @@ Feature: favorite
   @P0 @Regression @Favorites
   Scenario: Drag a favorites item from "Favorites bar" to "Other favorites"
     Given Edge is launched
-    When I navigate to "https://www.youtube.com/"
+    When I navigate to "https://www.apple.com"
     And I click the "Add this page to favorites(⌘D)" button in the address bar
     And I press Enter key
     And I open Favorites hub
     And I click "Favorites bar" folder in hub
-    And I drag the "https://www.youtube.com" item from "Favorites bar" to "Other favorites"
+    And I drag the "https://www.apple.com" item from "Favorites bar" to "Other favorites"
     When I click "Other favorites" folder in hub
-    Then the "https://www.youtube.com" should be shown in "Other favorites" folder
+    Then the "https://www.apple.com" should be shown in "Other favorites" folder
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/44656560
   @P0 @Regression @Favorites
