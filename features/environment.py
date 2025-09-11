@@ -17,7 +17,7 @@ from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client, StdioServerParameters
 from behave.contrib.scenario_autoretry import patch_scenario_with_autoretry
 
-# 导入系统弹窗处理器
+# Import system dialog handler
 try:
     from features.utils.system_dialog_handler import (
         get_dialog_handler,
@@ -29,7 +29,7 @@ except ImportError as e:
     DIALOG_HANDLER_AVAILABLE = False
     logging.warning(f'System dialog handler not available: {e}')
 
-# 导入网络限速管理器
+# Import network throttling manager
 try:
     from features.utils.network_throttling import (
         get_throttling_manager,
@@ -46,6 +46,84 @@ logger = logging.getLogger('behave_environment')
 
 session_ready = threading.Event()
 TRANSPORT = 'stdio'  # Default transport method, can be changed to "sse" if needed
+
+
+def trigger_screenshot_permission():
+    """
+    Trigger screenshot permission dialog beforehand to ensure subsequent test runs won't be interrupted
+    If permission dialog appears, it will be automatically authorized; if handling fails, tests will be terminated
+    
+    Returns:
+        bool: True if permission is granted, False if permission acquisition failed and tests should be terminated
+    """
+    try:
+        logger.info("Checking screenshot permission...")
+        
+        # Create temporary screenshot file path
+        temp_dir = pathlib.Path(__file__).parent.parent / 'screenshots'
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        temp_screenshot = temp_dir / 'permission_test.png'
+        
+        # Check if system dialog handler is available
+        dialog_handler = None
+        if DIALOG_HANDLER_AVAILABLE:
+            from features.utils.system_dialog_handler import get_dialog_handler
+            dialog_handler = get_dialog_handler()
+            logger.info("System dialog handler is ready, will automatically handle permission dialogs if they appear")
+        
+        # Use screencapture command to trigger permission request
+        cmd = ['screencapture', '-x', str(temp_screenshot)]
+        
+        # Start screenshot command (may trigger permission dialog)
+        logger.info("Executing screenshot command to trigger permission check...")
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        # Wait a moment for permission dialog to appear
+        time.sleep(2)
+        
+        # Check if permission dialog appeared
+        if dialog_handler:
+            logger.info("Checking for permission dialogs...")
+            detected_dialogs = dialog_handler.quick_check()
+            
+            if detected_dialogs:
+                logger.info(f"Detected permission dialogs: {detected_dialogs}")
+                handled = dialog_handler.check_and_handle_dialogs(detected_dialogs)
+                
+                if handled:
+                    logger.info("✅ Permission dialog automatically handled, authorization granted")
+                    # Wait a bit more for permission to take effect
+                    time.sleep(2)
+                else:
+                    logger.error("❌ Failed to handle permission dialog, unable to grant authorization automatically")
+                    process.terminate()
+                    return False
+            else:
+                logger.info("No permission dialogs detected, permission may already exist")
+        
+        # Wait for screenshot command to complete
+        try:
+            stdout, stderr = process.communicate(timeout=10)
+            return_code = process.returncode
+        except subprocess.TimeoutExpired:
+            logger.error("Screenshot command timed out")
+            process.kill()
+            return False
+        
+        if return_code == 0:
+            logger.info("✅ Screenshot permission test successful, permission granted")
+            # Delete temporary screenshot file
+            if temp_screenshot.exists():
+                temp_screenshot.unlink()
+                logger.debug("Temporary screenshot file deleted")
+            return True
+        else:
+            logger.error(f"❌ Screenshot command execution failed: {stderr}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"Error occurred while triggering screenshot permission: {str(e)}")
+        return False
 
 
 def load_mcp_config():
@@ -97,13 +175,13 @@ def count_all_scenarios():
 def before_all(context):
     import threading
 
-    # 配置日志 - 为所有logger配置
-    # 获取根logger来配置全局日志
+    # Configure logging - for all loggers
+    # Get root logger to configure global logging
     root_logger = logging.getLogger()
     root_logger.handlers.clear()
     root_logger.setLevel(logging.DEBUG)
 
-    # 添加控制台处理器
+    # Add console handler
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
@@ -111,17 +189,34 @@ def before_all(context):
     console_handler.setFormatter(formatter)
     root_logger.addHandler(console_handler)
 
-    # 确保特定的logger也能正常工作
+    # Ensure specific logger works properly
     logger.setLevel(logging.DEBUG)
     logger.info('Logging configured successfully')
 
-    # 初始化系统弹窗处理器
+    # Trigger screenshot permission dialog beforehand (Critical: handle permission issues before all tests start)
+    logger.info("=" * 80)
+    logger.info("Checking and configuring screenshot permissions...")
+    permission_granted = trigger_screenshot_permission()
+    
+    if permission_granted:
+        logger.info("✅ Screenshot permission confirmed, tests can proceed normally")
+    else:
+        logger.error("❌ Screenshot permission acquisition failed, cannot continue running tests")
+        logger.error("   Please ensure relevant permissions are added in System Settings > Privacy & Security > Screen Recording")
+        logger.error("   Or check if system dialog handler configuration is correct")
+        logger.info("=" * 80)
+        # Permission acquisition failed, terminate test execution
+        raise RuntimeError("Screenshot permission not granted, cannot continue with tests")
+    
+    logger.info("=" * 80)
+
+    # Initialize system dialog handler
     if DIALOG_HANDLER_AVAILABLE:
         dialog_handler = get_dialog_handler()
         context.dialog_handler = dialog_handler
         logger.info('System dialog handler initialized')
 
-        # 检查是否通过环境变量禁用弹窗处理
+        # Check if dialog handling is disabled via environment variable
         if os.environ.get('DISABLE_DIALOG_HANDLER', '').lower() == 'true':
             enable_dialog_handling(False)
             logger.info('System dialog handling disabled via environment variable')
@@ -129,13 +224,13 @@ def before_all(context):
             enable_dialog_handling(True)
             logger.info('System dialog handling enabled')
 
-    # 初始化全局scenario计数器和总数
-    # 使用全局变量来确保跨feature文件的连续性
+    # Initialize global scenario counter and total count
+    # Use global variables to ensure continuity across feature files
     if not hasattr(before_all, '_global_counter'):
         before_all._global_counter = 0
         before_all._total_scenarios = count_all_scenarios()
 
-    # 使用 setattr 来避免 ContextMaskWarning
+    # Use setattr to avoid ContextMaskWarning
     setattr(context, 'scenario_counter', before_all._global_counter)
     setattr(context, 'total_scenarios', before_all._total_scenarios)
 
@@ -259,14 +354,14 @@ def before_scenario(context, scenario):
     logger.info(f'=' * 80)
     logger.info(f'DEBUG: Starting Scenario {progress_info}: {scenario.name}')
 
-    # 处理网络限速标签
+    # Handle network throttling tags
     if NETWORK_THROTTLING_AVAILABLE:
         throttling_manager = get_throttling_manager()
 
-        # 检查是否有网络限速相关的标签
+        # Check for network throttling related tags
         throttling_applied = False
         for tag in scenario.tags:
-            # 检查预定义的限速配置文件标签
+            # Check predefined throttling profile tags
             if tag in THROTTLING_PROFILES:
                 logger.info(f'Applying network throttling profile: {tag}')
                 if apply_profile(throttling_manager, tag):
@@ -283,10 +378,10 @@ def before_scenario(context, scenario):
     else:
         setattr(context, 'network_throttling_active', False)
 
-    # 检查并处理系统弹窗
+    # Check and handle system dialogs
     if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
         try:
-            # 快速检查是否有弹窗，设置较短的超时时间避免阻塞
+            # Quick check for dialogs with shorter timeout to avoid blocking
             logger.debug('Starting quick dialog check...')
             detected = []
             
@@ -298,16 +393,16 @@ def before_scenario(context, scenario):
                     
             if detected:
                 logger.info(f'Detected system dialogs: {detected}')
-                # 检测到系统弹窗时立即截图
+                # Capture screenshot immediately when system dialog is detected
                 screenshot_path = take_system_dialog_screenshot(scenario.name, str(detected))
                 if screenshot_path:
                     logger.info(f'System dialog screenshot captured before handling')
 
-                # 处理弹窗 - 只处理实际检测到的弹窗
+                # Handle dialogs - only handle actually detected dialogs
                 logger.debug('Attempting to handle detected dialogs...')
                 if context.dialog_handler.check_and_handle_dialogs(detected):
                     logger.info(f'Handled system dialog before scenario: {scenario.name}')
-                    # 稍微等待一下确保弹窗处理完成
+                    # Wait a bit to ensure dialog handling is complete
                     time.sleep(0.5)
                 else:
                     logger.warning(f'Failed to handle detected dialogs for scenario: {scenario.name}')
@@ -315,8 +410,8 @@ def before_scenario(context, scenario):
                 logger.debug('No system dialogs detected, skipping dialog handling')
         except Exception as e:
             logger.warning(f'Error checking for system dialogs: {e}')
-            # 不要因为弹窗处理失败而中断测试
-            # 但记录详细错误信息以便调试
+            # Don't interrupt tests due to dialog handling failure
+            # But log detailed error info for debugging
             import traceback
             logger.debug(f'Dialog handling exception details: {traceback.format_exc()}')
 
@@ -406,12 +501,12 @@ def take_screenshot(scenario_name):
 
 
 def after_scenario(context, scenario):
-    # 打印scenario结束信息
+    # Print scenario completion info
     status = 'PASSED' if scenario.status == 'passed' else 'FAILED'
     logger.info(f'-' * 80)
     logger.info(f'DEBUG: Finished Scenario: {scenario.name} - {status}')
 
-    # 移除网络限速（如果已应用）
+    # Remove network throttling (if applied)
     if NETWORK_THROTTLING_AVAILABLE and getattr(
         context, 'network_throttling_active', False
     ):

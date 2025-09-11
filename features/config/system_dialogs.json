@@ -18,6 +18,50 @@
           "priority": 2
         }
       ]
+    },
+    {
+      "name": "Screen Recording Permission",
+      "process": "universalAccessAuthWarn",
+      "window": null,
+      "buttons": [
+        {
+          "name": "Allow",
+          "action": "click",
+          "priority": 1
+        },
+        {
+          "name": "OK",
+          "action": "click",
+          "priority": 1
+        },
+        {
+          "name": "Don't Allow",
+          "action": "skip",
+          "priority": 2
+        }
+      ]
+    },
+    {
+      "name": "Bash Screen Recording Permission",
+      "process": "universalAccessAuthWarn",
+      "window": null,
+      "buttons": [
+        {
+          "name": "Allow",
+          "action": "click",
+          "priority": 1
+        },
+        {
+          "name": "OK",
+          "action": "click",
+          "priority": 1
+        },
+        {
+          "name": "Don't Allow",
+          "action": "skip",
+          "priority": 2
+        }
+      ]
     }
   ]
 }
