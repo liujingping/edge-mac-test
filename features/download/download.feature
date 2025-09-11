@@ -36,33 +36,33 @@ Feature: Download functionality in Microsoft Edge
     Then I can see address bar contains "Desktop" in the new tab
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533078
-  # @p0 @regression @download
-  # Scenario: Download a webpage file
-  #   Given Edge is launched
-  #   When I navigate to "https://www.bing.com"
-  #   And I right click on the page without selecting any text or element
-  #   And I click "Save As..." in the context menu
-  #   Then Save As window should appear
-  #   When I click "Save" button in Save As window
-  #   Then the Downloads panel should appear
-  #   When I click Downloads panel
-  #   And I click on the file name containing "Microsoft Bing" in the Downloads panel
-  #   Then address bar contains "Microsoft Bing" in the new tab
-  #   When I press "Alt" and "Command" and "L" keys
-  #   And I hover over the file name containing "Microsoft Bing" in the Downloads panel
-  #   And I click the "Delete file" button
-  #   Then the file name containing "Microsoft Bing" should be removed from the Downloads panel
+  @p0 @regression @download
+  Scenario: Download a webpage file
+    Given Edge is launched
+    When I navigate to "https://www.bing.com"
+    And I right click on the page without selecting any text or element
+    And I click "Save As..." in the context menu
+    Then Save As window should appear
+    When I click "Save" button in Save As window
+    Then the Downloads panel should appear
+    When I click Downloads panel
+    And I click on the file name containing "Microsoft Bing" in the Downloads panel
+    Then address bar contains "Microsoft Bing" in the new tab
+    When I press "Alt" and "Command" and "L" keys
+    And I hover over the file name containing "Microsoft Bing" in the Downloads panel
+    And I click the "Delete file" button
+    Then the file name containing "Microsoft Bing" should be removed from the Downloads panel
 
-  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533112
-  # Scenario: Cancel downloading a webpage file
-  #   Given Edge is launched
-  #   When I navigate to "https://www.bing.com"
-  #   And I right click on the page without selecting any text or element
-  #   And I click "Save As..." in the context menu
-  #   Then Save As window should appear
-  #   When I click "Cancel" button in Save As window
-  #   Then Save As window should be closed
-  #   And the Downloads panel should not appear
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56533112
+  Scenario: Cancel downloading a webpage file
+    Given Edge is launched
+    When I navigate to "https://www.bing.com"
+    And I right click on the page without selecting any text or element
+    And I click "Save As..." in the context menu
+    Then Save As window should appear
+    When I click "Cancel" button in Save As window
+    Then Save As window should be closed
+    And the Downloads panel should not appear
 
 # # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446069
 # @p0 @regression @download
