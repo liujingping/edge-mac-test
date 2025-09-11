@@ -48,6 +48,84 @@ session_ready = threading.Event()
 TRANSPORT = 'stdio'  # Default transport method, can be changed to "sse" if needed
 
 
+def trigger_screenshot_permission():
+    """
+    预先触发截图权限弹窗，确保后续测试运行时不会被权限弹窗中断
+    如果出现权限弹窗，会自动点击授权；如果处理失败，会导致测试终止
+    
+    Returns:
+        bool: True表示权限已获得，False表示权限获取失败，应该终止测试
+    """
+    try:
+        logger.info("正在检查截图权限...")
+        
+        # 创建临时截图文件路径
+        temp_dir = pathlib.Path(__file__).parent.parent / 'screenshots'
+        temp_dir.mkdir(parents=True, exist_ok=True)
+        temp_screenshot = temp_dir / 'permission_test.png'
+        
+        # 检查是否有系统弹窗处理器可用
+        dialog_handler = None
+        if DIALOG_HANDLER_AVAILABLE:
+            from features.utils.system_dialog_handler import get_dialog_handler
+            dialog_handler = get_dialog_handler()
+            logger.info("系统弹窗处理器已就绪，如有权限弹窗将自动处理")
+        
+        # 使用 screencapture 命令触发权限请求
+        cmd = ['screencapture', '-x', str(temp_screenshot)]
+        
+        # 启动截图命令（可能会触发权限弹窗）
+        logger.info("正在执行截图命令以触发权限检查...")
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        
+        # 等待一小段时间让权限弹窗出现
+        time.sleep(2)
+        
+        # 检查是否有权限弹窗出现
+        if dialog_handler:
+            logger.info("检查是否有权限弹窗...")
+            detected_dialogs = dialog_handler.quick_check()
+            
+            if detected_dialogs:
+                logger.info(f"检测到权限弹窗: {detected_dialogs}")
+                handled = dialog_handler.check_and_handle_dialogs(detected_dialogs)
+                
+                if handled:
+                    logger.info("✅ 权限弹窗已自动处理，已点击授权")
+                    # 再等待一下让权限生效
+                    time.sleep(2)
+                else:
+                    logger.error("❌ 权限弹窗处理失败，无法自动授权")
+                    process.terminate()
+                    return False
+            else:
+                logger.info("未检测到权限弹窗，可能权限已存在")
+        
+        # 等待截图命令完成
+        try:
+            stdout, stderr = process.communicate(timeout=10)
+            return_code = process.returncode
+        except subprocess.TimeoutExpired:
+            logger.error("截图命令超时")
+            process.kill()
+            return False
+        
+        if return_code == 0:
+            logger.info("✅ 截图权限测试成功，权限已获得")
+            # 删除临时截图文件
+            if temp_screenshot.exists():
+                temp_screenshot.unlink()
+                logger.debug("已删除临时截图文件")
+            return True
+        else:
+            logger.error(f"❌ 截图命令执行失败: {stderr}")
+            return False
+            
+    except Exception as e:
+        logger.error(f"触发截图权限时发生错误: {str(e)}")
+        return False
+
+
 def load_mcp_config():
     current_dir = pathlib.Path(__file__).parent.parent
     mcp_config_path = current_dir / '.vscode' / 'mcp.json'
@@ -114,6 +192,23 @@ def before_all(context):
     # 确保特定的logger也能正常工作
     logger.setLevel(logging.DEBUG)
     logger.info('Logging configured successfully')
+
+    # 预先触发截图权限弹窗（关键：在所有测试开始前处理权限问题）
+    logger.info("=" * 80)
+    logger.info("正在检查和配置截图权限...")
+    permission_granted = trigger_screenshot_permission()
+    
+    if permission_granted:
+        logger.info("✅ 截图权限已确认，测试可以正常进行")
+    else:
+        logger.error("❌ 截图权限获取失败，无法继续运行测试")
+        logger.error("   请确保在系统设置 > 隐私与安全性 > 屏幕录制中已添加相关权限")
+        logger.error("   或检查系统弹窗处理器配置是否正确")
+        logger.info("=" * 80)
+        # 权限获取失败，终止测试执行
+        raise RuntimeError("Screenshot permission not granted, cannot continue with tests")
+    
+    logger.info("=" * 80)
 
     # 初始化系统弹窗处理器
     if DIALOG_HANDLER_AVAILABLE:
