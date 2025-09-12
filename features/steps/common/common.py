@@ -6,6 +6,7 @@ import tempfile
 import shutil
 import atexit
 import logging
+import time
 
 # 导入网络限速管理器
 try:
@@ -19,6 +20,14 @@ try:
 except ImportError as e:
     NETWORK_THROTTLING_AVAILABLE = False
     logging.warning(f'Network throttling not available: {e}')
+
+# 导入系统弹窗处理器
+try:
+    from features.utils.system_dialog_handler import get_dialog_handler
+    SYSTEM_DIALOG_HANDLER_AVAILABLE = True
+except ImportError as e:
+    SYSTEM_DIALOG_HANDLER_AVAILABLE = False
+    logging.warning(f'System dialog handler not available: {e}')
 
 
 logger = logging.getLogger('behave_environment')  # 使用与environment.py相同的logger名称
@@ -102,6 +111,36 @@ def launch_edge_implementation(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
     logger.info('DEBUG: Edge application launched successfully')
+    
+    # 检查并处理系统弹窗
+    if SYSTEM_DIALOG_HANDLER_AVAILABLE:
+        logger.info('DEBUG: Checking for system dialogs after Edge launch...')
+        try:
+            dialog_handler = get_dialog_handler()
+            
+            # 等待一段时间让系统弹窗有机会出现
+            time.sleep(2)
+            
+            # 快速检查是否有系统弹窗
+            detected_dialogs = dialog_handler.quick_check()
+            
+            if detected_dialogs:
+                logger.info(f'DEBUG: Detected system dialogs: {detected_dialogs}')
+                handled = dialog_handler.check_and_handle_dialogs(detected_dialogs)
+                
+                if handled:
+                    logger.info('DEBUG: ✅ System dialogs automatically handled')
+                    # 再等待一段时间让处理生效
+                    time.sleep(1)
+                else:
+                    logger.warning('DEBUG: ⚠️ Failed to handle some system dialogs')
+            else:
+                logger.info('DEBUG: No system dialogs detected')
+                
+        except Exception as e:
+            logger.warning(f'DEBUG: Error during system dialog handling: {e}')
+    else:
+        logger.info('DEBUG: System dialog handler not available, skipping dialog check')
 
 
 @given('Edge is launched')

@@ -378,42 +378,7 @@ def before_scenario(context, scenario):
     else:
         setattr(context, 'network_throttling_active', False)
 
-    # Check and handle system dialogs
-    if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
-        try:
-            # Quick check for dialogs with shorter timeout to avoid blocking
-            logger.debug('Starting quick dialog check...')
-            detected = []
-            
-            try:
-                detected = context.dialog_handler.quick_check()
-            except Exception as e:
-                logger.debug(f'Dialog check failed: {e}')
-                detected = []
-                    
-            if detected:
-                logger.info(f'Detected system dialogs: {detected}')
-                # Capture screenshot immediately when system dialog is detected
-                screenshot_path = take_system_dialog_screenshot(scenario.name, str(detected))
-                if screenshot_path:
-                    logger.info(f'System dialog screenshot captured before handling')
 
-                # Handle dialogs - only handle actually detected dialogs
-                logger.debug('Attempting to handle detected dialogs...')
-                if context.dialog_handler.check_and_handle_dialogs(detected):
-                    logger.info(f'Handled system dialog before scenario: {scenario.name}')
-                    # Wait a bit to ensure dialog handling is complete
-                    time.sleep(0.5)
-                else:
-                    logger.warning(f'Failed to handle detected dialogs for scenario: {scenario.name}')
-            else:
-                logger.debug('No system dialogs detected, skipping dialog handling')
-        except Exception as e:
-            logger.warning(f'Error checking for system dialogs: {e}')
-            # Don't interrupt tests due to dialog handling failure
-            # But log detailed error info for debugging
-            import traceback
-            logger.debug(f'Dialog handling exception details: {traceback.format_exc()}')
 
 
 def before_step(context, step):
@@ -505,6 +470,43 @@ def after_scenario(context, scenario):
     status = 'PASSED' if scenario.status == 'passed' else 'FAILED'
     logger.info(f'-' * 80)
     logger.info(f'DEBUG: Finished Scenario: {scenario.name} - {status}')
+
+    # Check and handle system dialogs
+    if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
+        try:
+            # Quick check for dialogs with shorter timeout to avoid blocking
+            logger.debug('Starting quick dialog check after scenario...')
+            detected = []
+            
+            try:
+                detected = context.dialog_handler.quick_check()
+            except Exception as e:
+                logger.debug(f'Dialog check failed: {e}')
+                detected = []
+                    
+            if detected:
+                logger.info(f'Detected system dialogs after scenario: {detected}')
+                # Capture screenshot immediately when system dialog is detected
+                screenshot_path = take_system_dialog_screenshot(scenario.name, str(detected))
+                if screenshot_path:
+                    logger.info(f'System dialog screenshot captured before handling')
+
+                # Handle dialogs - only handle actually detected dialogs
+                logger.debug('Attempting to handle detected dialogs...')
+                if context.dialog_handler.check_and_handle_dialogs(detected):
+                    logger.info(f'Handled system dialog after scenario: {scenario.name}')
+                    # Wait a bit to ensure dialog handling is complete
+                    time.sleep(0.5)
+                else:
+                    logger.warning(f'Failed to handle detected dialogs for scenario: {scenario.name}')
+            else:
+                logger.debug('No system dialogs detected after scenario, skipping dialog handling')
+        except Exception as e:
+            logger.warning(f'Error checking for system dialogs after scenario: {e}')
+            # Don't interrupt tests due to dialog handling failure
+            # But log detailed error info for debugging
+            import traceback
+            logger.debug(f'Dialog handling exception details: {traceback.format_exc()}')
 
     # Remove network throttling (if applied)
     if NETWORK_THROTTLING_AVAILABLE and getattr(
