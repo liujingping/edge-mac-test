@@ -39,6 +39,7 @@ Feature: Download functionality in Microsoft Edge
   @p0 @regression @download
   Scenario: Download a webpage file
     Given Edge is launched
+    And I clean Edge downloads folder
     When I navigate to "https://www.bing.com"
     And I right click on the page without selecting any text or element
     And I click "Save As..." in the context menu
