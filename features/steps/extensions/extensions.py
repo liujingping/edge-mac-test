@@ -205,7 +205,7 @@ def step_impl(context):
     )
 
 
-@then('the Add "iCloud Passwords" to Microsoft Edge? dialog should be shown')
+@then('the Add "iCloud Passwords" to Microsoft Edge dialog should be shown')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -227,7 +227,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click "Add Extension" button in Add "iCloud Passwords" to Microsoft Edge? dialog')
+@when('I click "Add Extension" button in Add "iCloud Passwords" to Microsoft Edge dialog')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -248,7 +248,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('the Add "iCloud Passwords" to Microsoft Edge? dialog should be closed')
+@then('the Add "iCloud Passwords" to Microsoft Edge dialog should be closed')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -290,7 +290,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I navigate to "edge://extensions" again')
+@when('I navigate to "edge://extensions" again')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -364,6 +364,72 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
+# --- auto-generated step ---
+@when('I navigate to "https://microsoftedge.microsoft.com/addons/detail/icloud-passwords/mfbcdcnpokpoajjciilocoachedjkima"')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Address and search bar',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='send_keys',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Address and search bar',
+                'need_snapshot': 0,
+                'text': 'https://microsoftedge.microsoft.com/addons/detail/icloud-passwords/mfbcdcnpokpoajjciilocoachedjkima',
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='press_key',
+            arguments={
+                'caller': 'behave-automation',
+                'key': 'return',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='time_sleep',
+            arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 3},
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
 
 # --- auto-generated step ---
 @when('I click "Remove" button in "iCloud Passwords" card')
@@ -387,7 +453,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I click "Remove" button in Remove "iCloud Passwords" from Microsoft Edge? dialog')
+@step('I click "Remove" button in Remove "iCloud Passwords" from Microsoft Edge dialog')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -426,3 +492,5 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+
