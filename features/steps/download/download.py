@@ -81,7 +81,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I click Downloads panel')
+@when('I click "See More" in Downloads panel')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -89,8 +89,8 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeWindow[@title='Downloads']",
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'See More',
                 'need_snapshot': 0,
             },
         ),
