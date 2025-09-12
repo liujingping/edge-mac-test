@@ -6,6 +6,7 @@ import tempfile
 import shutil
 import atexit
 import logging
+import time
 
 # 导入网络限速管理器
 try:
@@ -19,6 +20,14 @@ try:
 except ImportError as e:
     NETWORK_THROTTLING_AVAILABLE = False
     logging.warning(f'Network throttling not available: {e}')
+
+# 导入系统弹窗处理器
+try:
+    from features.utils.system_dialog_handler import get_dialog_handler
+    SYSTEM_DIALOG_HANDLER_AVAILABLE = True
+except ImportError as e:
+    SYSTEM_DIALOG_HANDLER_AVAILABLE = False
+    logging.warning(f'System dialog handler not available: {e}')
 
 
 logger = logging.getLogger('behave_environment')  # 使用与environment.py相同的logger名称
@@ -102,6 +111,36 @@ def launch_edge_implementation(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
     logger.info('DEBUG: Edge application launched successfully')
+    
+    # 检查并处理系统弹窗
+    if SYSTEM_DIALOG_HANDLER_AVAILABLE:
+        logger.info('DEBUG: Checking for system dialogs after Edge launch...')
+        try:
+            dialog_handler = get_dialog_handler()
+            
+            # 等待一段时间让系统弹窗有机会出现
+            time.sleep(2)
+            
+            # 快速检查是否有系统弹窗
+            detected_dialogs = dialog_handler.quick_check()
+            
+            if detected_dialogs:
+                logger.info(f'DEBUG: Detected system dialogs: {detected_dialogs}')
+                handled = dialog_handler.check_and_handle_dialogs(detected_dialogs)
+                
+                if handled:
+                    logger.info('DEBUG: ✅ System dialogs automatically handled')
+                    # 再等待一段时间让处理生效
+                    time.sleep(1)
+                else:
+                    logger.warning('DEBUG: ⚠️ Failed to handle some system dialogs')
+            else:
+                logger.info('DEBUG: No system dialogs detected')
+                
+        except Exception as e:
+            logger.warning(f'DEBUG: Error during system dialog handling: {e}')
+    else:
+        logger.info('DEBUG: System dialog handler not available, skipping dialog check')
 
 
 @given('Edge is launched')
@@ -187,4 +226,83 @@ def disable_slow_network(context):
 
     except Exception as e:
         logger.error(f'Error disabling slow network: {e}')
+        raise
+
+
+def get_edge_downloads_path(context):
+    """
+    获取Edge浏览器的下载文件夹路径
+    Edge浏览器默认使用用户目录下的Downloads文件夹
+    """
+    # Edge浏览器始终使用用户目录下的Downloads文件夹
+    downloads_path = os.path.expanduser('~/Downloads')
+    
+    return downloads_path
+
+
+@step('I clean Edge downloads folder')
+def clean_edge_downloads_folder(context):
+    """
+    清空Edge浏览器的下载文件夹
+    """
+    downloads_path = get_edge_downloads_path(context)
+    
+    try:
+        if not os.path.exists(downloads_path):
+            logger.info(f'DEBUG: Downloads folder does not exist: {downloads_path}')
+            return
+            
+        # 获取下载文件夹中的所有文件和文件夹
+        items_to_remove = []
+        for item in os.listdir(downloads_path):
+            item_path = os.path.join(downloads_path, item)
+            items_to_remove.append(item_path)
+        
+        # 删除所有文件和文件夹
+        removed_count = 0
+        for item_path in items_to_remove:
+            try:
+                if os.path.isfile(item_path):
+                    os.remove(item_path)
+                    removed_count += 1
+                elif os.path.isdir(item_path):
+                    shutil.rmtree(item_path)
+                    removed_count += 1
+            except Exception as e:
+                logger.warning(f'DEBUG: Failed to remove {item_path}: {e}')
+        
+        logger.info(f'DEBUG: Cleaned Edge downloads folder, removed {removed_count} items from {downloads_path}')
+        
+    except Exception as e:
+        logger.error(f'Error cleaning Edge downloads folder: {e}')
+        raise
+
+
+@step('I clean Edge downloads file "{filename}"')
+def clean_edge_downloads_file(context, filename):
+    """
+    删除Edge浏览器下载文件夹中的指定文件
+    
+    Args:
+        filename: 要删除的文件名
+    """
+    downloads_path = get_edge_downloads_path(context)
+    file_path = os.path.join(downloads_path, filename)
+    
+    try:
+        if not os.path.exists(file_path):
+            logger.info(f'DEBUG: File does not exist: {file_path}')
+            return
+            
+        if os.path.isfile(file_path):
+            os.remove(file_path)
+            logger.info(f'DEBUG: Removed file: {file_path}')
+        elif os.path.isdir(file_path):
+            shutil.rmtree(file_path)
+            logger.info(f'DEBUG: Removed directory: {file_path}')
+        else:
+            logger.warning(f'DEBUG: Unknown file type, cannot remove: {file_path}')
+            
+    except Exception as e:
+        logger.error(f'Error removing file {filename} from Edge downloads folder: {e}')
         raise
