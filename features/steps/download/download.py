@@ -81,7 +81,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click "See More" in Downloads panel')
+@step('I click "Search downloads" in Downloads panel')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -90,7 +90,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'See More',
+                'locator_value': 'Search downloads',
                 'need_snapshot': 0,
             },
         ),

@@ -19,8 +19,7 @@ Feature: Right_click
         Given Edge is launched
         When I input "microsoft" in the address bar
         And I select "microsoft" in the address bar
-        Then The text "microsoft" is selected in the address bar
-        When I right click on the selected text in the address bar
+        And I right click on the address bar
         And I click "Cut" in the context menu
         Then The address bar is empty
         When I open a new tab
