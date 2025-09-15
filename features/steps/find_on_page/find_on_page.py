@@ -4,7 +4,7 @@ from features.environment import call_tool_sync, get_tool_json
 
 
 # --- auto-generated step ---
-@when('I navigate to "edge://settings/profiles"')
+@when('I navigate to "edge://settings/startHomeNTP"')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -32,7 +32,7 @@ def step_impl(context):
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
                 'locator_value': 'Address and search bar',
                 'need_snapshot': 0,
-                'text': 'edge://settings/profiles',
+                'text': 'edge://settings/startHomeNTP',
             },
         ),
     )
@@ -101,7 +101,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I input "settings" into "Find on page" dialog')
+@when('I input "open" into "Find on page" dialog')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -112,7 +112,7 @@ def step_impl(context):
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
                 'locator_value': 'Find on page',
                 'need_snapshot': 0,
-                'text': 'settings',
+                'text': 'open',
             },
         ),
     )
@@ -123,7 +123,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('the indicator containing "1/7" should be shown in "Find on page" dialog')
+@then('the indicator containing "1/5" should be shown in "Find on page" dialog')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -132,11 +132,11 @@ def step_impl(context):
             arguments={
                 'attribute_name': 'label',
                 'caller': 'behave-automation',
-                'expected_value': '1/7',
+                'expected_value': '1/5',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeGroup[@label='1/7']",
+                'locator_value': "//XCUIElementTypeGroup[@label='1/5']",
                 'need_snapshot': 0,
-                'rule': 'contains',
+                'rule': '==',
             },
         ),
     )
@@ -156,12 +156,11 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'need_snapshot': 0,
-                'task_description': 'Verify that multiple search results for the word '
-                '"settings" are highlighted/marked on the current Edge '
-                'settings page. The page should show visual highlighting '
-                '(like yellow highlighting or similar) on multiple '
-                'instances of the word "settings" throughout the page '
-                'content to indicate the 7 matched results.',
+                'task_description': 'Analyze the screenshot to verify the multiple matched '
+                'results are highlighted in current page. Look for '
+                'highlighted text instances of "open" on the Settings page '
+                'that should be visually highlighted to indicate search '
+                'matches.',
             },
         ),
     )
@@ -259,11 +258,12 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'need_snapshot': 0,
-                'task_description': 'Verify that no search results are highlighted on the '
-                'current Edge settings page when searching for '
-                "'nonexistentword'. The page should show no yellow "
-                'highlighting or search result indicators anywhere on the '
-                'settings content.',
+                'task_description': 'Verify that there are no matched results highlighted on '
+                'the current page. The search term "nonexistentword" '
+                'should not have any visible highlights or matches on the '
+                'settings page. Look for any highlighted text, colored '
+                'backgrounds, or search result indicators on the page '
+                'content.',
             },
         ),
     )
