@@ -61,7 +61,11 @@ def step_impl(context):
         context,
         context.session.call_tool(
             name='time_sleep',
-            arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 3},
+            arguments={
+                'caller': 'behave-automation',
+                'need_snapshot': 0,
+                'seconds': 3
+            },
         ),
     )
     result_json = get_tool_json(result)
