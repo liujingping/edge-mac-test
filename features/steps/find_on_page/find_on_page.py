@@ -122,29 +122,6 @@ def step_impl(context):
     )
 
 
-# --- auto-generated step ---
-@then('the indicator containing "1/5" should be shown in "Find on page" dialog')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_attribute',
-            arguments={
-                'attribute_name': 'label',
-                'caller': 'behave-automation',
-                'expected_value': '1/5',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeGroup[@label='1/5']",
-                'need_snapshot': 0,
-                'rule': '==',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
 
 # --- auto-generated step ---
 @step('Analyze the screenshot to verify the multiple matched results are highlighted in current page')
@@ -271,3 +248,21 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+
+
+# --- auto-generated step ---
+@then('the indicator containing "1/5" should be shown in "Find on page" dialog')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_element_attribute", 
+        arguments={'attribute_name': 'label',
+            'caller': 'behave-automation',
+            'expected_value': 'Result 1 of 5',
+            'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+            'locator_value': 'Result 1 of 5',
+            'need_snapshot': 0,
+            'rule': '=='}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
