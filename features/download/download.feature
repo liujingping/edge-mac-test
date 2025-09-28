@@ -66,18 +66,30 @@ Feature: Download functionality in Microsoft Edge
     Then Save As window should be closed
     And the Downloads panel should not appear
 
-# # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446069
-# @p0 @regression @download
-# Scenario: Pause and Resume download file
-#   Given Edge is launched
-#   When I enable slow network
-#   And I navigate to "https://disk.sample.cat/samples/avi/1416529-hd_1920_1080_30fps.avi"
-#   Then the Downloads panel should appear
-#   When I click Downloads panel
-#   And I hover over the file name containing "1416529-hd_1920_1080_30fps" in the Downloads panel
-#   And I click the "Pause" button
-#   Then "Resume" button should be displayed in the Downloads panel
-#   When I click the "Resume" button
-#   When I disable slow network
-#   And I wait for 120 seconds
-#   Then "Show in Finder" button should be displayed in the Downloads panel
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446069
+  @p0 @regression @download
+  Scenario: Pause and Resume download file
+    Given Edge is launched
+    When I enable slow network
+    And I navigate to "https://disk.sample.cat/samples/avi/1416529-hd_1920_1080_30fps.avi"
+    Then the Downloads panel should appear
+    When I click "Search downloads" in Downloads panel
+    And I hover over the file name containing "1416529-hd_1920_1080_30fps" in the Downloads panel
+    And I click the "Pause" button
+    Then "Resume" button should be displayed in the Downloads panel
+    When I click the "Resume" button
+    When I disable slow network
+    And I wait for 60 seconds
+    Then "Show in Finder" button should be displayed in the Downloads panel
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56446028
+  @p0 @regression @download
+  Scenario: Download a file and open downloads finder
+    Given Edge is launched
+    When I navigate to "https://getsamplefiles.com/download/pdf/sample-1.pdf"
+    Then the Downloads panel should appear
+    When I click "Search downloads" in Downloads panel
+    And I hover over the file name containing "sample-1" in the Downloads panel
+    And I click the "Show in Finder" button
+    Then Downloads Window should be opened
+    And I can see the file name containing "sample-1" in the Downloads Window
