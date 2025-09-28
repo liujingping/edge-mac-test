@@ -111,30 +111,6 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step(
-    'move the mouse to the top left corner and hover on the Zoom button in the small screen'
-)
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='mouse_hover',
-            arguments={
-                'caller': 'behave-automation',
-                'duration': 2.0,
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeButton[@identifier='_XCUI:FullScreenWindow']",
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
 @step('click "Full Screen" button from the dropdown menu')
 def step_impl(context):
     result = call_tool_sync(
