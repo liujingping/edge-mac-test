@@ -1,9 +1,8 @@
 Feature: Full Screen Mode Tests
 
-
-# https://microsoft.visualstudio.com/Edge/_workitems/edit/59390173
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390173
   @p0 @regression @download @full_screen
-Scenario: Download a file and open file by clicking "Open file" button in full screen mode
+  Scenario: Download a file and open file by clicking "Open file" button in full screen mode
     Given Edge is launched
     When I click "Settings and more" button on toolbar
     And I click "Full screen" button from the dropdown menu
@@ -20,9 +19,9 @@ Scenario: Download a file and open file by clicking "Open file" button in full s
     And I move the mouse to the top left corner and hover on the Zoom button in the small screen
     Then verify the tooltip text contains "Move & Resize"
 
-# https://microsoft.visualstudio.com/Edge/_workitems/edit/59390204
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390204
   @p0 @regression @download @full_screen
-Scenario: Search favorites item in Favorites hub in full screen mode
+  Scenario: Search favorites item in Favorites hub in full screen mode
     Given Edge is launched
     And I press "ctrl+cmd+f" keys to enter full screen mode
     And move the mouse to the top left corner and hover on the Zoom button
@@ -39,7 +38,6 @@ Scenario: Search favorites item in Favorites hub in full screen mode
     And I press "ctrl+cmd+f" keys to exit full screen mode
     And I move the mouse to the top left corner and hover on the Zoom button in the small screen
     Then verify the tooltip text contains "Move & Resize"
-
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390208
   @P0 @Regression @Favorites @full_screen
@@ -66,7 +64,7 @@ Scenario: Search favorites item in Favorites hub in full screen mode
     And I move the mouse to the top left corner and hover on the Zoom button in the small screen
     Then verify the tooltip text contains "Move & Resize"
 
-     # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390228
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390228
   @P0 @Regression @Favorites @full_screen
   Scenario: Edit an item name on Favorites bar in full screen mode
     Given Edge is launched
@@ -93,7 +91,7 @@ Scenario: Search favorites item in Favorites hub in full screen mode
     And I move the mouse to the top left corner and hover on the Zoom button in the small screen
     Then verify the tooltip text contains "Move & Resize"
 
-    # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390252
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390252
   @p0 @regression @history @full_screen
   Scenario: Search words in history panel in full screen mode
     Given Edge is launched
@@ -110,11 +108,11 @@ Scenario: Search favorites item in Favorites hub in full screen mode
     When I input "aaaaaa" in Search history box
     Then shows No results found for "aaaaaa" in History panel
     When I click on the Address and search bar
-     And I press "ctrl+cmd+f" keys to exit full screen mode
-     And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-     Then verify the tooltip text contains "Move & Resize"
+    And I press "ctrl+cmd+f" keys to exit full screen mode
+    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
+    Then verify the tooltip text contains "Move & Resize"
 
-    # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390256
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390256
   @p0 @regression @history @full_screen
   Scenario: Restore a tab by clicking the "History" in full screen
     Given Edge is launched
@@ -136,7 +134,7 @@ Scenario: Search favorites item in Favorites hub in full screen mode
     And I move the mouse to the top left corner and hover on the Zoom button in the small screen
     Then verify the tooltip text contains "Move & Resize"
 
-      # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390267
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390267
   @p0 @regression @history @full_screen
   Scenario: Click "X" to delete the browsing history in full screen
     Given Edge is launched
@@ -150,12 +148,12 @@ Scenario: Search favorites item in Favorites hub in full screen mode
     And I hover over the "cgtn" website in History panel
     And I click "Delete" button in History panel
     Then the "cgtn" website should not be displayed in History panel
-    When I click on the Address and search bar  
+    When I click on the Address and search bar
     And I click the Zoom button on the top left corner in full screen
     And I move the mouse to the top left corner and hover on the Zoom button in the small screen
     Then verify the tooltip text contains "Move & Resize"
 
-        # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390283
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390283
   @p0 @regression @tab_management @full_screen
   Scenario: Close a tab in vertical mode in full screen
     Given Edge is launched
@@ -175,7 +173,7 @@ Scenario: Search favorites item in Favorites hub in full screen mode
     And I move the mouse to the top left corner and hover on the Zoom button in the small screen
     Then verify the tooltip text contains "Move & Resize"
 
-        # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390280
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390280
   @p0 @regression @tab_management @full_screen
   Scenario: Drag a tab in horizontal mode in full screen
     Given Edge is launched
@@ -190,10 +188,9 @@ Scenario: Search favorites item in Favorites hub in full screen mode
     And I move the mouse to the top left corner and hover on the Zoom button in the small screen
     Then verify the tooltip text contains "Move & Resize"
 
-
-        # https://microsoft.visualstudio.com/Edge/_workitems/edit/57534406
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/57534406
   @p0 @regression @ominibox @full_screen
-  Scenario:  Use the shortcut key to copy or cut then paste part URL in address bar in full screen
+  Scenario: Use the shortcut key to copy or cut then paste part URL in address bar in full screen
     Given Edge is launched
     When I click the Zoom button on the top left corner in small screen
     And move the mouse to the top left corner and hover on the Zoom button
