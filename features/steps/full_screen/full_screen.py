@@ -239,3 +239,109 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+
+# --- auto-generated step ---
+@when('I press "fn+f" to enter full screen mode')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='press_key',
+            arguments={
+                'caller': 'behave-automation',
+                'key': 'fn+f',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('I click Back button in the toolbar')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Back',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@when('I click Forward button in the toolbar')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Forward',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@then('the address bar should display the complete URL "https://www.bing.com"')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_attribute',
+            arguments={
+                'attribute_name': 'value',
+                'caller': 'behave-automation',
+                'expected_value': 'https://www.bing.com',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Address and search bar',
+                'need_snapshot': 0,
+                'rule': '==',
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@when('I press the "fn+f" to exit the full screen mode')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='press_key',
+            arguments={
+                'caller': 'behave-automation',
+                'key': 'fn+f',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
