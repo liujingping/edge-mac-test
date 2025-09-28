@@ -209,3 +209,20 @@ Feature: Full Screen Mode Tests
     When I click the Zoom button on the top left corner in full screen
     And I move the mouse to the top left corner and hover on the Zoom button in the small screen
     Then verify the tooltip text contains "Move & Resize"
+
+   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59411821
+  @p0 @regression @full_screen
+   Scenario: Back and forward a webpage in full screen
+    Given Edge is launched
+    When I press "fn+f" to enter full screen mode
+    And move the mouse to the top left corner and hover on the Zoom button
+    Then verify the tooltip text contains "Exit Full Screen"
+    When I navigate to "https://www.apple.com"
+    And I navigate to "https://www.bing.com"
+    And I click Back button in the toolbar
+    Then the address bar should display the complete URL "https://www.apple.com"
+    When I click Forward button in the toolbar
+    Then the address bar should display the complete URL "https://www.bing.com"
+    When I press the "fn+f" to exit the full screen mode
+    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
+    Then verify the tooltip text contains "Move & Resize"
