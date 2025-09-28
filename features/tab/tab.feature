@@ -72,7 +72,7 @@ Feature: tab
     And I click "Close tab" from the right-click context menu
     Then the "bing" tab should be closed
     When I right click on the tab header of "New Tab" tab
-    And I press "ctrl+w"
+    And I press "cmd+w"
     Then the "New Tab" tab should be closed
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/58970956
