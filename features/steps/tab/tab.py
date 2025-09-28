@@ -418,7 +418,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I press "ctrl+shift+t" to reopen the closed tab')
+@when('I press "cmd+shift+t" to reopen the closed tab')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -1031,7 +1031,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I press "ctrl+w"')
+@step('I press "cmd+w"')
 def step_impl(context):
     result = call_tool_sync(
         context,
