@@ -44,7 +44,7 @@ Feature: tab
     When I new a tab and navigate to "https://www.apple.com"
     And I click the "Close Tab" button on the "Apple" tab header
     Then the "Apple" tab should be closed
-    When I press "ctrl+shift+t" to reopen the closed tab
+    When I press "cmd+shift+t" to reopen the closed tab
     Then the "Apple" tab should be reopened
     And the address bar should display the complete URL "https://www.apple.com"
 
@@ -71,8 +71,7 @@ Feature: tab
     And I right click on the tab header of "bing" tab
     And I click "Close tab" from the right-click context menu
     Then the "bing" tab should be closed
-    When I right click on the tab header of "New Tab" tab
-    And I press "cmd+w"
+    When I press "cmd+w"
     Then the "New Tab" tab should be closed
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/58970956

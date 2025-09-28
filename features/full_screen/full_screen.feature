@@ -2,7 +2,7 @@ Feature: Full Screen Mode Tests
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390173
   @p0 @regression @download @full_screen
-  Scenario: Download a file and open file by clicking "Open file" button in full screen mode
+  Scenario: Download a file and click file name to open in full screen mode
     Given Edge is launched
     When I click "Settings and more" button on toolbar
     And I click "Full screen" button from the dropdown menu
