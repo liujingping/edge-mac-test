@@ -16,8 +16,7 @@ Feature: Full Screen Mode Tests
     When I click on the Address and search bar
     And move the mouse to the top left corner and hover on the Zoom button
     And I click "Exit Full Screen" button from the dropdown menu
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390204
   @p0 @regression @download @full_screen
@@ -36,8 +35,7 @@ Feature: Full Screen Mode Tests
     Then the "Youtube" website should be displayed in search results of Favorites hub
     When I click on the Address and search bar
     And I press "ctrl+cmd+f" keys to exit full screen mode
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390208
   @P0 @Regression @Favorites @full_screen
@@ -61,8 +59,7 @@ Feature: Full Screen Mode Tests
     Then the "No results found" message should be displayed in Favorites hub
     When I click on the Address and search bar
     And I press "ctrl+cmd+f" keys to exit full screen mode
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390228
   @P0 @Regression @Favorites @full_screen
@@ -88,8 +85,7 @@ Feature: Full Screen Mode Tests
     Then the "bingbing" website name should be shown in Favorites bar
     When I click on the Address and search bar
     And I press "ctrl+cmd+f" keys to exit full screen mode
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390252
   @p0 @regression @history @full_screen
@@ -109,8 +105,7 @@ Feature: Full Screen Mode Tests
     Then shows No results found for "aaaaaa" in History panel
     When I click on the Address and search bar
     And I press "ctrl+cmd+f" keys to exit full screen mode
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390256
   @p0 @regression @history @full_screen
@@ -131,8 +126,7 @@ Feature: Full Screen Mode Tests
     Then the "Apple" tab should be reopened
     When I click on the Address and search bar
     And I press "ctrl+cmd+f" keys to exit full screen mode
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390267
   @p0 @regression @history @full_screen
@@ -150,8 +144,7 @@ Feature: Full Screen Mode Tests
     Then the "cgtn" website should not be displayed in History panel
     When I click on the Address and search bar
     And I click the Zoom button on the top left corner in full screen
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390283
   @p0 @regression @tab_management @full_screen
@@ -170,8 +163,7 @@ Feature: Full Screen Mode Tests
     And I click "Close tab" from the right-click context menu
     Then the "bing" tab should be closed
     When I click the Zoom button on the top left corner in full screen
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59390280
   @p0 @regression @tab_management @full_screen
@@ -185,8 +177,7 @@ Feature: Full Screen Mode Tests
     And I drag the "Google" tab to the far left of the "Apple" tab
     Then "Google" tab is on the left of the "Apple" tab
     When I click the Zoom button on the top left corner in full screen
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/57534406
   @p0 @regression @ominibox @full_screen
@@ -207,8 +198,7 @@ Feature: Full Screen Mode Tests
     And I press "cmd+V" to paste the cut text
     Then "apple" should be displayed in the address bar
     When I click the Zoom button on the top left corner in full screen
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
 
    # https://microsoft.visualstudio.com/Edge/_workitems/edit/59411821
   @p0 @regression @full_screen
@@ -224,5 +214,4 @@ Feature: Full Screen Mode Tests
     When I click Forward button in the toolbar
     Then the address bar should display the complete URL "https://www.bing.com"
     When I press the "fn+f" to exit the full screen mode
-    And I move the mouse to the top left corner and hover on the Zoom button in the small screen
-    Then verify the tooltip text contains "Move & Resize"
+    Then Verify the full screen mode has been exited
