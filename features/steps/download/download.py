@@ -658,7 +658,9 @@ def step_impl(context):
 
 
 # # --- auto-generated step ---
-# @step('I hover over the file name containing "1416529-hd_1920_1080_30fps" in the Downloads panel')
+# @step(
+#     'I hover over the file name containing "1416529-hd_1920_1080_30fps" in the Downloads panel'
+# )
 # def step_impl(context):
 #     result = call_tool_sync(
 #         context,
@@ -743,24 +745,24 @@ def step_impl(context):
 #     )
 
 
-# # --- auto-generated step ---
-# @step('I wait for 120 seconds')
-# def step_impl(context):
-#     result = call_tool_sync(
-#         context,
-#         context.session.call_tool(
-#             name='time_sleep',
-#             arguments={
-#                 'caller': 'behave-automation',
-#                 'need_snapshot': 0,
-#                 'seconds': 120,
-#             },
-#         ),
-#     )
-#     result_json = get_tool_json(result)
-#     assert result_json.get('status') == 'success', (
-#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-#     )
+# --- auto-generated step ---
+@step('I wait for 60 seconds')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='time_sleep',
+            arguments={
+                'caller': 'behave-automation',
+                'need_snapshot': 0,
+                'seconds': 60,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
 
 
 # # --- auto-generated step ---
@@ -906,6 +908,93 @@ def step_impl(context):
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
                 'locator_value': "//XCUIElementTypeStaticText[@value='Removed']",
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('I click the "Show in Finder" button')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Show in Finder',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@then('I can see Finder contains "sample-1"')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='find_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//*[contains(@value, "sample-1") or contains(@label, "sample-1") or contains(@name, "sample-1")]',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@then('Downloads Window should be opened')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeWindow[contains(@title, 'Downloads') and "
+                "not(contains(@title, 'Edge'))]",
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('I can see the file name containing "sample-1" in the Downloads Window')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeStaticText[contains(@value, 'sample-1') and "
+                "not(ancestor::*[@title='Downloads' and contains(@title, "
+                "'Edge')])]",
                 'need_snapshot': 0,
             },
         ),
