@@ -247,48 +247,6 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('Analyze the screenshot to verify the webpage has highlighted text is cleared')
-def step_impl(context):
-    # First verify that Read Aloud toolbar is no longer present
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_not_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Pause Read Aloud (⇧⌘U)',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected Read Aloud toolbar to be closed (no pause button), got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-    # Optionally take a screenshot for visual verification
-    try:
-        result = call_tool_sync(
-            context,
-            context.session.call_tool(
-                name='verify_visual_task',
-                arguments={
-                    'caller': 'behave-automation',
-                    'need_snapshot': 0,
-                    'task_description': 'Verify that the webpage is back to normal state without Read Aloud highlighting or toolbar',
-                },
-            ),
-        )
-        result_json = get_tool_json(result)
-        logging.info(
-            f'Visual verification result: {result_json.get("data", {}).get("reason", "No reason provided")}'
-        )
-    except Exception as e:
-        logging.warning(f'Visual verification completed with note: {e}')
-
-
-# --- auto-generated step ---
 @step('I press "shift+cmd+U" keys')
 def step_impl(context):
     result = call_tool_sync(
@@ -309,7 +267,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click on the tab name containing "Wikipedia"')
+@step('I click on the tab name containing "Wikipedia"')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -330,7 +288,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('I can see Read Aloud toolbar')
+@step('I can see Read Aloud toolbar')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -348,58 +306,6 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
-
-
-# --- auto-generated step ---
-@step('Analyze the screenshot to verify the webpage has highlighted text')
-def step_impl(context):
-    # Verify Read Aloud toolbar is present
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Read Aloud',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f'Read Aloud toolbar not found: {result_json.get("error")}'
-    )
-
-    # Try visual verification, fallback to audio check if needed
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_visual_task',
-            arguments={
-                'caller': 'behave-automation',
-                'need_snapshot': 0,
-                'task_description': 'Check for text highlighting on Wikipedia page indicating Read Aloud is active',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-
-    if result_json.get('status') != 'success':
-        # Fallback: check for audio playing indicator
-        page_result = call_tool_sync(
-            context,
-            context.session.call_tool(
-                name='get_page_source_tree',
-                arguments={'caller': 'behave-automation', 'need_snapshot': 0},
-            ),
-        )
-        page_json = get_tool_json(page_result)
-        page_source = page_json.get('data', {}).get('page_source', '')
-        assert 'Mute tab' in page_source or 'Audio playing' in page_source, (
-            'No Read Aloud activity detected'
-        )
-        logging.info('Read Aloud verified via audio indicator')
 
 
 # --- auto-generated step ---
@@ -444,3 +350,35 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+
+# --- auto-generated step ---
+@step('Analyze the screenshot to verify the webpage has highlighted text')
+def step_impl(context):
+    time.sleep(3)
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_visual_task", 
+        arguments={'caller': 'behave-automation',
+            'need_snapshot': 0,
+            'task_description': 'Verify that the Wikipedia webpage has highlighted '
+                                'the webpage is in reading mode'
+                                'highlighted text visible on the page'
+                                'text due to Read Aloud feature being active'}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+
+# --- auto-generated step ---
+@step('Analyze the screenshot to verify highlighted text is cleared')
+def step_impl(context):
+    time.sleep(3)
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_visual_task", 
+        arguments={'caller': 'behave-automation',
+            'need_snapshot': 0,
+            'task_description': 'Verify that there is no highlighted text on the Wikipedia '
+                                'webpage after closing Read Aloud feature'}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
