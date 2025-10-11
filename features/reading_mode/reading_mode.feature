@@ -8,10 +8,10 @@ Feature: Reading Mode
     And I open Reading Mode
     Then Reading Mode toolbar should appear
     And I can see reading mode icon in the address bar
-    And Analyze the screenshot to verify the webpage is in reading mode
+    And I can see address bar contains "read://"
     When I click "Exit Immersive Reader" button in Reading Mode toolbar
     Then Reading Mode toolbar should be closed
-    And Analyze the screenshot to verify the webpage is exited from reading mode
+    And I can see address bar does not contain "read://"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56500049
   @p0 @regression @reading_mode

@@ -46,16 +46,17 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('Analyze the screenshot to verify the webpage is in reading mode')
+@step('I can see address bar contains "read://"')
 def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='verify_visual_task',
+            name='verify_element_exists',
             arguments={
                 'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeTextField[contains(@value, 'read://')]",
                 'need_snapshot': 0,
-                'task_description': 'Verify the webpage is in reading mode - the page URL should show "read://" instead of "https://"',
             },
         ),
     )
@@ -108,16 +109,17 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('Analyze the screenshot to verify the webpage is exited from reading mode')
+@step('I can see address bar does not contain "read://"')
 def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='verify_visual_task',
+            name='verify_element_not_exists',
             arguments={
                 'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeTextField[contains(@value, 'read://')]",
                 'need_snapshot': 0,
-                'task_description': 'Verify the webpage has exited from reading mode - the page URL should show "https://" instead of "read://"',
             },
         ),
     )
