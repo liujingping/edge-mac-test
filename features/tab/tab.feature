@@ -91,6 +91,7 @@ Feature: tab
     Then the page should be refreshed
     And the address bar still displays the complete URL "https://www.youtube.com"
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/58970966
   @p0
   Scenario: reopen a closed tab in vertical mode
     Given Edge is launched
@@ -105,6 +106,7 @@ Feature: tab
     Then the "Apple" tab should be reopened
     And the address bar should display the complete URL "https://www.apple.com"
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/58970959
   @p0
   Scenario: Pin a tab in vertical mode
     Given Edge is launched
