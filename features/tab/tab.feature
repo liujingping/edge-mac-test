@@ -49,7 +49,7 @@ Feature: tab
     And the address bar should display the complete URL "https://www.apple.com"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/58970954
-  @p0 @p0
+  @p0
   Scenario: open new tab to the right
     Given Edge is launched
     When I open a new tab
@@ -90,3 +90,32 @@ Feature: tab
     When I click the "Refresh" button on the toolbar
     Then the page should be refreshed
     And the address bar still displays the complete URL "https://www.youtube.com"
+
+  @p0
+  Scenario: reopen a closed tab in vertical mode
+    Given Edge is launched
+    When I new a tab and navigate to "https://www.apple.com"
+    And I right click on the tab header of "Apple" tab
+    And I click "Turn on vertical tabs" from the right-click context menu
+    Then Analyze the screenshot to verify that the vertical tabs shown on the left side of the window
+    When I click on the Address and search bar
+    And I click the "Close Tab" button on the "Apple" tab header
+    Then the "Apple" tab should be closed
+    When I press "ctrl+shift+t" to reopen the closed tab
+    Then the "Apple" tab should be reopened
+    And the address bar should display the complete URL "https://www.apple.com"
+
+  @p0
+  Scenario: Pin a tab in vertical mode
+    Given Edge is launched
+    When I open a new tab
+    And I navigate to "https://www.bing.com"
+    And I right click on the tab header of "Search - Microsoft Bing" tab
+    And I click "Turn on vertical tabs" from the right-click context menu
+    And I click "Settings and more" button on toolbar
+    Then Analyze the screenshot to verify that the vertical tabs shown on the left side of the window
+    When I right click on the "Search - Microsoft Bing" tab on the vertical tab bar
+    And I click "Pin tab" from the right-click context menu
+    Then the "bing" tab should be pinned
+    When I click the "Search - Microsoft Bing" tab in the vertical tab bar
+    Then the address bar should contains "www.bing.com"
