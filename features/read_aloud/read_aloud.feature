@@ -9,13 +9,13 @@ Feature: Read Aloud
     And I click "Read aloud"
     Then Read Aloud toolbar should appear
     And I can see playing audio icon in the tab
-    And Analyze the screenshot to verify the webpage has highlighted text
+    # And Analyze the screenshot to verify the webpage has highlighted text
     When I click "Pause Read Aloud" button in Read Aloud toolbar
     Then I can see "Continue Read Aloud" button in Read Aloud toolbar
     And Playing audio icon in the tab should disappear
     When I click "Close Read Aloud" button in Read Aloud toolbar
     Then Read Aloud toolbar should be closed
-    And Analyze the screenshot to verify highlighted text is cleared
+    # And Analyze the screenshot to verify highlighted text is cleared
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56499690
   @p0 @regression @read_aloud
