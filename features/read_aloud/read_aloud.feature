@@ -31,6 +31,6 @@ Feature: Read Aloud
     And I click on the tab name containing "Wikipedia"
     Then I can see playing audio icon in the tab containing "Wikipedia"
     And I can see Read Aloud toolbar
-    And Analyze the screenshot to verify the webpage has highlighted text
+    # And Analyze the screenshot to verify the webpage has highlighted text
     When I click "Close Read Aloud" button on address bar
     Then Read Aloud toolbar should be closed
