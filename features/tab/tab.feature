@@ -102,7 +102,7 @@ Feature: tab
     When I click on the Address and search bar
     And I click the "Close Tab" button on the "Apple" tab header
     Then the "Apple" tab should be closed
-    When I press "ctrl+shift+t" to reopen the closed tab
+    When I press "cmd+shift+t" to reopen the closed tab
     Then the "Apple" tab should be reopened
     And the address bar should display the complete URL "https://www.apple.com"
 
@@ -114,7 +114,7 @@ Feature: tab
     And I navigate to "https://www.bing.com"
     And I right click on the tab header of "Search - Microsoft Bing" tab
     And I click "Turn on vertical tabs" from the right-click context menu
-    And I click "Settings and more" button on toolbar
+    And I press escape to close popup
     Then Analyze the screenshot to verify that the vertical tabs shown on the left side of the window
     When I right click on the "Search - Microsoft Bing" tab on the vertical tab bar
     And I click "Pin tab" from the right-click context menu

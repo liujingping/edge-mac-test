@@ -1201,27 +1201,6 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click the "Search - Microsoft Bing" tab in the vertical tab bar')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeTab[@label='New Tab' and @value='1']",
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
 @then('the address bar should contains "www.bing.com"')
 def step_impl(context):
     result = call_tool_sync(
@@ -1256,6 +1235,47 @@ def step_impl(context):
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
                 'locator_value': "//XCUIElementTypeTab[@label='Search - Microsoft Bing']",
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('I press escape to close popup')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='press_key',
+            arguments={
+                'caller': 'behave-automation',
+                'key': 'escape',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@when('I click the "Search - Microsoft Bing" tab in the vertical tab bar')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeTab[@value="1"]',
                 'need_snapshot': 0,
             },
         ),
