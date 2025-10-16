@@ -294,28 +294,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
-# --- auto-generated step ---
-@then('verify the copilot have no conversation history contains "microsoft"')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_not_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'You said microsoft',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
 # --- auto-generated step ---
 @when('I type "Larry Page create what company" in the input box')
 def step_impl(context):
@@ -358,7 +336,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
 # --- auto-generated step ---
 @then('the Copilot response should contains  "Google"')
 def step_impl(context):
@@ -378,3 +355,18 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+
+# --- auto-generated step ---
+@then('verify the copilot have no conversation history contains "microsoft"')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_element_not_exists", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.XPATH',
+            'locator_value': ' //"microsoft")]',
+            'need_snapshot': 0}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
