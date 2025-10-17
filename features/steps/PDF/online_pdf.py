@@ -92,7 +92,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click "Highlight" button in the PDF viewer toolbar')
+@when('I click "Draw" button in the PDF viewer toolbar')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -100,8 +100,8 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Highlight',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeCheckBox[@label="Draw"]',
                 'need_snapshot': 0,
             },
         ),
@@ -113,28 +113,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('Analyze the screenshot to verify the "highlight(yellow)" tool is activated')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_visual_task',
-            arguments={
-                'caller': 'behave-automation',
-                'need_snapshot': 0,
-                'task_description': 'Analyze the screenshot to verify the "highlight(yellow)" '
-                'tool is activated',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@when('I select text containing "May 2001" in the PDF')
+@step('I select text containing "May 2001" in the PDF')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -173,38 +152,33 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('Analyze the screenshot to verify the selected text is highlighted')
+@then('Analyze the screenshot to verify the selected text is drawn with blue color')
 def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_visual_task',
-            arguments={
-                'caller': 'behave-automation',
-                'need_snapshot': 0,
-                'task_description': 'Verify that the text "May 2001" is highlighted '
-                'in yellow in the PDF viewer, showing visual highlighting '
-                'applied to the selected text',
-            },
-        ),
-    )
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_visual_task", 
+        arguments={'caller': 'behave-automation',
+            'need_snapshot': 0,
+            'task_description': 'Verify that the text "May 2001" in the PDF now has blue '
+                                'drawing marks or annotations on it after the drag drawing '
+                                'action. Look for blue ink strokes, lines, or marks that '
+                                'indicate drawing was performed on or near the text "May '
+                                '2001".'}
+    ))
     result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
 
 
 # --- auto-generated step ---
-@when('I close the current tab')
+@when('I press "Cmd+W" keys')
 def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='click_element',
+            name='press_key',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Close tab',
+                'key': 'cmd+w',
                 'need_snapshot': 0,
             },
         ),
@@ -279,6 +253,27 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
+@when('I click "Highlight" button in the PDF viewer toolbar')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Highlight',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
 @when('I click "Erase" button in the PDF viewer toolbar')
 def step_impl(context):
     result = call_tool_sync(
@@ -298,46 +293,6 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-
-# --- auto-generated step ---
-@step('I select text containing "May 2001" in the PDF again')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeStaticText[contains(@value, 'May 2001')]",
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='drag_element_to_element',
-            arguments={
-                'caller': 'behave-automation',
-                'drop_position': 'right_edge',
-                'need_snapshot': 0,
-                'source_xpath': "//XCUIElementTypeStaticText[contains(@value,'May 2001')]",
-                'target_xpath': "//XCUIElementTypeStaticText[contains(@value,'May 2001')]",
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
 @then('Analyze the screenshot to verify the selected text highlighting is removed')
 def step_impl(context):
     result = call_tool_sync(
@@ -446,3 +401,11 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+
+
+
+
+
+
+
