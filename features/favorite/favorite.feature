@@ -115,13 +115,15 @@ Feature: favorite
   @P0 @Regression @Favorites
   Scenario: Delete a favorite item from favorites bar
     Given Edge is launched
-    When I navigate to "https://www.youtube.com/"
+    When I press "cmd+t" to open a new tab
+    And I navigate to "https://www.youtube.com/"
     And I click "Favorites" button in the toolbar
     And I click the "More options" button in the favorites hub
     And I click the "Add this page to favorites" button in the more options menu
     And I press Enter key
     Then the "Youtube" website should be added to Favorites hub
     When I press "Shift+cmd+B" to toggle Favorites bar
+    And I press "cmd+w" to close the current tab
     And I right-click on "https://www.youtube.com/" in Favorites bar
     And I click "Delete" button in the menu
     And I open Favorites hub
@@ -133,13 +135,15 @@ Feature: favorite
   @P0 @Regression @Favorites
   Scenario: Edit an item name on Favorites bar
     Given Edge is launched
-    When I navigate to "https://www.bing.com"
+    When I press "cmd+t" to open a new tab
+    And I navigate to "https://www.bing.com"
     And I click the "Add this page to favorites(⌘D)" button in the address bar
     And I press Enter key
     And I open Favorites hub
     And I click "Favorites bar" folder in hub
     Then "Search - Microsoft Bing" should appear in Favorites Bar
     When I press "Shift+cmd+B" to toggle Favorites bar
+    And I press "cmd+w" to close the current tab
     And I right-click on "https://www.bing.com" in Favorites bar
     And I click "Edit" button in the drop-down menu
     Then the "Edit favorite" dialog should be opened
