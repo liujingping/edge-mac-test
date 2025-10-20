@@ -81,9 +81,9 @@ Feature: tab
     When I new a tab and navigate to "https://www.youtube.com"
     And I right click on the tab header of "Youtube" tab
     And I click "Turn on vertical tabs" from the right-click context menu
+     And I press escape to close popup
     Then Analyze the screenshot to verify that the vertical tabs shown on the left side of the window
-    When I click on the Address and search bar
-    And I right click on the tab header of "Youtube" tab
+    When I right click on the tab header of "Youtube" tab
     And I click "Refresh" from the context menu
     Then the page should be refreshed
     And the address bar still displays the complete URL "https://www.youtube.com"
@@ -98,9 +98,9 @@ Feature: tab
     When I new a tab and navigate to "https://www.apple.com"
     And I right click on the tab header of "Apple" tab
     And I click "Turn on vertical tabs" from the right-click context menu
+    And I press escape to close popup
     Then Analyze the screenshot to verify that the vertical tabs shown on the left side of the window
-    When I click on the Address and search bar
-    And I click the "Close Tab" button on the "Apple" tab header
+    When I click the "Close Tab" button on the "Apple" tab header
     Then the "Apple" tab should be closed
     When I press "cmd+shift+t" to reopen the closed tab
     Then the "Apple" tab should be reopened

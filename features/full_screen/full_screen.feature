@@ -154,7 +154,7 @@ Feature: Full Screen Mode Tests
     And I click the Zoom button on the top left corner in small screen
     And move the mouse to the top left corner and hover on the Zoom button
     Then verify the tooltip text contains "Exit Full Screen"
-    And I navigate to "https://www.google.com"
+    When I navigate to "https://www.google.com"
     And I right click on the tab header of "Google" tab
     And I click "Turn on vertical tabs" from the right-click context menu
     And I press "esc" to close the vertical tabs pop up
