@@ -108,9 +108,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then(
-    'Analyze the screenshot to verify that the vertical tabs shown on the left side of the window'
-)
+@then('Analyze the screenshot to verify that the vertical tabs shown on the left side of the window')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -381,6 +379,23 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I navigate to "https://www.google.com"')
 def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Address and search bar',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )    
+    
     result = call_tool_sync(
         context,
         context.session.call_tool(
