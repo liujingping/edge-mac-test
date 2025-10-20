@@ -272,6 +272,26 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
+# --- auto-generated step ---
+@then('Analyze the screenshot to verify the selected text is highlighted')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_visual_task',
+            arguments={
+                'caller': 'behave-automation',
+                'need_snapshot': 0,
+                'task_description': 'Verify that the text "May 2001" is highlighted '
+                'in yellow in the PDF viewer, showing visual highlighting '
+                'applied to the selected text',
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
 
 # --- auto-generated step ---
 @when('I click "Erase" button in the PDF viewer toolbar')
