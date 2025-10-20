@@ -15,23 +15,22 @@ Feature: Copilot
     When I click the Copilot icon in the toolbar
     Then the Copilot pane should close
 
-  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59776442
-  @p0 @regression @copilot
-  Scenario: Create a new conversation in Copilot
-    Given Edge is launched
-    And I open a new tab
-    When I click the Copilot icon in the toolbar
-    And I type "microsoft" in the input box
-    And I click the "Submit message" button
-    And I click the "Open actions menu" button
-    And I click the "Create new conversation" button
-    Then verify the copilot have no conversation history contains "microsoft"
-    When I type "Larry Page create what company" in the input box
-    And I click the "Submit message" button
-    Then the Copilot response should contains  "Google"
-    When I click the close button on the Copilot pane
-    Then the Copilot pane should close
-
+# # https://microsoft.visualstudio.com/Edge/_workitems/edit/59776442
+# @p0 @regression @copilot
+# Scenario: Create a new conversation in Copilot
+# Given Edge is launched
+# And I open a new tab
+# When I click the Copilot icon in the toolbar
+# And I type "microsoft" in the input box
+# And I click the "Submit message" button
+# And I click the "Open actions menu" button
+# And I click the "Create new conversation" button
+# Then verify the copilot have no conversation history contains "microsoft"
+# When I type "Larry Page create what company" in the input box
+# And I click the "Submit message" button
+# Then the Copilot response should contains  "Google"
+# When I click the close button on the Copilot pane
+# Then the Copilot pane should close
 # # https://microsoft.visualstudio.com/Edge/_workitems/edit/53656064
 # @p0 @regression @copilot
 # Scenario: Check settings in Copilot

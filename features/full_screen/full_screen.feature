@@ -150,18 +150,17 @@ Feature: Full Screen Mode Tests
   @p0 @regression @tab_management @full_screen
   Scenario: Close a tab in vertical mode in full screen
     Given Edge is launched
-    When I click the Zoom button on the top left corner in small screen
+    When I press "cmd+t" to open a new tab
+    And I click the Zoom button on the top left corner in small screen
     And move the mouse to the top left corner and hover on the Zoom button
     Then verify the tooltip text contains "Exit Full Screen"
-    When I open a new tab
-    And I navigate to "https://www.bing.com"
-    And I right click on the tab header of "bing" tab
+    And I navigate to "https://www.google.com"
+    And I right click on the tab header of "Google" tab
     And I click "Turn on vertical tabs" from the right-click context menu
+    And I press "esc" to close the vertical tabs pop up
     Then Analyze the screenshot to verify that the vertical tabs shown on the left side of the window
-    When I click on the Address and search bar
-    And I right click on the tab header of "bing" tab
-    And I click "Close tab" from the right-click context menu
-    Then the "bing" tab should be closed
+    When I press "cmd+w" to close the current tab
+    Then the "Google" tab should be closed
     When I click the Zoom button on the top left corner in full screen
     Then Verify the full screen mode has been exited
 
@@ -200,9 +199,9 @@ Feature: Full Screen Mode Tests
     When I click the Zoom button on the top left corner in full screen
     Then Verify the full screen mode has been exited
 
-   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59411821
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59411821
   @p0 @regression @full_screen
-   Scenario: Back and forward a webpage in full screen
+  Scenario: Back and forward a webpage in full screen
     Given Edge is launched
     When I press "fn+f" to enter full screen mode
     And move the mouse to the top left corner and hover on the Zoom button

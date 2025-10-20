@@ -163,7 +163,9 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I move the mouse to the top left corner and hover on the Zoom button in the small screen')
+@step(
+    'I move the mouse to the top left corner and hover on the Zoom button in the small screen'
+)
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -411,6 +413,69 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'key': 'fn+f',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+
+# --- auto-generated step ---
+@step('I press "esc" to close the vertical tabs pop up')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='press_key',
+            arguments={
+                'caller': 'behave-automation',
+                'key': 'escape',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('I right click on the tab header of "Google" tab')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='right_click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeTab[@label='Google']",
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@then('the "Google" tab should be closed')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_not_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeTab[@label='Google']",
                 'need_snapshot': 0,
             },
         ),
