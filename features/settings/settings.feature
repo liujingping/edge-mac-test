@@ -179,3 +179,150 @@ Feature: Settings functionality
     Then Analyze the screenshot to verify the Edge browser theme is dark
     When I select the "Mystical forest" in the theme color
     Then Analyze the screenshot to verify the title bar and toolbar change color to green
+
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863843
+  @settings @regression @p0
+  Scenario: Add an empty profile in the settings page
+    Given Edge is launched
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click the "Profiles" tab on the left side
+    Then verify the address bar is "edge://settings/profiles"
+    And the profile is "Profile 1"
+    When I click the "Add profile" button
+    And I click the "Add" button on the "Add profile" dialog
+    And I click "Settings and more" button on toolbar in the new edge window
+    And I click the "Settings" button from the dropdown menu in the new edge window
+    And I click the "Profiles" tab on the left side in the new edge window
+    Then verify the profile is "Profile 2" in the new edge window
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863851
+  @settings @regression @p0
+  Scenario: Add a password in the settings page
+    Given Edge is launched
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click the "Passwords and autofill" tab on the left side
+    Then verify the address bar is "edge://settings/autofill"
+    When I click "Microsoft Password Manager" button
+    And I click "Add password" button
+    Then the "Add password" dialog should be opened
+    When I input "https://www.bing.com" in the "Website URL" field
+    And I input "testuser" in the "Username" field
+    And I input "P@ssw0rd!" in the "Password" field
+    And I click the "Add" button
+    Then 1 account with bing.com should be appeared in the password list
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863855
+  @settings @regression @p0
+  Scenario: Clear browsering data in the settings page
+    Given Edge is launched
+    When I open a new tab
+    And I navigate to "https://www.apple.com"
+    And I wait 3 seconds
+    # for page to load
+    And I press "cmd+y" to open history pane
+    Then I can see "apple" in history pane
+    And I press "cmd+w" to close the current tab
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click the "Privacy, search and services" tab on the left side
+    Then verify the address bar is "edge://settings/privacy"
+    When I click "Clear browsing data" section
+    And I click "Choose what to clear" button
+    Then the "Clear browsing data" dialog should be opened
+    When I select "All time" option in the "Time range" dropdown menu
+    When I click "Clear now" button in the "Clear browsing data" dialog
+    And I press "cmd+y" to open history pane
+    Then I can see "apple" is disappeared in the history pane
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863857
+  @settings @regression @p0
+  Scenario: Check default browser entrance in the settings page
+    Given Edge is launched
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click the "Default browser" tab on the left side
+    Then verify the address bar is "edge://settings/defaultBrowser"
+    And the "Make default" button is shown on the page
+
+    # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863862
+  @settings @regression @p0
+  Scenario: Add language in the settings page
+    Given Edge is launched
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click the "Languages" tab on the left side
+    Then verify the address bar is "edge://settings/languages"
+    And I click "Add languages" button
+    And the "Add languages" dialog should be opened
+    When I click "Search languages" box in the pop up "Add languages" dialog
+    And I input "German" option in the add languages page
+    Then "German - Deutsch" language should be shown in the add languages page
+    When I select the check box of "German - Deutsch" language
+    And I click "Add" button in the "Add languages" dialog
+    Then "German - Deutsch" language should be added to the languages list
+    When I click the "More actions" button next to the "German" language
+    And I click "Move to the top" button from the dropdown menu
+    Then verify "German" language should be moved to the top of the languages list
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863864
+  @settings @regression @p0
+  Scenario: Check start and downloads and entrance in the settings page
+    Given Edge is launched
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click the "Downloads" tab on the left side
+    Then verify the address bar is "edge://settings/downloads"
+    And the page contains "Location" and "Ask where to save each file before downloading" sections
+    When I click "Start, home, and new tabs" tab on the left side
+    Then verify the address bar is "edge://settings/startHomeNTP"
+    And the page contains "On startup" and "Home button" and "New tab page" sections
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863869
+  @settings @regression @p0
+    Scenario: Click System and performance in the settings page
+    Given Edge is launched
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click "System and performance" tab on the left side
+    Then verify the address bar is "edge://settings/system"
+    When I click "Graphics acceleration" button in the System and performance page
+    Then the "Graphics acceleration" page should be opened
+    And verify system page contains "Use graphics acceleration when available" option
+    When I click back button to return to the System and performance page
+    And I click "Proxy settings" button in the System and performance page
+    Then verify the page contains "Open proxy settings"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863875
+  @settings @regression @p0
+    Scenario: Reset settings in the settings page
+    Given Edge is launched
+    When I navigate to "https://www.google.com"
+    And I right click on the tab header of "Google" tab
+    And I select "Pin tab" option from the context menu
+    Then verify the "Google" tab should be pinned on the tab bar
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click "Reset settings" tab on the left side
+    Then verify the address bar is "edge://settings/reset"
+    When I click "Restore settings to their default values" button
+    Then the "Reset settings" dialog should be opened
+    When I click "Reset" button in the "Reset settings" dialog
+    Then the "Reset settings" dialog should be closed
+    And verify the "Google" tab is unpinned on the tab bar
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863878
+  @settings @regression @p0
+  Scenario: check edge version and accessibility entrance in the settings page
+    Given Edge is launched
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click "About Microsoft Edge" tab on the left side
+    Then verify the address bar is "edge://settings/help"
+    And the page contains "Microsoft Edge is up to date." text
+    When I click "Accessibility" tab on the left side
+    Then verify the address bar is "edge://settings/accessibility"
+    And the page contains "Visibility" and "Usability" sections
+
