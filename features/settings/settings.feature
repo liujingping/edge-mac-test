@@ -269,16 +269,23 @@ Feature: Settings functionality
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863864
   @settings @regression @p0
-  Scenario: Check start and downloads and entrance in the settings page
+  Scenario: Check start home and new tab page entrance in the settings page
+    Given Edge is launched
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    When I click "Start, home, and new tabs" tab on the left side
+    Then verify the address bar is "edge://settings/startHomeNTP"
+    And the page contains "On startup" and "Home button" and "New tab page" sections
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863864
+  @settings @regression @p0
+  Scenario: Check downloads entrance in the settings page
     Given Edge is launched
     When I click "Settings and more" button on toolbar
     And I click the "Settings" button from the dropdown menu
     And I click the "Downloads" tab on the left side
     Then verify the address bar is "edge://settings/downloads"
     And the page contains "Location" and "Ask where to save each file before downloading" sections
-    When I click "Start, home, and new tabs" tab on the left side
-    Then verify the address bar is "edge://settings/startHomeNTP"
-    And the page contains "On startup" and "Home button" and "New tab page" sections
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863869
   @settings @regression @p0
@@ -332,4 +339,4 @@ Feature: Settings functionality
     And I click "Accessibility" tab on the left side
     Then verify the address bar is "edge://settings/accessibility"
     And the page contains "Visibility" and "Usability" sections
-    
+
