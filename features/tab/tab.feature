@@ -66,6 +66,7 @@ Feature: tab
     And I navigate to "https://www.bing.com"
     And I right click on the tab header of "bing" tab
     And I click "Turn on vertical tabs" from the right-click context menu
+    And I press escape to close popup
     Then Analyze the screenshot to verify that the vertical tabs shown on the left side of the window
     When I click on the Address and search bar
     And I right click on the tab header of "bing" tab
@@ -81,7 +82,7 @@ Feature: tab
     When I new a tab and navigate to "https://www.youtube.com"
     And I right click on the tab header of "Youtube" tab
     And I click "Turn on vertical tabs" from the right-click context menu
-     And I press escape to close popup
+    And I press escape to close popup
     Then Analyze the screenshot to verify that the vertical tabs shown on the left side of the window
     When I right click on the tab header of "Youtube" tab
     And I click "Refresh" from the context menu
