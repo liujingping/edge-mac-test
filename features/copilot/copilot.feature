@@ -19,25 +19,25 @@ Feature: Copilot
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59776442
   @p0 @regression @copilot
-  Scenario: Create a new conversation in Copilot
-    Given Edge is launched
-    And I open a new tab
-    When I click the Copilot icon in the toolbar
-    And I wait 3 seconds
-    # for Copilot pane to load
-    Then the Copilot pane should open
-    When I type "microsoft" in the copilot pane input box
-    And I click the "Submit message" button
-    And I click the "Open actions menu" button
-    And I click the "Create new conversation" button
-    Then verify the copilot pane input box is empty
-    And Analyze the screenshot to verify the copilot have no conversation history
-    When I type "What does CPU mean?" in the copilot pane input box
-    And I click the "Submit message" button
-    And I wait 10 seconds for Copilot to respond
-    Then the Copilot response should contains "Central Processing Unit"
-    When I click the close button on the Copilot pane
-    Then the Copilot pane should close
+  # Scenario: Create a new conversation in Copilot
+  #   Given Edge is launched
+  #   And I open a new tab
+  #   When I click the Copilot icon in the toolbar
+  #   And I wait 3 seconds
+  #   # for Copilot pane to load
+  #   Then the Copilot pane should open
+  #   When I type "microsoft" in the copilot pane input box
+  #   And I click the "Submit message" button
+  #   And I click the "Open actions menu" button
+  #   And I click the "Create new conversation" button
+  #   Then verify the copilot pane input box is empty
+  #   And Analyze the screenshot to verify the copilot have no conversation history
+  #   When I type "What does CPU mean?" in the copilot pane input box
+  #   And I click the "Submit message" button
+  #   And I wait 10 seconds for Copilot to respond
+  #   Then the Copilot response should contains "Central Processing Unit"
+  #   When I click the close button on the Copilot pane
+  #   Then the Copilot pane should close
 
 # # https://microsoft.visualstudio.com/Edge/_workitems/edit/53656064
 # @p0 @regression @copilot

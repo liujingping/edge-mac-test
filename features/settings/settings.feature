@@ -315,14 +315,21 @@ Feature: Settings functionality
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863878
   @settings @regression @p0
-  Scenario: check edge version and accessibility entrance in the settings page
+  Scenario: check edge version entrance in the settings page
     Given Edge is launched
     When I click "Settings and more" button on toolbar
     And I click the "Settings" button from the dropdown menu
     And I click "About Microsoft Edge" tab on the left side
     Then verify the address bar is "edge://settings/help"
     And the page contains "Microsoft Edge is up to date." text
-    When I click "Accessibility" tab on the left side
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59888824
+  @settings @regression @p0
+  Scenario: check accessibility entrance in the settings page
+    Given Edge is launched
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click "Accessibility" tab on the left side
     Then verify the address bar is "edge://settings/accessibility"
     And the page contains "Visibility" and "Usability" sections
-
+    
