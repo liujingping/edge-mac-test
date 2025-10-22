@@ -277,7 +277,7 @@ Feature: Settings functionality
     Then verify the address bar is "edge://settings/startHomeNTP"
     And the page contains "On startup" and "Home button" and "New tab page" sections
 
-  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863864
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59889856
   @settings @regression @p0
   Scenario: Check downloads entrance in the settings page
     Given Edge is launched
