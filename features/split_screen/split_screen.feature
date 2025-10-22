@@ -68,6 +68,7 @@ Feature: Split Screen
         Given Edge is launched
         When I right click on the tab
         And click "Turn On Vertical Tabs"
+        And I press escape to close popup
         Then Analyze the screenshot to verify vertical tabs are enabled
         When I navigate to "https://www.bing.com"
         And I open Split Screen
@@ -87,6 +88,7 @@ Feature: Split Screen
         Given Edge is launched
         When I right click on the tab
         And click "Turn On Vertical Tabs"
+        And I press escape to close popup
         Then Analyze the screenshot to verify vertical tabs are enabled
         When I navigate to "https://www.bing.com"
         And I open Split Screen
@@ -105,6 +107,7 @@ Feature: Split Screen
         Given Edge is launched
         When I right click on the tab
         And click "Turn On Vertical Tabs"
+        And I press escape to close popup
         Then Analyze the screenshot to verify vertical tabs are enabled
         When I navigate to "https://www.bing.com"
         And I open Split Screen

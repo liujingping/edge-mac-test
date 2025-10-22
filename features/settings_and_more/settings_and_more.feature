@@ -9,7 +9,7 @@ Feature: Settings and more functionality
     Then a new edge tab should be opened
     When I right click on "New Tab" tab header
     And I select "Turn On Vertical Tabs" option from the context menu
-    And I click "Settings and more" button on toolbar
+    And I press escape to close popup
     Then Analyze the screenshot to verify that the vertical tabs shown on the left side of the window
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59014428

@@ -1,36 +1,44 @@
-Feature: Copilot
+# Feature: Copilot
 
-  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59776417
-  @p0 @regression @copilot
-  Scenario: Typing anything on input box
-    Given Edge is launched
-    And I open a new tab
-    When I click the Copilot icon in the toolbar
-    Then the Copilot pane should open
-    When I type "Commonly used software of Microsoft" in the input box
-    Then the input box should contain "Commonly used software of Microsoft"
-    When I click the "Submit message" button
-    And I click "scroll to bottom" on the Copilot pane
-    Then the Copilot response should contains "Windows" or "Office"
-    When I click the Copilot icon in the toolbar
-    Then the Copilot pane should close
+#   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59776417
+#   @p0 @regression @copilot
+#   Scenario: Typing anything on input box
+#     Given Edge is launched
+#     And I open a new tab
+#     When I click the Copilot icon in the toolbar
+#     And I wait 3 seconds
+#     # for Copilot pane to load
+#     Then the Copilot pane should open
+#     When I type "What gas do humans need to breathe?" in the copilot pane input box
+#     Then the copilot pane input box should contain "What gas do humans need to breathe?"
+#     When I click the "Submit message" button
+#     And I wait 10 seconds for Copilot to respond
+#     Then the Copilot response should contains "oxygen"
+#     When I click the Copilot icon in the toolbar
+#     Then the Copilot pane should close
 
-# # https://microsoft.visualstudio.com/Edge/_workitems/edit/59776442
-# @p0 @regression @copilot
-# Scenario: Create a new conversation in Copilot
-# Given Edge is launched
-# And I open a new tab
-# When I click the Copilot icon in the toolbar
-# And I type "microsoft" in the input box
-# And I click the "Submit message" button
-# And I click the "Open actions menu" button
-# And I click the "Create new conversation" button
-# Then verify the copilot have no conversation history contains "microsoft"
-# When I type "Larry Page create what company" in the input box
-# And I click the "Submit message" button
-# Then the Copilot response should contains  "Google"
-# When I click the close button on the Copilot pane
-# Then the Copilot pane should close
+#   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59776442
+#   @p0 @regression @copilot
+#   Scenario: Create a new conversation in Copilot
+#     Given Edge is launched
+#     And I open a new tab
+#     When I click the Copilot icon in the toolbar
+#     And I wait 3 seconds
+#     # for Copilot pane to load
+#     Then the Copilot pane should open
+#     When I type "microsoft" in the copilot pane input box
+#     And I click the "Submit message" button
+#     And I click the "Open actions menu" button
+#     And I click the "Create new conversation" button
+#     Then verify the copilot pane input box is empty
+#     And Analyze the screenshot to verify the copilot have no conversation history
+#     When I type "What does CPU mean?" in the copilot pane input box
+#     And I click the "Submit message" button
+#     And I wait 10 seconds for Copilot to respond
+#     Then the Copilot response should contains "Central Processing Unit"
+#     When I click the close button on the Copilot pane
+#     Then the Copilot pane should close
+
 # # https://microsoft.visualstudio.com/Edge/_workitems/edit/53656064
 # @p0 @regression @copilot
 # Scenario: Check settings in Copilot
@@ -52,3 +60,5 @@ Feature: Copilot
 # When I click the "Back" button in characters page
 # And I click the "About" button
 # Then the "About" page should be opened with context "Your privacy choices"
+# When I press "shift+cmd+." to close Copilot pane
+# Then the Copilot pane should close

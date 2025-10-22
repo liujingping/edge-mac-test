@@ -3,7 +3,6 @@ import logging
 from features.environment import call_tool_sync, get_tool_json
 
 
-
 # --- auto-generated step ---
 @when('I click the Copilot icon in the toolbar')
 def step_impl(context):
@@ -13,10 +12,26 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeButton[@label="Copilot (⇧⌘.)"]',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Copilot (⇧⌘.)',
                 'need_snapshot': 0,
             },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('I wait 3 seconds')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='time_sleep',
+            arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 3},
         ),
     )
     result_json = get_tool_json(result)
@@ -34,8 +49,8 @@ def step_impl(context):
             name='verify_element_exists',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeGroup[@label="Side pane Copilot"]',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Side pane Copilot',
                 'need_snapshot': 0,
             },
         ),
@@ -47,35 +62,18 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I type "Commonly used software of Microsoft" in the input box')
+@when('I type "What gas do humans need to breathe?" in the copilot pane input box')
 def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeTextView',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='send_keys',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeTextView',
+                'locator_strategy': 'AppiumBy.CLASS_NAME',
+                'locator_value': 'XCUIElementTypeTextView',
                 'need_snapshot': 0,
-                'text': 'Commonly used software of Microsoft',
+                'text': 'What gas do humans need to breathe?',
             },
         ),
     )
@@ -86,7 +84,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('the input box should contain "Commonly used software of Microsoft"')
+@then('the copilot pane input box should contain "What gas do humans need to breathe?"')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -95,9 +93,9 @@ def step_impl(context):
             arguments={
                 'attribute_name': 'value',
                 'caller': 'behave-automation',
-                'expected_value': 'Commonly used software of Microsoft',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeTextView',
+                'expected_value': 'What gas do humans need to breathe?',
+                'locator_strategy': 'AppiumBy.CLASS_NAME',
+                'locator_value': 'XCUIElementTypeTextView',
                 'need_snapshot': 0,
                 'rule': '==',
             },
@@ -131,33 +129,16 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('Wait for Copilot response')
+@step('I wait 10 seconds for Copilot to respond')
 def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='time_sleep',
-            arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 3},
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@step('I click "scroll to bottom" on the Copilot pane')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Scroll to bottom',
                 'need_snapshot': 0,
+                'seconds': 10,
             },
         ),
     )
@@ -168,47 +149,28 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('the Copilot response should contains "Windows" or "Office"')
+@then('the Copilot response should contains "oxygen"')
 def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='verify_element_attribute',
             arguments={
-                'attribute_name': 'title',
+                'attribute_name': 'value',
                 'caller': 'behave-automation',
-                'expected_value': 'Windows',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeGroup[contains(@title, "Copilot said")]',
+                'expected_value': 'oxygen',
+                'locator_strategy': 'AppiumBy.NAME',
+                'locator_value': 'oxygen',
                 'need_snapshot': 0,
                 'rule': 'contains',
             },
         ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_attribute',
-            arguments={
-                'attribute_name': 'title',
-                'caller': 'behave-automation',
-                'expected_value': 'Office',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeGroup[contains(@title, "Copilot said")]',
-                'need_snapshot': 0,
-                'rule': 'contains',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
 
 # --- auto-generated step ---
 @then('the Copilot pane should close')
@@ -219,8 +181,8 @@ def step_impl(context):
             name='verify_element_not_exists',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeGroup[@label="Side pane Copilot"]',
+                'locator_strategy': 'AppiumBy.NAME',
+                'locator_value': 'Side pane Copilot',
                 'need_snapshot': 0,
             },
         ),
@@ -232,7 +194,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I type "microsoft" in the input box')
+@when('I type "microsoft" in the copilot pane input box')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -240,8 +202,8 @@ def step_impl(context):
             name='send_keys',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeTextView',
+                'locator_strategy': 'AppiumBy.CLASS_NAME',
+                'locator_value': 'XCUIElementTypeTextView',
                 'need_snapshot': 0,
                 'text': 'microsoft',
             },
@@ -254,7 +216,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click the "Open actions menu" button')
+@step('I click the "Open actions menu" button')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -262,7 +224,7 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_strategy': 'AppiumBy.NAME',
                 'locator_value': 'Open actions menu',
                 'need_snapshot': 0,
             },
@@ -283,7 +245,7 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_strategy': 'AppiumBy.NAME',
                 'locator_value': 'Create new conversation',
                 'need_snapshot': 0,
             },
@@ -294,8 +256,33 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
+
 # --- auto-generated step ---
-@when('I type "Larry Page create what company" in the input box')
+@then('verify the copilot pane input box is empty')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_attribute',
+            arguments={
+                'attribute_name': 'value',
+                'caller': 'behave-automation',
+                'expected_value': '',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeTextView',
+                'need_snapshot': 0,
+                'rule': '',
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@when('I type "What does CPU mean?" in the copilot pane input box')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -306,7 +293,7 @@ def step_impl(context):
                 'locator_strategy': 'AppiumBy.XPATH',
                 'locator_value': '//XCUIElementTypeTextView',
                 'need_snapshot': 0,
-                'text': 'Larry Page create what company',
+                'text': 'What does CPU mean?',
             },
         ),
     )
@@ -325,8 +312,8 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Close Copilot pane',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeButton[@label='Close Copilot pane']",
                 'need_snapshot': 0,
             },
         ),
@@ -336,18 +323,26 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
+
 # --- auto-generated step ---
-@then('the Copilot response should contains  "Google"')
+@step('Analyze the screenshot to verify the copilot have no conversation history')
 def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='verify_element_exists',
+            name='verify_visual_task',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeStaticText[contains(@value, 'Google')]",
                 'need_snapshot': 0,
+                'task_description': 'Verify that the Copilot pane shows no previous '
+                'conversation history and appears as a fresh, new '
+                'conversation. Look for: 1) Fresh greeting message like '
+                '"Hey, nice to see you. What\'s new?" or similar welcome '
+                'text, 2) No previous conversation bubbles or messages '
+                'about Microsoft or any other topics, 3) Empty or clean '
+                'conversation area indicating a new conversation state, 4) '
+                'The Copilot interface should appear reset without any '
+                'chat history.',
             },
         ),
     )
@@ -358,15 +353,41 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('verify the copilot have no conversation history contains "microsoft"')
+@then('the Copilot response should contains "Central Processing Unit"')
 def step_impl(context):
-    result = call_tool_sync(context, context.session.call_tool(
-        name="verify_element_not_exists", 
-        arguments={'caller': 'behave-automation',
-            'locator_strategy': 'AppiumBy.XPATH',
-            'locator_value': ' //"microsoft")]',
-            'need_snapshot': 0}
-    ))
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_attribute',
+            arguments={
+                'attribute_name': 'value',
+                'caller': 'behave-automation',
+                'expected_value': 'Central',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeStaticText[@value="Central "]',
+                'need_snapshot': 0,
+                'rule': 'contains',
+            },
+        ),
+    )
     result_json = get_tool_json(result)
-    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
 
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='find_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeStaticText[@value="Central "]',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
