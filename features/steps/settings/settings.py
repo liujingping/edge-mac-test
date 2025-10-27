@@ -1622,7 +1622,9 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('Analyze the screenshot to verify the title bar and toolbar change color to purple')
+@then(
+    'Analyze the screenshot to verify the title bar and toolbar change color to purple'
+)
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -1727,7 +1729,9 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('Analyze the screenshot to verify the title bar and toolbar change color to green')
+@then(
+    'Analyze the screenshot to verify the title bar and toolbar change color to green'
+)
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -2831,7 +2835,9 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('the page contains "Location" and "Ask where to save each file before downloading" sections')
+@step(
+    'the page contains "Location" and "Ask where to save each file before downloading" sections'
+)
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -2942,7 +2948,6 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
-
 
 
 # --- auto-generated step ---
@@ -3512,6 +3517,182 @@ def step_impl(context):
                 'locator_value': "//XCUIElementTypeGroup[@label='Add languages']/XCUIElementTypeGroup/XCUIElementTypeGroup[1]/XCUIElementTypeGroup/XCUIElementTypeTextField",
                 'need_snapshot': 0,
                 'text': 'German',
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('I click the "Search and connected experiences" section')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': '',
+                'locator_value': 'Search and connected experiences',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('I click the "Address bar and search" button')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': '',
+                'locator_value': 'Address bar and search',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@then('verify the address bar is "edge://settings/privacy/services/search"')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_attribute',
+            arguments={
+                'attribute_name': 'value',
+                'caller': 'behave-automation',
+                'expected_value': 'edge://settings/privacy/services/search',
+                'locator_strategy': '',
+                'locator_value': 'Address and search bar',
+                'need_snapshot': 0,
+                'rule': '==',
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@when('I click the "Search engines" section')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': '',
+                'locator_value': 'Search engines',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@then('verify the search engines card contain "Google"')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': '',
+                'locator_value': 'Google',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@when('I click "More actions" on the right of the "Google"')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeTableRow[contains(@title, '
+                "'Google')]//XCUIElementTypePopUpButton[@label='More "
+                "actions']",
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@step('I select "Make default" option')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': '',
+                'locator_value': 'Make default',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@then('verify the address bar contains "https://www.google.com/search?q=cat"')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_attribute',
+            arguments={
+                'attribute_name': 'value',
+                'caller': 'behave-automation',
+                'expected_value': 'https://www.google.com/search?q=cat',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Address and search bar',
+                'need_snapshot': 0,
+                'rule': 'contains',
             },
         ),
     )
