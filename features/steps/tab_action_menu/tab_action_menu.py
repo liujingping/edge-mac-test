@@ -375,7 +375,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('verify only one tab name contains "google" shown in the "Search tabs" open tabs dialog')
+@then('verify a tab name contains "google" shown in the "Search tabs" open tabs dialog')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -455,7 +455,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('verify only one tab name contains "bing" shown in the "Search tabs" recently closed dialog')
+@then('verify a tab name contains "bing" shown in the "Search tabs" recently closed dialog')
 def step_impl(context):
     result = call_tool_sync(
         context,
