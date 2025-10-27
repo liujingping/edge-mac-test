@@ -227,3 +227,37 @@ Feature: favorite
     And I press "enter"
     Then the favorite added dialog should be closed
     And Analyze the screenshot to verify the colour of the "Edit favorite for this page" icon on the address bar is blue
+
+  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/58970560
+  @P0 @Regression @Favorites
+  Scenario: Add and search and delete a page in favorite page
+    Given Edge is launched
+    When I navigate to "https://www.apple.com"
+    And I press "cmd+D" to add the current page to favorites
+    And I press "enter"
+    Then the favorite added dialog should be closed
+    When I click "Favorites" button in the toolbar
+    And I click "More options" in the favorites pane
+    And I click "Open Favorites Page" in the context menu
+    Then The "Favorites" page should be opened in a new tab
+    When I type "apple" in the Search favorites input box
+    Then I can see a result of apple appears in the favorite page
+    When I click the "Delete" button on the right of the apple search result
+    Then verify the apple result should be removed from the favorite page
+
+  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/59939522
+  @P0 @Regression @Favorites
+  Scenario: Add and search and delete a folder in favorite page
+    Given Edge is launched
+    When I click "Favorites" button in the toolbar
+    And I click "More options" in the favorites pane
+    And I click "Open Favorites Page" in the context menu
+    Then The "Favorites" page should be opened in a new tab
+    When I click "Add folder" button on the "Favorites" page
+    And I use directly send keys as "testfolder"
+    And I click "Save" button to save the folder
+    Then I can see a folder named "testfolder" appears in the favorite page
+    When I type "testfolder" in the Search favorites input box
+    Then I can see a result of "testfolder" appears in the favorite page
+    When I click the "Delete" button on the right of the folder search result
+    Then verify the "testfolder" result should be removed from the favorite page

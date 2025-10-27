@@ -5,7 +5,7 @@ Feature: ominibox
   # Known issue: [Bug 57975310: win-auto-mcp not support vertical tab](https://microsoft.visualstudio.com/Edge/_workitems/edit/57975310)
   # This issue is under investigation and will be addressed in an upcoming release.
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56908756
-  @p0
+  @p0 @ominibox
   Scenario: Type a website URL and enter to navigate directly to site
     Given Edge is launched
     When I input "www.163.com" in address bar
@@ -23,7 +23,7 @@ Feature: ominibox
     And the page title should be "cat - Search"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56908759
-  @p0
+  @p0 @ominibox
   Scenario: Type URL by autocompleting to navigate directly to site
     Given Edge is launched
     When I navigate to "https://www.apple.com"
@@ -34,7 +34,7 @@ Feature: ominibox
     And the address bar should display the complete URL "https://www.apple.com"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56908761
-  @p0
+  @p0 @ominibox
   Scenario: Edit all URL to navigate to new site
     Given Edge is launched
     When I type "https://www.google.com" in the address bar
@@ -46,7 +46,7 @@ Feature: ominibox
     And the address bar should display the complete URL "https://www.apple.com"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56908757
-  @p0
+  @p0 @ominibox
   Scenario: Navigate to website by selecting from dropdown suggestions
     Given Edge is launched
     And I open a new tab
@@ -57,7 +57,7 @@ Feature: ominibox
     And the address bar should display the complete URL "https://www.apple.com"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/58491144
-  @p0
+  @p0 @ominibox
   Scenario: Navigate using partial URL without protocol
     Given Edge is launched
     When I input "apple.com" in address bar
@@ -66,7 +66,7 @@ Feature: ominibox
     And the address bar should display the complete URL "https://www.apple.com"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56908761
-  @p0
+  @p0 @ominibox
   Scenario: Delete and edit all URL to navigate to new site
     Given Edge is launched
     When I navigate to "https://www.apple.com"
@@ -79,7 +79,7 @@ Feature: ominibox
     And the address bar should display the complete URL "https://www.expedia.com"
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56909857
-  @p0
+  @p0 @ominibox
   Scenario: Use the shortcut key to copy or cut then paste part URL in address bar
     Given Edge is launched
     When I input "apple" in address bar
@@ -94,17 +94,19 @@ Feature: ominibox
     And I press "cmd+V" to paste the cut text
     Then "apple" should be displayed in the address bar
 
-# https://microsoft.visualstudio.com/Edge/_workitems/edit/56908764
-# exisiting bug: Bug 50786254: [Mac] The shortcut keys for Redo are the same as the shortcut keys for opening history.
-# @p0
-# Scenario: Use the shortcut keyboard to Copy,Cut,Undo,Redo,Paste all URL in address bar
-# Given edge is launched
-# When I navigate to "https://www.apple.com"
-# And the address bar should display the complete URL "https://www.apple.com"
-# When I select all text in address bar
-# And I press "delete" to delete the selected text
-# Then the address bar should be empty
-# When I press "cmd+Z" to undo the delete action
-# Then "https://www.apple.com" should be displayed in the address bar
-# When I press "cmd+Y" to redo the delete action
-# Then the address bar should be empty
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56908764
+  # exisiting bug: Bug 50786254: [Mac] The shortcut keys for Redo are the same as the shortcut keys for opening history.
+  @p0 @ominibox
+  Scenario: Use the shortcut keyboard to Copy,Cut,Undo,Redo,Paste all URL in address bar
+    Given edge is launched
+    When I navigate to "https://www.apple.com"
+    And the address bar should display the complete URL "https://www.apple.com"
+    When I select all text in address bar
+    And I press "delete" to delete the selected text
+    Then verify the address bar is empty
+    When I press "cmd+Z" to undo the delete action
+    Then "https://www.apple.com" should be displayed in the address bar
+    # When I press "cmd+Y" to redo the delete action -- "cmd+y" same with history
+    When I right click on the adress bar
+    And I click the "Redo" button in the context menu
+    Then the address bar should be empty

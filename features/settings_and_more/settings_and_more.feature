@@ -157,3 +157,38 @@ Feature: Settings and more functionality
     When I click "Full screen" button from the dropdown menu
     And move the mouse to the top left corner and hover on the Zoom button
     Then verify the tooltip text contains "Exit Full Screen"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59939645
+  @regression @p0 @screenshot
+  Scenario: Capture and save a screenshot by shortcuts
+    Given Edge is launched
+    When I open a new tab
+    And I press "shift+cmd+s" to open the Screenshot toolbar
+    Then "Web capture toolbar" should be shown
+    When I click "Capture full page" button in "Web capture toolbar"
+    And I click "Save" button in "Screenshot" window
+    And I click "Settings and more" button on toolbar
+    And I click "Downloads" button from the dropdown menu
+    Then the file name containing "Screenshot" should exist in the Downloads
+
+# # https://microsoft.visualstudio.com/Edge/_workitems/edit/59014579
+# @regression @p0 @screenshot
+# Scenario: Check entrance in the develpoer tools
+# Given Edge is launched
+# When I open a new tab and navigate to "edge://settings/profiles"
+# And I click "Settings and more" button on toolbar
+# And I click "More Tools" button from the dropdown menu
+# And I click "Developer Tools" in the more tools dropdown menu
+# Then verify the developer tools open in the right
+# When I click the "Welcome" in the developer tools
+# Then verify "Welcome to Microsoft Edge DevTools" shown in the welcome page
+# When I click the "Elements" in the developer tools
+# Then verify I can see the "<head>" and "<body>" in the elements page
+# When I click "Console" in the developer tools
+# Then verify I can see the "Intervention" in the console page
+# When I click "Sources" in the developer tools
+# Then verify I can see the "Top" and "settings" in the sources page
+# When I click "Network" in the console page
+# Then verify I can see the "Name" and "Status" in the network page
+# When I click "Performance" in the developer tools
+# Then verify I can see the "Local metrics" in the performance page

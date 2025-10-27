@@ -54,3 +54,85 @@ Feature: Right_click
     And I right click on the page without selecting any text or element
     And I click "Refresh" in the context menu
     Then I should be on "https://www.bing.com"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59939600
+  @p0 @regression @right_click @mini_menu
+  Scenario: Copy /Paste the selected text by mini menu
+    Given Edge is launched
+    When I navigate to "https://example.com/"
+    And I select the text "Domain" in this webpage
+    And I click "Copy" in the mini menu popup
+    And I open a new tab
+    And I right click on the address bar
+    And I click "Paste" in the context menu
+    Then verify the address bar should contains "Domain"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59262254
+  @p0 @regression @right_click @mini_menu
+  Scenario: Search the web for the selected text by mini menu
+    Given Edge is launched
+    When I navigate to "https://example.com/"
+    And I select the text "Domain" in this webpage
+    And I click "Search" in the mini menu popup
+    And I wait 3 seconds
+    # for page loading, wait 3s
+    Then verify a tab title contains "Domain" should be opened
+    And verify the address bar should contains "Domain"
+
+  # # https://microsoft.visualstudio.com/Edge/_workitems/edit/59262254
+  # @p0 @regression @right_click @mini_menu
+  # Scenario: Ask copilot for the selected text using right click mini menu
+  # Given Edge is launched
+  # When I navigate to "https://example.com/"
+  # And I select the text "Domain" in this webpage
+  # And I click "Ask Copilot" in the mini menu popup
+  # Then the Copilot pane should open
+  # When I click the Copilot icon in the toolbar
+  # Then the Copilot pane should close
+  # When I select the text "Domain" in this webpage
+  # And I click "Ask Copilot" in the mini menu popup
+  # Then the Copilot pane should open
+  # And I click the "Continue" button in the copilot pane
+  # When I click the Copilot icon in the toolbar
+  # Then the Copilot pane should close
+  # When I select the text "Domain" in this webpage
+  # And I click "Ask Copilot" in the mini menu popup
+  # Then the Copilot pane should open
+  # And I wait 10 seconds for Copilot to respond
+  # And verify the question I asked should contains "Domain"
+  # And verify the copilot response should contains "Domain"
+  # When I press "shift+cmd+." to close Copilot pane
+  # Then the Copilot pane should close
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56422923
+  @p0 @regression @right_click @mini_menu
+  Scenario: Copy /Paste the selected text using right click menu
+    Given Edge is launched
+    When I navigate to "edge://settings/appearance/contextMenus"
+    And I click the "Show mini menu when selecting text" toggle button to disable it
+    Then Analyze the screenshot to verify the colour of the "Show mini menu when selecting text" toggle button is greyed out
+    When I open a new tab
+    And I navigate to "https://example.com/"
+    And I select the text "Domain" in this webpage
+    And I right click on the "Domain"
+    And I click "Copy" in the context menu
+    And I press "cmd+t" to open a new tab
+    And I right click on the address bar
+    And I click "Paste" in the context menu
+    Then verify the address bar should contains "Domain"
+
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/56422911
+  @p0 @regression @right_click @mini_menu
+  Scenario: Search the web for the selected using right click menu
+    Given Edge is launched
+    When I navigate to "edge://settings/appearance/contextMenus"
+    And I click the "Show mini menu when selecting text" toggle button to disable it
+    Then Analyze the screenshot to verify the colour of the "Show mini menu when selecting text" toggle button is greyed out
+    When I open a new tab
+    And I navigate to "https://example.com/"
+    And I select the text "Domain" in this webpage
+    And I right click on the "Domain"
+    And I click Search the Web for "Domain" in the context menu
+    And I wait 3 seconds
+    # for page loading, wait 3s
+    Then verify a tab title contains "Domain" should be opened
+    And verify the address bar should contains "Domain"

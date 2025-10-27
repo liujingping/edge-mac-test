@@ -108,7 +108,9 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('Analyze the screenshot to verify that the vertical tabs shown on the left side of the window')
+@then(
+    'Analyze the screenshot to verify that the vertical tabs shown on the left side of the window'
+)
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -394,8 +396,8 @@ def step_impl(context):
     result_json = get_tool_json(result)
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )    
-    
+    )
+
     result = call_tool_sync(
         context,
         context.session.call_tool(
@@ -1083,8 +1085,6 @@ def step_impl(context):
     )
 
 
-
-
 # --- auto-generated step ---
 @step('I click "Save" button in "Save Print Output As" dialog')
 def step_impl(context):
@@ -1428,6 +1428,26 @@ def step_impl(context):
                 'with text and elements appearing significantly bigger. '
                 'The zoom should be clearly visible compared to the '
                 'original 100% size.',
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+# --- auto-generated step ---
+@when('I press "shift+cmd+s" to open the Screenshot toolbar')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='press_key',
+            arguments={
+                'caller': 'behave-automation',
+                'key': 'shift+cmd+s',
+                'need_snapshot': 0,
             },
         ),
     )

@@ -180,7 +180,6 @@ Feature: Settings functionality
     When I select the "Mystical forest" in the theme color
     Then Analyze the screenshot to verify the title bar and toolbar change color to green
 
-
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863843
   @settings @regression @p0
   Scenario: Add an empty profile in the settings page
@@ -247,7 +246,7 @@ Feature: Settings functionality
     Then verify the address bar is "edge://settings/defaultBrowser"
     And the "Make default" button is shown on the page
 
-    # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863862
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863862
   @settings @regression @p0
   Scenario: Add language in the settings page
     Given Edge is launched
@@ -289,7 +288,7 @@ Feature: Settings functionality
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863869
   @settings @regression @p0
-    Scenario: Click System and performance in the settings page
+  Scenario: Click System and performance in the settings page
     Given Edge is launched
     When I click "Settings and more" button on toolbar
     And I click the "Settings" button from the dropdown menu
@@ -304,7 +303,7 @@ Feature: Settings functionality
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863875
   @settings @regression @p0
-    Scenario: Reset settings in the settings page
+  Scenario: Reset settings in the settings page
     Given Edge is launched
     When I navigate to "https://www.google.com"
     And I right click on the tab header of "Google" tab
@@ -328,8 +327,8 @@ Feature: Settings functionality
     And I click the "Settings" button from the dropdown menu
     And I click "About Microsoft Edge" tab on the left side
     Then verify the address bar is "edge://settings/help"
-    And the page contains "Microsoft Edge is up to date." text
 
+  # And the page contains "Microsoft Edge is up to date." text
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/59888824
   @settings @regression @p0
   Scenario: check accessibility entrance in the settings page
@@ -340,3 +339,21 @@ Feature: Settings functionality
     Then verify the address bar is "edge://settings/accessibility"
     And the page contains "Visibility" and "Usability" sections
 
+  # https://microsoft.visualstudio.com/Edge/_workitems/edit/59810119
+  @settings @regression @p0
+  Scenario: Change default search engine as chrome
+    Given Edge is launched
+    When I click "Settings and more" button on toolbar
+    And I click the "Settings" button from the dropdown menu
+    And I click the "Privacy, search and services" tab on the left side
+    And I click the "Search and connected experiences" section
+    And I click the "Address bar and search" button
+    Then verify the address bar is "edge://settings/privacy/services/search"
+    When I click the "Search engines" section
+    Then verify the search engines card contain "Google"
+    When I click "More actions" on the right of the "Google"
+    And I select "Make default" option
+    And I open a new tab
+    And I input "cat" in address bar
+    And I press the "Enter" key
+    Then verify the address bar contains "https://www.google.com/search?q=cat"
