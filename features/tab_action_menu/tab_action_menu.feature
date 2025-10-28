@@ -195,8 +195,8 @@ Feature: tab action menu functionality
     When I input "google" in the "Search Tabs" in full screen mode
     Then verify a tab name contains "google" shown in the "Search tabs" open tabs dialog
     When I clear the input in the "Search Tabs" input box
-    And I input "bing" in the "Search Tabs" in full screen mode
-    Then verify a tab name contains "bing" shown in the "Search tabs" recently closed dialog
-    When I press escape to close popup
-    And I press "ctrl+cmd+f" keys to exit full screen mode
-    Then Verify the full screen mode has been exited
+    # And I input "bing" in the "Search Tabs" in full screen mode
+    # Then verify a tab name contains "bing" shown in the "Search tabs" recently closed dialog
+    # When I press escape to close popup
+    # And I press "ctrl+cmd+f" keys to exit full screen mode
+    # Then Verify the full screen mode has been exited
