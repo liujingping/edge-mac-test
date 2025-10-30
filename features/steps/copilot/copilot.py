@@ -418,11 +418,14 @@ def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='find_element',
+            name='verify_element_exists',
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeStaticText[@value="Central "]',
+                'locator_value': '//XCUIElementTypeStaticText',
+                'attribute_name': 'value',
+                'expected_value': 'Central',
+                'rule': 'contains',
                 'need_snapshot': 0,
             },
         ),

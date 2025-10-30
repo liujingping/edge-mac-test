@@ -101,7 +101,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeCheckBox[@label="Draw"]',
+                'locator_value': '//XCUIElementTypeCheckBox[@title="Draw"]',
                 'need_snapshot': 0,
             },
         ),
@@ -113,7 +113,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I select text containing "May 2001" in the PDF')
+@step('I draw a line in the PDF')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -141,7 +141,7 @@ def step_impl(context):
                 'drop_position': 'right_edge',
                 'need_snapshot': 0,
                 'source_xpath': "//XCUIElementTypeStaticText[contains(@value,'May 2001')]",
-                'target_xpath': "//XCUIElementTypeStaticText[contains(@value,'May 2001')]",
+                'target_xpath': "//XCUIElementTypeStaticText[contains(@value,'Overview')]",
             },
         ),
     )
@@ -154,19 +154,25 @@ def step_impl(context):
 # --- auto-generated step ---
 @then('Analyze the screenshot to verify the selected text is drawn with blue color')
 def step_impl(context):
-    result = call_tool_sync(context, context.session.call_tool(
-        name="verify_visual_task", 
-        arguments={'caller': 'behave-automation',
-            'need_snapshot': 0,
-            'task_description': 'Verify that the text "May 2001" in the PDF now has blue '
-                                'drawing marks or annotations on it after the drag drawing '
-                                'action. Look for blue ink strokes, lines, or marks that '
-                                'indicate drawing was performed on or near the text "May '
-                                '2001".'}
-    ))
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_visual_task',
+            arguments={
+                'caller': 'behave-automation',
+                'need_snapshot': 0,
+                'task_description': 'Verify that in the PDF now has blue '
+                'drawing marks or annotations on it after the drag drawing '
+                'action. Look for blue ink strokes, lines, or marks that '
+                'indicate drawing was performed on or near the text "May '
+                '2001".',
+            },
+        ),
+    )
     result_json = get_tool_json(result)
-    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
-
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
 
 
 # --- auto-generated step ---
@@ -272,6 +278,7 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
+
 # --- auto-generated step ---
 @then('Analyze the screenshot to verify the selected text is highlighted')
 def step_impl(context):
@@ -293,6 +300,7 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
+
 # --- auto-generated step ---
 @when('I click "Erase" button in the PDF viewer toolbar')
 def step_impl(context):
@@ -312,6 +320,7 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
 
 @then('Analyze the screenshot to verify the selected text highlighting is removed')
 def step_impl(context):
@@ -388,7 +397,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeSplitGroup/XCUIElementTypeButton[2]',
+                'locator_value': '//XCUIElementTypeSplitGroup/XCUIElementTypeButton[3]',
                 'need_snapshot': 0,
             },
         ),
@@ -423,9 +432,79 @@ def step_impl(context):
     )
 
 
+# --- auto-generated step ---
+@step('I select text containing "May 2001" in the PDF')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeStaticText[contains(@value,'May 2001')]",
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='drag_element_to_element',
+            arguments={
+                'caller': 'behave-automation',
+                'drop_position': 'right_edge',
+                'need_snapshot': 0,
+                'source_xpath': "//XCUIElementTypeStaticText[contains(@value,'May 2001')]",
+                'target_xpath': "//XCUIElementTypeStaticText[contains(@value,'May 2001')]",
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
 
 
+# --- auto-generated step ---
+@step('I select text containing "May 2001" in the PDF again')
+def step_impl(context):
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeStaticText[contains(@value,'May 2001')]",
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
 
-
-
-
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='drag_element_to_element',
+            arguments={
+                'caller': 'behave-automation',
+                'drop_position': 'right_edge',
+                'need_snapshot': 0,
+                'source_xpath': "//XCUIElementTypeStaticText[contains(@value,'May 2001')]",
+                'target_xpath': "//XCUIElementTypeStaticText[contains(@value,'May 2001')]",
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
