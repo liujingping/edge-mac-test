@@ -82,27 +82,28 @@ Feature: Right_click
   # # https://microsoft.visualstudio.com/Edge/_workitems/edit/59262254
   # @p0 @regression @right_click @mini_menu
   # Scenario: Ask copilot for the selected text using right click mini menu
-  # Given Edge is launched
-  # When I navigate to "https://example.com/"
-  # And I select the text "Domain" in this webpage
-  # And I click "Ask Copilot" in the mini menu popup
-  # Then the Copilot pane should open
-  # When I click the Copilot icon in the toolbar
-  # Then the Copilot pane should close
-  # When I select the text "Domain" in this webpage
-  # And I click "Ask Copilot" in the mini menu popup
-  # Then the Copilot pane should open
-  # And I click the "Continue" button in the copilot pane
-  # When I click the Copilot icon in the toolbar
-  # Then the Copilot pane should close
-  # When I select the text "Domain" in this webpage
-  # And I click "Ask Copilot" in the mini menu popup
-  # Then the Copilot pane should open
-  # And I wait 10 seconds for Copilot to respond
-  # And verify the question I asked should contains "Domain"
-  # And verify the copilot response should contains "Domain"
-  # When I press "shift+cmd+." to close Copilot pane
-  # Then the Copilot pane should close
+  #   Given Edge is launched
+  #   When I navigate to "https://example.com/"
+  #   And I select the text "Domain" in this webpage
+  #   And I click "Ask Copilot" in the mini menu popup
+  #   Then the Copilot pane should open
+  #   When I press "shift+cmd+." to close Copilot pane
+  #   Then the Copilot pane should close
+  #   When I select the text "Domain" in this webpage
+  #   And I click "Ask Copilot" in the mini menu popup
+  #   Then the Copilot pane should open
+  #   And I click the "Continue" button in the copilot pane
+  #   When I press "shift+cmd+." to close Copilot pane
+  #   Then the Copilot pane should close
+  #   When I select the text "Domain" in this webpage
+  #   And I click "Ask Copilot" in the mini menu popup
+  #   Then the Copilot pane should open
+  #   And I wait 10 seconds for Copilot to respond
+  #   And verify the question I asked should contains "Domain"
+  #   And verify the copilot response should contains "Domain"
+  #   When I click the Copilot icon in the toolbar
+  #   Then the Copilot pane should close
+
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56422923
   @p0 @regression @right_click @mini_menu
   Scenario: Copy /Paste the selected text using right click menu
