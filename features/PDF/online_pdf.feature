@@ -23,7 +23,7 @@ Feature: Online PDF
     And I select text containing "May 2001" in the PDF
     Then Analyze the screenshot to verify the selected text is highlighted
     When I click "Erase" button in the PDF viewer toolbar
-    And I select text containing "May 2001" in the PDF again
+    And I select text containing "May 2001" in the PDF 
     Then Analyze the screenshot to verify the selected text highlighting is removed
     When I click "Save" button in the PDF viewer toolbar
     Then The "Save" dialog should be shown
