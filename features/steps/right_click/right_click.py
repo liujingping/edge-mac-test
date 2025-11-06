@@ -635,82 +635,6 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('verify the question I asked should contains "Domain"')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='find_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeStaticText[@value="you said"]',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='find_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeStaticText[@value="Domain"]',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
-@step('verify the copilot response should contains "Domain"')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='find_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeStaticText[@value="Copilot said"]',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='find_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeStaticText[@value="Domain"]',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
 @then('verify a tab title contains "Domain" should be opened')
 def step_impl(context):
     result = call_tool_sync(
@@ -874,3 +798,6 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+
+
