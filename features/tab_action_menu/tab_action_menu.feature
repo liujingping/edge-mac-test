@@ -190,6 +190,7 @@ Feature: tab action menu functionality
     And I press "cmd+t" to open a new tab
     And I navigate to "https://www.bing.com"
     And I press "cmd+w" to close the current tab
+    And I wait 10 seconds
     And I click "Search tabs" button on the tab bar
     Then the "Search tabs" dialog should be opened
     When I input "google" in the "Search Tabs" in full screen mode
