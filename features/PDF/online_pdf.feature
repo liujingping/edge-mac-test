@@ -28,4 +28,5 @@ Feature: Online PDF
     And I click "Save" button in the PDF viewer toolbar
     Then The "Save" dialog should be shown
     When I click "Save" button in the "Save" dialog
+      #这里要区分，OS15和OS26的元素不一样
     Then The tab title containing "c4611_sample_explain.pdf" is opened
