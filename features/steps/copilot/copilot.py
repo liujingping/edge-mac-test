@@ -196,7 +196,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeStaticText[@value="oxygen"]',
+                'locator_value': '//XCUIElementTypeStaticText[contains(@value,"oxygen")]',
                 'need_snapshot': 0,
             },
         ),
