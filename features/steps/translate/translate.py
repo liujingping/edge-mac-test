@@ -207,7 +207,7 @@ def step_impl(context):
         name="find_element", 
         arguments={'caller': 'behave-automation',
             'locator_strategy': 'AppiumBy.XPATH',
-            'locator_value': "//XCUIElementTypeTab[@label='Sina.com']",
+            'locator_value': "//XCUIElementTypeTab[contains(@label,'Sina.com')]",
             'need_snapshot': 0}
     ))
     result_json = get_tool_json(result)
@@ -220,7 +220,7 @@ def step_impl(context):
         name="find_element", 
         arguments={'caller': 'behave-automation',
             'locator_strategy': 'AppiumBy.XPATH',
-            'locator_value': "//XCUIElementTypeTab[@label='新浪网']",
+            'locator_value': "//XCUIElementTypeTab[contains(@label,'新浪网')]",
             'need_snapshot': 0}
     ))
     result_json = get_tool_json(result)
