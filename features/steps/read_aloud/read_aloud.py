@@ -340,9 +340,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeTab[@label='Wikipedia, the free "
-                'encyclopedia - Audio '
-                "playing']//XCUIElementTypeButton[@label='Mute tab']",
+                'locator_value': "//XCUIElementTypeButton[contains(@label,'Mute tab')]",
                 'need_snapshot': 0,
             },
         ),
