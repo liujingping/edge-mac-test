@@ -86,11 +86,11 @@ Feature: Download functionality in Microsoft Edge
   @p0 @regression @download
   Scenario: Download a file and open downloads finder
     Given Edge is launched
-      And I clean Edge downloads file "sample-1.pdf"
+    And I clean Edge downloads file "sample-1.pdf"
     When I navigate to "https://getsamplefiles.com/download/pdf/sample-1.pdf"
     Then the Downloads panel should appear
     When I click "Search downloads" in Downloads panel
     And I hover over the file name containing "sample-1" in the Downloads panel
     And I click the "Show in Finder" button
-    Then the Finder of Mac system open with download window should appear
+    Then Analyze the screenshot to verify the Finder window should appear
     And Analyze the screenshot to verify that the file "sample-1.pdf" is present in the Finder window

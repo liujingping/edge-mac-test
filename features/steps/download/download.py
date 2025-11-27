@@ -1003,14 +1003,13 @@ def step_impl(context):
 #     )
 
 # --- auto-generated step ---
-@then('the Finder of Mac system open with download window should appear')
+@then('Analyze the screenshot to verify the Finder window should appear')
 def step_impl(context):
     result = call_tool_sync(context, context.session.call_tool(
-        name="find_element", 
+        name="verify_visual_task", 
         arguments={'caller': 'behave-automation',
-            'locator_strategy': 'AppiumBy.XPATH',
-            'locator_value': '//XCUIElementTypeMenuItem[@title="Finder"]',
-            'need_snapshot': 0}
+            'need_snapshot': 0,
+            'task_description': 'Verify that a Finder window is open on the screen, showing the Downloads folder interface'}
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
