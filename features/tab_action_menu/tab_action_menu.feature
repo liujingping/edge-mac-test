@@ -189,6 +189,7 @@ Feature: tab action menu functionality
     And I press escape to close popup
     And I press "cmd+t" to open a new tab
     And I navigate to "https://www.apple.com"
+    And I wait 3 seconds
     And I press "cmd+w" to close the current tab
     And I wait 10 seconds
     And I click "Search tabs" button on the tab bar
