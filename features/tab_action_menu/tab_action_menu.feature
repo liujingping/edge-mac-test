@@ -37,15 +37,16 @@ Feature: tab action menu functionality
     Given Edge is launched
     When I navigate to "https://www.google.com"
     And I open a new tab
-    And I navigate to "https://www.bing.com"
+    And I navigate to "https://www.apple.com"
+    And I wait 3 seconds
     And I press "cmd+w" to close the current tab
     And I click "Search tabs" button on the tab bar
     Then the "Search tabs" dialog should be opened
     When I input "google" in the "Search Tabs" input box
     Then verify a tab name contains "google" shown in the "Search tabs" open tabs dialog
     When I clear the input in the "Search Tabs" input box
-    And I input "bing" in the "Search Tabs" input box
-    Then verify a tab name contains "bing" shown in the "Search tabs" recently closed dialog
+    And I input "Apple" in the "Search Tabs" input box
+    Then verify a tab name contains "Apple" shown in the "Search tabs" recently closed dialog
 
     # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863927
   @tab_action_menu @regression @p0 @vertical_tab
@@ -77,15 +78,16 @@ Feature: tab action menu functionality
     When I click "Turn on vertical tabs" button in the "Search tabs" dialog
     And I press escape to close popup
     And I press "cmd+t" to open a new tab
-    And I navigate to "https://www.bing.com"
+    And I navigate to "https://www.apple.com"
+    And I wait 3 seconds
     And I press "cmd+w" to close the current tab
     And I click "Search tabs" button on the tab bar
     Then the "Search tabs" dialog should be opened
     When I input "google" in the "Search Tabs" input box
     Then verify a tab name contains "google" shown in the "Search tabs" open tabs dialog
     When I clear the input in the "Search Tabs" input box
-    And I input "bing" in the "Search Tabs" input box
-    Then verify a tab name contains "bing" shown in the "Search tabs" recently closed dialog
+    And I input "Apple" in the "Search Tabs" input box
+    Then verify a tab name contains "Apple" shown in the "Search tabs" recently closed dialog
 
    # https://microsoft.visualstudio.com/Edge/_workitems/edit/59863940
   @tab_action_menu @regression @p0 @vertical_tab @full_screen
@@ -137,15 +139,16 @@ Feature: tab action menu functionality
     Then verify the tooltip text contains "Exit Full Screen"
     When I navigate to "https://www.google.com"
     And I open a new tab
-    And I navigate to "https://www.bing.com"
+    And I navigate to "https://www.apple.com"
+    And I wait 3 seconds
     And I press "cmd+w" to close the current tab
     And I click "Search tabs" button on the tab bar
     Then the "Search tabs" dialog should be opened
     When I input "google" in the "Search Tabs" in full screen mode
     Then verify a tab name contains "google" shown in the "Search tabs" open tabs dialog
     When I clear the input in the "Search Tabs" input box
-    And I input "bing" in the "Search Tabs" in full screen mode
-    Then verify a tab name contains "bing" shown in the "Search tabs" recently closed dialog
+    And I input "Apple" in the "Search Tabs" in full screen mode
+    Then verify a tab name contains "Apple" shown in the "Search tabs" recently closed dialog
     When I press escape to close popup
     And I press "ctrl+cmd+f" keys to exit full screen mode
     Then Verify the full screen mode has been exited
@@ -191,7 +194,6 @@ Feature: tab action menu functionality
     And I navigate to "https://www.apple.com"
     And I wait 3 seconds
     And I press "cmd+w" to close the current tab
-    And I wait 10 seconds
     And I click "Search tabs" button on the tab bar
     Then the "Search tabs" dialog should be opened
     When I input "google" in the "Search Tabs" in full screen mode
