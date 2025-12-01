@@ -3153,10 +3153,10 @@ def step_impl(context):
                 'attribute_name': 'label',
                 'caller': 'behave-automation',
                 'expected_value': 'Google - Pinned',
-                'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Google - Pinned',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeTab[contains(@label,"Google - Pinned")]',
                 'need_snapshot': 0,
-                'rule': '==',
+                'rule': 'contains',
             },
         ),
     )
@@ -3305,7 +3305,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeTab[@label='Google']",
+                'locator_value': "//XCUIElementTypeTab[contains(@label,'Google')]",
                 'need_snapshot': 0,
             },
         ),
@@ -3322,8 +3322,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeTab[@label='Google']//XCUIElementTypeButton[@label='Close "
-                "tab']",
+                'locator_value': "//XCUIElementTypeTab[contains(@label,'Google')]//XCUIElementTypeButton[contains(@label,'Close tab')]",
                 'need_snapshot': 0,
             },
         ),

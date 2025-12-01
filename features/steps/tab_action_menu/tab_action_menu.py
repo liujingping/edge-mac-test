@@ -435,7 +435,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@step('I input "bing" in the "Search Tabs" input box')
+@step('I input "Apple" in the "Search Tabs" input box')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -444,7 +444,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'need_snapshot': 0,
-                'text': 'bing',
+                'text': 'Apple',
             },
         ),
     )
@@ -455,7 +455,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('verify a tab name contains "bing" shown in the "Search tabs" recently closed dialog')
+@then('verify a tab name contains "Apple" shown in the "Search tabs" recently closed dialog')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -464,9 +464,9 @@ def step_impl(context):
             arguments={
                 'attribute_name': 'value',
                 'caller': 'behave-automation',
-                'expected_value': 'Bing',
+                'expected_value': 'Apple',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeStaticText[@value='Bing']",
+                'locator_value': "//XCUIElementTypeStaticText[@value='Apple']",
                 'need_snapshot': 0,
                 'rule': 'contains',
             },
@@ -499,7 +499,7 @@ def step_impl(context):
     )
 
 # --- auto-generated step ---
-@when('I input "bing" in the "Search Tabs" in full screen mode')
+@when('I input "Apple" in the "Search Tabs" in full screen mode')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -510,7 +510,7 @@ def step_impl(context):
                 'locator_strategy': 'AppiumBy.XPATH',
                 'locator_value': "//XCUIElementTypeWebView[@title='TabSearch']//XCUIElementTypeTextField[@enabled='true'][not(@label='Address and search bar')]",
                 'need_snapshot': 0,
-                'text': 'bing',
+                'text': 'Apple',
             },
         ),
     )
@@ -518,3 +518,4 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+

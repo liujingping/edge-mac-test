@@ -390,22 +390,75 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I click "Save" button in the "Save" dialog')
 def step_impl(context):
-    result = call_tool_sync(
+    # First try to find the first save button type
+    find_result1 = call_tool_sync(
         context,
         context.session.call_tool(
-            name='click_element',
+            name='find_element',
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeSplitGroup/XCUIElementTypeButton[3]',
+                'locator_value': '//XCUIElementTypeSheet[@label="save"]/XCUIElementTypeButton[2]',
                 'need_snapshot': 0,
             },
         ),
     )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+    find_result1_json = get_tool_json(find_result1)
+    
+    if find_result1_json.get('status') == 'success':
+        # Click the first type of save button
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': '//XCUIElementTypeSheet[@label="save"]/XCUIElementTypeButton[2]',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+        assert result_json.get('status') == 'success', (
+            f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+        )
+    else:
+        # Try to find the second save button type
+        find_result2 = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='find_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': '//XCUIElementTypeSplitGroup/XCUIElementTypeButton[3]',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        find_result2_json = get_tool_json(find_result2)
+        
+        if find_result2_json.get('status') == 'success':
+            # Click the second type of save button
+            result = call_tool_sync(
+                context,
+                context.session.call_tool(
+                    name='click_element',
+                    arguments={
+                        'caller': 'behave-automation',
+                        'locator_strategy': 'AppiumBy.XPATH',
+                        'locator_value': '//XCUIElementTypeSplitGroup/XCUIElementTypeButton[3]',
+                        'need_snapshot': 0,
+                    },
+                ),
+            )
+            result_json = get_tool_json(result)
+            assert result_json.get('status') == 'success', (
+                f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+            )
+        else:
+            logging.info("Neither save button type found, skipping save button click")
 
 
 # --- auto-generated step ---

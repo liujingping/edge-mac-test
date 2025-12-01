@@ -960,46 +960,70 @@ def step_impl(context):
     )
 
 
+# # --- auto-generated step ---
+# @then('Downloads Window should be opened')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='verify_element_exists',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.XPATH',
+#                 'locator_value': "//XCUIElementTypeWindow[contains(@title, 'Downloads') and "
+#                 "not(contains(@title, 'Edge'))]",
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
+
+
+# # --- auto-generated step ---
+# @step('I can see the file name containing "sample-1" in the Downloads Window')
+# def step_impl(context):
+#     result = call_tool_sync(
+#         context,
+#         context.session.call_tool(
+#             name='verify_element_exists',
+#             arguments={
+#                 'caller': 'behave-automation',
+#                 'locator_strategy': 'AppiumBy.XPATH',
+#                 'locator_value': "//*[contains(., 'sample-1')]",
+#                 'need_snapshot': 0,
+#             },
+#         ),
+#     )
+#     result_json = get_tool_json(result)
+#     assert result_json.get('status') == 'success', (
+#         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+#     )
+
 # --- auto-generated step ---
-@then('Downloads Window should be opened')
+@then('Analyze the screenshot to verify the Finder window should appear')
 def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeWindow[contains(@title, 'Downloads') and "
-                "not(contains(@title, 'Edge'))]",
-                'need_snapshot': 0,
-            },
-        ),
-    )
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_visual_task", 
+        arguments={'caller': 'behave-automation',
+            'need_snapshot': 0,
+            'task_description': 'Verify that a Finder window is open on the screen, showing the Downloads folder interface'}
+    ))
     result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
 
 
 # --- auto-generated step ---
-@step('I can see the file name containing "sample-1" in the Downloads Window')
+@step('Analyze the screenshot to verify that the file "sample-1.pdf" is present in the Finder window')
 def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeStaticText[contains(@value, 'sample-1') and "
-                "not(ancestor::*[@title='Downloads' and contains(@title, "
-                "'Edge')])]",
-                'need_snapshot': 0,
-            },
-        ),
-    )
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_visual_task", 
+        arguments={'caller': 'behave-automation',
+            'need_snapshot': 0,
+            'task_description': 'Analyze the screenshot to verify that the file '
+                                '"sample-1.pdf" is present in the Finder window'}
+    ))
     result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
