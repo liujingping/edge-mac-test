@@ -16,6 +16,7 @@ from mcp.client.session import ClientSession
 from mcp.client.sse import sse_client
 from mcp.client.stdio import stdio_client, StdioServerParameters
 from behave.contrib.scenario_autoretry import patch_scenario_with_autoretry
+from applicationinsights import TelemetryClient
 
 # Import system dialog handler
 try:
@@ -174,6 +175,10 @@ def count_all_scenarios():
 
 def before_all(context):
     import threading
+
+    # Initialize Application Insights telemetry client
+    telemetry_client = TelemetryClient('6cfcacca-7f4d-476e-85f4-c184d70ccff9')
+    context.telemetry_client = telemetry_client
 
     # Configure logging - for all loggers
     # Get root logger to configure global logging
@@ -467,9 +472,22 @@ def take_screenshot(scenario_name):
 
 def after_scenario(context, scenario):
     # Print scenario completion info
-    status = 'PASSED' if scenario.status == 'passed' else 'FAILED'
+    status = 'Passed' if scenario.status == 'passed' else 'Failed'
     logger.info(f'-' * 80)
     logger.info(f'DEBUG: Finished Scenario: {scenario.name} - {status}')
+    
+    # Track scenario execution status telemetry
+    if scenario.status != 'skipped':
+        context.telemetry_client.track_metric(
+            "TestScenarioExecuted", 1,
+            properties={
+                "Platform": "Mac",
+                "Status": status,
+                "RunSource": os.environ.get('RUN_SOURCE', 'Local'),
+                "ScenarioName": scenario.name
+            }
+        )
+        context.telemetry_client.flush()
 
     # Check and handle system dialogs
     if DIALOG_HANDLER_AVAILABLE and hasattr(context, 'dialog_handler'):
@@ -574,3 +592,17 @@ def clean_test_name(name):
 def before_feature(context, feature):
     for scenario in feature.scenarios:
         patch_scenario_with_autoretry(scenario, max_attempts=2)
+
+
+def after_step(context, step):
+    if step.status == 'skipped':
+        return
+    context.telemetry_client.track_metric(
+        "TestStepExecuted", 1,
+        properties={
+            "Platform": "Mac", 
+            "Status": 'Passed' if step.status == 'passed' else 'Failed',
+            "RunSource": os.environ.get('RUN_SOURCE', 'Local')
+        }
+    )
+    context.telemetry_client.flush()
