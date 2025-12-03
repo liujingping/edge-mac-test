@@ -477,7 +477,7 @@ def after_scenario(context, scenario):
     logger.info(f'DEBUG: Finished Scenario: {scenario.name} - {status}')
     
     # Track scenario execution status telemetry
-    if scenario.status != 'skipped':
+    if scenario.status != 'skipped' and getattr(scenario, '_current_retry', 0) == getattr(scenario, '_max_attempts', 1) - 1:
         context.telemetry_client.track_metric(
             "TestScenarioExecuted", 1,
             properties={
