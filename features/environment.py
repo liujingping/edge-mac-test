@@ -477,7 +477,7 @@ def after_scenario(context, scenario):
     logger.info(f'DEBUG: Finished Scenario: {scenario.name} - {status}')
     
     # Track scenario execution status telemetry
-    if scenario.status != 'skipped' and getattr(scenario, '_current_retry', 0) == getattr(scenario, '_max_attempts', 1) - 1:
+    if scenario.status != 'skipped' and 'RUN_SOURCE' in os.environ and getattr(scenario, '_current_retry', 0) == getattr(scenario, '_max_attempts', 1) - 1:
         context.telemetry_client.track_metric(
             "TestScenarioExecuted", 1,
             properties={
@@ -595,14 +595,13 @@ def before_feature(context, feature):
 
 
 def after_step(context, step):
-    if step.status == 'skipped':
-        return
-    context.telemetry_client.track_metric(
-        "TestStepExecuted", 1,
-        properties={
-            "Platform": "Mac", 
-            "Status": 'Passed' if step.status == 'passed' else 'Failed',
-            "RunSource": os.environ.get('RUN_SOURCE', 'Local')
-        }
-    )
-    context.telemetry_client.flush()
+    if step.status != 'skipped' and 'RUN_SOURCE' in os.environ:
+        context.telemetry_client.track_metric(
+            "TestStepExecuted", 1,
+            properties={
+                "Platform": "Mac", 
+                "Status": 'Passed' if step.status == 'passed' else 'Failed',
+                "RunSource": os.environ.get('RUN_SOURCE', 'Local')
+            }
+        )
+        context.telemetry_client.flush()
