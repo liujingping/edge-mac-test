@@ -510,6 +510,40 @@ def save_edge_flags_state(context, scenario_name):
 
         logger.info(f'Attempting to save Edge flags state to: {html_path}')
 
+        # Check if Edge is still running, if not, relaunch it
+        logger.info('Checking if Edge is still running...')
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='app_state',
+                arguments={
+                    'caller': 'behave-automation',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+        
+        # Check if app is launched
+        app_launched = False
+        if result_json and result_json.get('status') == 'success':
+            data = result_json.get('data', {})
+            app_launched = data.get('is_app_launched', False)
+            logger.info(f'Edge app state: launched={app_launched}')
+        
+        # If Edge is not running, relaunch it using the same implementation as initial launch
+        if not app_launched:
+            logger.warning('Edge appears to have crashed or is not running. Attempting to relaunch...')
+            try:
+                from features.steps.common.common import launch_edge_implementation
+                launch_edge_implementation(context)
+                logger.info('Edge relaunched successfully')
+                # Wait a bit for Edge to fully start
+                time.sleep(2)
+            except Exception as e:
+                logger.error(f'Error relaunching Edge: {str(e)}')
+                return None
+
         # Navigate to edge://metrics-internals/#variations
         logger.info('Navigating to edge://metrics-internals/#variations')
         result = call_tool_sync(
