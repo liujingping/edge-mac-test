@@ -80,7 +80,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeTab[@label='PDF Bookmark Sample']",
+                'locator_value': "//XCUIElementTypeTab[contains(@label,'PDF Bookmark Sample')]",
                 'need_snapshot': 0,
             },
         ),
