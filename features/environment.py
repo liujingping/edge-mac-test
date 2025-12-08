@@ -584,12 +584,42 @@ def save_edge_flags_state(context, scenario_name):
         # Wait for page to load
         time.sleep(3)
 
+        # Detect the actual Edge process name (could be "Microsoft Edge", "Microsoft Edge Canary", "Microsoft Edge Beta", etc.)
+        detect_process_script = '''
+        tell application "System Events"
+            set edgeProcesses to {"Microsoft Edge", "Microsoft Edge Canary", "Microsoft Edge Beta", "Microsoft Edge Dev"}
+            repeat with processName in edgeProcesses
+                if exists (process processName) then
+                    return processName
+                end if
+            end repeat
+            return ""
+        end tell
+        '''
+        
+        try:
+            result = subprocess.run(
+                ['osascript', '-e', detect_process_script],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            edge_process_name = result.stdout.strip()
+            if not edge_process_name:
+                logger.error('Could not detect Edge process name')
+                return None
+            logger.info(f'Detected Edge process: {edge_process_name}')
+        except Exception as e:
+            logger.error(f'Error detecting Edge process: {str(e)}')
+            # Fallback to default name
+            edge_process_name = "Microsoft Edge"
+
         # Use AppleScript to save page as HTML
         # We'll use Command+S to trigger Save dialog, then automate the save process
         applescript = f'''
         tell application "System Events"
-            -- Activate Microsoft Edge
-            tell process "Microsoft Edge"
+            -- Activate the detected Edge process
+            tell process "{edge_process_name}"
                 set frontmost to true
                 delay 0.5
                 
@@ -632,7 +662,7 @@ def save_edge_flags_state(context, scenario_name):
         end tell
         '''
 
-        logger.debug(f'Executing AppleScript to save HTML file')
+        logger.debug(f'Executing AppleScript to save HTML file with process: {edge_process_name}')
         result = subprocess.run(
             ['osascript', '-e', applescript],
             capture_output=True,
@@ -734,6 +764,33 @@ def after_scenario(context, scenario):
         else:
             logger.error('Failed to remove network throttling')
 
+    # Take screenshot after scenario completion
+    try:
+        screenshot_path = take_screenshot(scenario.name)
+    except Exception as e:
+        logger.warning(f'Screenshot failed for scenario {scenario.name}: {str(e)}')
+
+    # Save Edge flags state if scenario failed on the last retry attempt
+    # Only save on the final retry to avoid duplicate captures
+    current_retry = getattr(scenario, '_current_retry', 0)
+    max_attempts = getattr(scenario, '_max_attempts', 1)
+    is_last_attempt = current_retry == max_attempts - 1
+    
+    logger.debug(f'Retry info - current_retry: {current_retry}, max_attempts: {max_attempts}, is_last_attempt: {is_last_attempt}')
+    
+    if scenario.status == 'failed' and is_last_attempt:
+        logger.info(f'Scenario failed on final retry attempt ({current_retry + 1}/{max_attempts}), saving Edge flags state...')
+        try:
+            flags_html_path = save_edge_flags_state(context, scenario.name)
+            if flags_html_path:
+                logger.info(f'Edge flags state saved successfully: {flags_html_path}')
+            else:
+                logger.warning(f'Failed to save Edge flags state for scenario: {scenario.name}')
+        except Exception as e:
+            logger.error(f'Error saving Edge flags state: {str(e)}')
+            import traceback
+            logger.debug(f'Exception details: {traceback.format_exc()}')
+
     # Clean up temporary profile directory if it exists
     if hasattr(context, 'profile_path'):
         try:
@@ -745,27 +802,6 @@ def after_scenario(context, scenario):
                 logger.info(f'Cleaned up temporary profile directory: {profile_path}')
         except Exception as e:
             logger.warning(f'Failed to cleanup profile directory: {str(e)}')
-
-    # Take screenshot after scenario completion
-    try:
-        screenshot_path = take_screenshot(scenario.name)
-    except Exception as e:
-        logger.warning(f'Screenshot failed for scenario {scenario.name}: {str(e)}')
-
-    # Save Edge flags state if scenario failed on the last retry attempt
-    # Only save on the final retry to avoid duplicate captures
-    if scenario.status == 'failed' and getattr(scenario, '_current_retry', 0) == getattr(scenario, '_max_attempts', 1) - 1:
-        logger.info(f'Scenario failed on final retry attempt, saving Edge flags state...')
-        try:
-            flags_html_path = save_edge_flags_state(context, scenario.name)
-            if flags_html_path:
-                logger.info(f'Edge flags state saved successfully: {flags_html_path}')
-            else:
-                logger.warning(f'Failed to save Edge flags state for scenario: {scenario.name}')
-        except Exception as e:
-            logger.error(f'Error saving Edge flags state: {str(e)}')
-            import traceback
-            logger.debug(f'Exception details: {traceback.format_exc()}')
 
     logger.info(f'-' * 80)
 
