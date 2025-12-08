@@ -590,7 +590,7 @@ def save_edge_flags_state(context, scenario_name):
             set edgeProcesses to {"Microsoft Edge", "Microsoft Edge Canary", "Microsoft Edge Beta", "Microsoft Edge Dev"}
             repeat with processName in edgeProcesses
                 if exists (process processName) then
-                    return processName
+                    return processName as text
                 end if
             end repeat
             return ""
@@ -613,6 +613,7 @@ def save_edge_flags_state(context, scenario_name):
             logger.error(f'Error detecting Edge process: {str(e)}')
             # Fallback to default name
             edge_process_name = "Microsoft Edge"
+            logger.warning(f'Using fallback process name: {edge_process_name}')
 
         # Use AppleScript to save page as HTML
         # We'll use Command+S to trigger Save dialog, then automate the save process
@@ -839,6 +840,7 @@ def clean_test_name(name):
 def before_feature(context, feature):
     for scenario in feature.scenarios:
         patch_scenario_with_autoretry(scenario, max_attempts=2)
+        logger.debug(f'Scenario "{scenario.name}" configured with max_attempts=2')
 
 
 def after_step(context, step):
