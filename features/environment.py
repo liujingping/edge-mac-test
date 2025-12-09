@@ -48,6 +48,9 @@ logger = logging.getLogger('behave_environment')
 # Global configuration for scenario retry attempts
 MAX_RETRY_ATTEMPTS = 2
 
+# Global retry counter for scenarios (survives context resets during retries)
+_scenario_retry_count = {}
+
 session_ready = threading.Event()
 TRANSPORT = 'stdio'  # Default transport method, can be changed to "sse" if needed
 
@@ -362,17 +365,14 @@ def before_scenario(context, scenario):
     logger.info(f'=' * 80)
     logger.info(f'DEBUG: Starting Scenario {progress_info}: {scenario.name}')
 
-    # Initialize retry counter for this scenario if not already set
-    if not hasattr(context, 'scenario_retry_count'):
-        setattr(context, 'scenario_retry_count', {})
-    
+    # Use global retry counter (survives context resets during retries)
     scenario_key = f"{scenario.filename}::{scenario.name}"
-    if scenario_key not in context.scenario_retry_count:
-        context.scenario_retry_count[scenario_key] = 0
+    if scenario_key not in _scenario_retry_count:
+        _scenario_retry_count[scenario_key] = 0
     else:
-        context.scenario_retry_count[scenario_key] += 1
+        _scenario_retry_count[scenario_key] += 1
     
-    current_attempt = context.scenario_retry_count[scenario_key] + 1
+    current_attempt = _scenario_retry_count[scenario_key] + 1
     logger.info(f'Scenario attempt {current_attempt}/{MAX_RETRY_ATTEMPTS}')
 
     # Handle network throttling tags
@@ -564,7 +564,7 @@ def after_scenario(context, scenario):
     # If scenario passed, this is the last attempt regardless of retry count
     # If scenario failed, check if we've exhausted all retry attempts
     scenario_key = f"{scenario.filename}::{scenario.name}"
-    current_retry = context.scenario_retry_count.get(scenario_key, 0)
+    current_retry = _scenario_retry_count.get(scenario_key, 0)
     is_last_attempt = scenario.status == 'passed' or (current_retry + 1) >= MAX_RETRY_ATTEMPTS
     
     logger.debug(f'Retry info - current_retry: {current_retry}, max_attempts: {MAX_RETRY_ATTEMPTS}, status: {scenario.status}, is_last_attempt: {is_last_attempt}')
