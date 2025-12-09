@@ -492,25 +492,49 @@ def save_edge_flags_state(context, scenario_name):
     to screenshot directory with the same naming convention as screenshots
     
     Args:
-        context: Behave context object (not used but kept for compatibility)
+        context: Behave context object with profile_path
         scenario_name: Name of the scenario for file naming
         
     Returns:
         str: Path to saved ChromeFeatureState file or None if failed
     """
     try:
-        # Get Edge profile directory from environment variable
-        edge_path = os.environ.get('EDGE_PATH')
-        if not edge_path:
-            logger.error('EDGE_PATH environment variable not set')
+        # Get Edge profile directory from context.profile_path
+        if not hasattr(context, 'profile_path') or not context.profile_path:
+            logger.error('context.profile_path not set')
             return None
         
-        edge_path = pathlib.Path(edge_path)
+        edge_path = pathlib.Path(context.profile_path)
+        
+        # Debug: Print all files in the Edge profile directory
+        logger.debug(f'Checking Edge profile directory: {edge_path}')
+        if edge_path.exists() and edge_path.is_dir():
+            try:
+                all_files = list(edge_path.iterdir())
+                logger.debug(f'Total files/folders in Edge profile directory: {len(all_files)}')
+                logger.debug('Files in Edge profile directory:')
+                for item in sorted(all_files):
+                    file_type = 'DIR' if item.is_dir() else 'FILE'
+                    file_size = item.stat().st_size if item.is_file() else 0
+                    logger.debug(f'  [{file_type}] {item.name} ({file_size} bytes)')
+            except Exception as e:
+                logger.warning(f'Failed to list files in Edge profile directory: {e}')
+        else:
+            logger.error(f'Edge profile directory does not exist or is not a directory: {edge_path}')
+            return None
+        
         source_file = edge_path / 'ChromeFeatureState'
         
         # Check if source file exists
         if not source_file.exists():
             logger.error(f'ChromeFeatureState file not found at: {source_file}')
+            logger.debug(f'Looking for alternative flag files...')
+            # Try to find any file with "Feature" in the name
+            feature_files = list(edge_path.glob('*Feature*'))
+            if feature_files:
+                logger.debug(f'Found {len(feature_files)} files with "Feature" in name:')
+                for f in feature_files:
+                    logger.debug(f'  - {f.name}')
             return None
         
         # Get screenshot directory from environment variable
@@ -699,7 +723,6 @@ def clean_test_name(name):
 def before_feature(context, feature):
     for scenario in feature.scenarios:
         patch_scenario_with_autoretry(scenario, max_attempts=MAX_RETRY_ATTEMPTS)
-        logger.debug(f'Scenario "{scenario.name}" configured with max_attempts={MAX_RETRY_ATTEMPTS}')
 
 
 def after_step(context, step):
