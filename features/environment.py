@@ -773,25 +773,46 @@ def after_scenario(context, scenario):
 
     # Save Edge flags state if scenario failed on the last retry attempt
     # Only save on the final retry to avoid duplicate captures
-    # Check multiple possible retry attribute names to ensure compatibility
-    current_retry = getattr(scenario, '_current_retry', None)
-    max_attempts = getattr(scenario, '_max_attempts', None)
     
-    # Also check alternative attribute names used by behave-retry
-    if current_retry is None:
-        current_retry = getattr(scenario, 'current_retry', 0)
-    if max_attempts is None:
-        max_attempts = getattr(scenario, 'max_attempts', 1)
+    # Debug: Print all retry-related attributes from scenario object
+    retry_attrs = {}
+    possible_attrs = [
+        'execute_count', 'max_execute_count',
+        '_current_retry', '_max_attempts',
+        'current_retry', 'max_attempts',
+        'attempt', 'max_retries',
+        '_attempt', '_max_retries',
+        'retry_count', 'max_retry_count'
+    ]
     
-    # For scenarios with retry enabled, only save on the last attempt
-    # If scenario will be retried, skip saving (scenario.status will be 'failed' but it's not final)
-    will_retry = hasattr(scenario, 'should_retry') and callable(scenario.should_retry) and scenario.should_retry()
-    is_final_failure = scenario.status == 'failed' and not will_retry
+    for attr in possible_attrs:
+        if hasattr(scenario, attr):
+            retry_attrs[attr] = getattr(scenario, attr)
     
-    logger.debug(f'Retry info - current_retry: {current_retry}, max_attempts: {max_attempts}, will_retry: {will_retry}, is_final_failure: {is_final_failure}')
+    logger.debug(f'All retry-related attributes found on scenario: {retry_attrs}')
+    
+    # Check if this is a final failure (no more retries)
+    # Try multiple possible attribute combinations
+    execute_count = getattr(scenario, 'execute_count', None)
+    max_execute_count = getattr(scenario, 'max_execute_count', None)
+    
+    # Determine if this is the last attempt
+    is_last_attempt = False
+    
+    if execute_count is not None and max_execute_count is not None:
+        is_last_attempt = execute_count >= max_execute_count
+        logger.debug(f'Using execute_count: {execute_count}/{max_execute_count}, is_last={is_last_attempt}')
+    else:
+        # Fallback: if no execute_count, assume this is the last (and only) attempt
+        is_last_attempt = True
+        logger.debug(f'No execute_count found, assuming is_last_attempt=True')
+    
+    is_final_failure = scenario.status == 'failed' and is_last_attempt
+    
+    logger.debug(f'Final decision - status: {scenario.status}, is_last_attempt: {is_last_attempt}, is_final_failure: {is_final_failure}')
     
     if is_final_failure:
-        logger.info(f'Scenario failed with no more retries, saving Edge flags state...')
+        logger.info(f'Scenario failed on final attempt, saving Edge flags state...')
         try:
             flags_html_path = save_edge_flags_state(context, scenario.name)
             if flags_html_path:
