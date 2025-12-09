@@ -359,6 +359,16 @@ def before_scenario(context, scenario):
     logger.info(f'=' * 80)
     logger.info(f'DEBUG: Starting Scenario {progress_info}: {scenario.name}')
 
+    # Initialize retry tracking in context
+    # Use scenario name as key to track attempts per scenario
+    # scenario_key = f'retry_count_{scenario.name}'
+    # if not hasattr(context, scenario_key):
+    #     setattr(context, scenario_key, 0)
+    
+    # current_attempt = getattr(context, scenario_key, 0) + 1
+    # setattr(context, scenario_key, current_attempt)
+    # logger.debug(f'Scenario attempt #{current_attempt}')
+
     # Handle network throttling tags
     if NETWORK_THROTTLING_AVAILABLE:
         throttling_manager = get_throttling_manager()
@@ -774,42 +784,60 @@ def after_scenario(context, scenario):
     # Save Edge flags state if scenario failed on the last retry attempt
     # Only save on the final retry to avoid duplicate captures
     
-    # Debug: Print all retry-related attributes from scenario object
-    retry_attrs = {}
-    possible_attrs = [
-        'execute_count', 'max_execute_count',
-        '_current_retry', '_max_attempts',
-        'current_retry', 'max_attempts',
-        'attempt', 'max_retries',
-        '_attempt', '_max_retries',
-        'retry_count', 'max_retry_count'
-    ]
+    # Debug: Check all attributes on both scenario and context objects
+    logger.debug('=' * 60)
+    logger.debug('DEBUG: Investigating retry mechanism')
     
-    for attr in possible_attrs:
-        if hasattr(scenario, attr):
-            retry_attrs[attr] = getattr(scenario, attr)
+    # Check scenario object attributes
+    scenario_attrs = {}
+    for attr in dir(scenario):
+        if not attr.startswith('__'):
+            try:
+                value = getattr(scenario, attr)
+                if not callable(value):
+                    scenario_attrs[attr] = value
+            except:
+                pass
     
-    logger.debug(f'All retry-related attributes found on scenario: {retry_attrs}')
+    logger.debug(f'Scenario non-callable attributes: {scenario_attrs}')
     
-    # Check if this is a final failure (no more retries)
-    # Try multiple possible attribute combinations
-    execute_count = getattr(scenario, 'execute_count', None)
-    max_execute_count = getattr(scenario, 'max_execute_count', None)
+    # Check context object for retry-related attributes
+    context_retry_attrs = {}
+    for attr in dir(context):
+        if 'retry' in attr.lower() or 'attempt' in attr.lower() or 'execute' in attr.lower():
+            try:
+                value = getattr(context, attr)
+                if not callable(value) and not attr.startswith('_'):
+                    context_retry_attrs[attr] = value
+            except:
+                pass
     
-    # Determine if this is the last attempt
-    is_last_attempt = False
+    logger.debug(f'Context retry-related attributes: {context_retry_attrs}')
     
-    if execute_count is not None and max_execute_count is not None:
-        is_last_attempt = execute_count >= max_execute_count
-        logger.debug(f'Using execute_count: {execute_count}/{max_execute_count}, is_last={is_last_attempt}')
-    else:
-        # Fallback: if no execute_count, assume this is the last (and only) attempt
-        is_last_attempt = True
-        logger.debug(f'No execute_count found, assuming is_last_attempt=True')
+    # Check if scenario has a parent/feature that might have retry info
+    if hasattr(scenario, 'feature'):
+        feature_attrs = {}
+        for attr in dir(scenario.feature):
+            if 'retry' in attr.lower() or 'attempt' in attr.lower():
+                try:
+                    value = getattr(scenario.feature, attr)
+                    if not callable(value) and not attr.startswith('_'):
+                        feature_attrs[attr] = value
+                except:
+                    pass
+        logger.debug(f'Feature retry-related attributes: {feature_attrs}')
     
+    logger.debug('=' * 60)
+    
+    # Use context-based retry tracking since patch_scenario_with_autoretry doesn't set attributes on scenario
+    scenario_key = f'retry_count_{scenario.name}'
+    current_attempt = getattr(context, scenario_key, 1)
+    max_attempts = 2  # This matches the max_attempts in before_feature
+    
+    is_last_attempt = current_attempt >= max_attempts
     is_final_failure = scenario.status == 'failed' and is_last_attempt
     
-    logger.debug(f'Final decision - status: {scenario.status}, is_last_attempt: {is_last_attempt}, is_final_failure: {is_final_failure}')
+    logger.debug(f'Retry tracking - attempt: {current_attempt}/{max_attempts}, status: {scenario.status}, is_last_attempt: {is_last_attempt}, is_final_failure: {is_final_failure}')
     
     if is_final_failure:
         logger.info(f'Scenario failed on final attempt, saving Edge flags state...')
