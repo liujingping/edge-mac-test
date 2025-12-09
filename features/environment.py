@@ -499,6 +499,17 @@ def save_edge_flags_state(context, scenario_name):
         str: Path to saved ChromeFeatureState file or None if failed
     """
     try:
+        # Import launch_edge_implementation from common steps
+        from features.steps.common.common import launch_edge_implementation
+        
+        # Restart Edge to ensure ChromeFeatureState is written to disk
+        logger.info('Restarting Edge to flush ChromeFeatureState to disk...')
+        launch_edge_implementation(context)
+        logger.info('Edge restarted successfully')
+        
+        # Wait a moment for the file to be fully written
+        time.sleep(2)
+        
         # Get Edge profile directory from context.profile_path
         if not hasattr(context, 'profile_path') or not context.profile_path:
             logger.error('context.profile_path not set')
