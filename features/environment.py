@@ -773,14 +773,25 @@ def after_scenario(context, scenario):
 
     # Save Edge flags state if scenario failed on the last retry attempt
     # Only save on the final retry to avoid duplicate captures
-    current_retry = getattr(scenario, '_current_retry', 0)
-    max_attempts = getattr(scenario, '_max_attempts', 1)
-    is_last_attempt = current_retry == max_attempts - 1
+    # Check multiple possible retry attribute names to ensure compatibility
+    current_retry = getattr(scenario, '_current_retry', None)
+    max_attempts = getattr(scenario, '_max_attempts', None)
     
-    logger.debug(f'Retry info - current_retry: {current_retry}, max_attempts: {max_attempts}, is_last_attempt: {is_last_attempt}')
+    # Also check alternative attribute names used by behave-retry
+    if current_retry is None:
+        current_retry = getattr(scenario, 'current_retry', 0)
+    if max_attempts is None:
+        max_attempts = getattr(scenario, 'max_attempts', 1)
     
-    if scenario.status == 'failed' and is_last_attempt:
-        logger.info(f'Scenario failed on final retry attempt ({current_retry + 1}/{max_attempts}), saving Edge flags state...')
+    # For scenarios with retry enabled, only save on the last attempt
+    # If scenario will be retried, skip saving (scenario.status will be 'failed' but it's not final)
+    will_retry = hasattr(scenario, 'should_retry') and callable(scenario.should_retry) and scenario.should_retry()
+    is_final_failure = scenario.status == 'failed' and not will_retry
+    
+    logger.debug(f'Retry info - current_retry: {current_retry}, max_attempts: {max_attempts}, will_retry: {will_retry}, is_final_failure: {is_final_failure}')
+    
+    if is_final_failure:
+        logger.info(f'Scenario failed with no more retries, saving Edge flags state...')
         try:
             flags_html_path = save_edge_flags_state(context, scenario.name)
             if flags_html_path:
