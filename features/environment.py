@@ -45,6 +45,9 @@ except ImportError as e:
 
 logger = logging.getLogger('behave_environment')
 
+# Global configuration for scenario retry attempts
+MAX_RETRY_ATTEMPTS = 2
+
 session_ready = threading.Event()
 TRANSPORT = 'stdio'  # Default transport method, can be changed to "sse" if needed
 
@@ -359,15 +362,18 @@ def before_scenario(context, scenario):
     logger.info(f'=' * 80)
     logger.info(f'DEBUG: Starting Scenario {progress_info}: {scenario.name}')
 
-    # Initialize retry tracking in context
-    # Use scenario name as key to track attempts per scenario
-    # scenario_key = f'retry_count_{scenario.name}'
-    # if not hasattr(context, scenario_key):
-    #     setattr(context, scenario_key, 0)
+    # Initialize retry counter for this scenario if not already set
+    if not hasattr(context, 'scenario_retry_count'):
+        setattr(context, 'scenario_retry_count', {})
     
-    # current_attempt = getattr(context, scenario_key, 0) + 1
-    # setattr(context, scenario_key, current_attempt)
-    # logger.debug(f'Scenario attempt #{current_attempt}')
+    scenario_key = f"{scenario.filename}::{scenario.name}"
+    if scenario_key not in context.scenario_retry_count:
+        context.scenario_retry_count[scenario_key] = 0
+    else:
+        context.scenario_retry_count[scenario_key] += 1
+    
+    current_attempt = context.scenario_retry_count[scenario_key] + 1
+    logger.info(f'Scenario attempt {current_attempt}/{MAX_RETRY_ATTEMPTS}')
 
     # Handle network throttling tags
     if NETWORK_THROTTLING_AVAILABLE:
@@ -482,17 +488,31 @@ def take_screenshot(scenario_name):
 
 def save_edge_flags_state(context, scenario_name):
     """
-    Save Edge flags state by navigating to edge://metrics-internals/#variations
-    and saving the page as HTML file with the same naming convention as screenshots
+    Save Edge flags state by copying ChromeFeatureState file from Edge profile directory
+    to screenshot directory with the same naming convention as screenshots
     
     Args:
-        context: Behave context object with session
+        context: Behave context object (not used but kept for compatibility)
         scenario_name: Name of the scenario for file naming
         
     Returns:
-        str: Path to saved HTML file or None if failed
+        str: Path to saved ChromeFeatureState file or None if failed
     """
     try:
+        # Get Edge profile directory from environment variable
+        edge_path = os.environ.get('EDGE_PATH')
+        if not edge_path:
+            logger.error('EDGE_PATH environment variable not set')
+            return None
+        
+        edge_path = pathlib.Path(edge_path)
+        source_file = edge_path / 'ChromeFeatureState'
+        
+        # Check if source file exists
+        if not source_file.exists():
+            logger.error(f'ChromeFeatureState file not found at: {source_file}')
+            return None
+        
         # Get screenshot directory from environment variable
         screenshot_dir = os.environ.get('SCREENSHOT_DIR')
         if not screenshot_dir:
@@ -511,194 +531,21 @@ def save_edge_flags_state(context, scenario_name):
         # Clean test name for use as filename
         test_name_pattern = clean_test_name(scenario_name)
 
-        # Add timestamp
+        # Add timestamp to match screenshot naming convention
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-        filename = f'{test_name_pattern}_{timestamp}.html'
+        filename = f'{test_name_pattern}_{timestamp}_ChromeFeatureState'
 
-        # Full path for the HTML file
-        html_path = screenshot_dir / filename
+        # Full path for the destination file
+        dest_file = screenshot_dir / filename
 
-        logger.info(f'Attempting to save Edge flags state to: {html_path}')
+        logger.info(f'Copying ChromeFeatureState from {source_file} to {dest_file}')
 
-        # Check if Edge is still running, if not, relaunch it
-        logger.info('Checking if Edge is still running...')
-        result = call_tool_sync(
-            context,
-            context.session.call_tool(
-                name='app_state',
-                arguments={
-                    'caller': 'behave-automation',
-                    'need_snapshot': 0,
-                },
-            ),
-        )
-        result_json = get_tool_json(result)
+        # Copy the file
+        import shutil
+        shutil.copy2(source_file, dest_file)
         
-        # Check if app is launched
-        app_launched = False
-        if result_json and result_json.get('status') == 'success':
-            data = result_json.get('data', {})
-            app_launched = data.get('is_app_launched', False)
-            logger.info(f'Edge app state: launched={app_launched}')
-        
-        # If Edge is not running, relaunch it using the same implementation as initial launch
-        if not app_launched:
-            logger.warning('Edge appears to have crashed or is not running. Attempting to relaunch...')
-            try:
-                from features.steps.common.common import launch_edge_implementation
-                launch_edge_implementation(context)
-                logger.info('Edge relaunched successfully')
-                # Wait a bit for Edge to fully start
-                time.sleep(2)
-            except Exception as e:
-                logger.error(f'Error relaunching Edge: {str(e)}')
-                return None
-
-        # Navigate to edge://metrics-internals/#variations
-        logger.info('Navigating to edge://metrics-internals/#variations')
-        result = call_tool_sync(
-            context,
-            context.session.call_tool(
-                name='send_keys',
-                arguments={
-                    'caller': 'behave-automation',
-                    'locator_value': 'Address and search bar',
-                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                    'text': 'edge://metrics-internals/#variations',
-                    'need_snapshot': 0,
-                },
-            ),
-        )
-        result_json = get_tool_json(result)
-        if result_json.get('status') != 'success':
-            logger.error(f'Failed to enter URL: {result_json.get("error")}')
-            return None
-
-        # Press Enter to navigate
-        result = call_tool_sync(
-            context,
-            context.session.call_tool(
-                name='press_key',
-                arguments={
-                    'caller': 'behave-automation',
-                    'key': 'return',
-                    'need_snapshot': 0,
-                },
-            ),
-        )
-        result_json = get_tool_json(result)
-        if result_json.get('status') != 'success':
-            logger.error(f'Failed to press Enter: {result_json.get("error")}')
-            return None
-
-        # Wait for page to load
-        time.sleep(3)
-
-        # Detect the actual Edge process name (could be "Microsoft Edge", "Microsoft Edge Canary", "Microsoft Edge Beta", etc.)
-        detect_process_script = '''
-        tell application "System Events"
-            set edgeProcesses to {"Microsoft Edge", "Microsoft Edge Canary", "Microsoft Edge Beta", "Microsoft Edge Dev"}
-            repeat with processName in edgeProcesses
-                if exists (process processName) then
-                    return processName as text
-                end if
-            end repeat
-            return ""
-        end tell
-        '''
-        
-        try:
-            result = subprocess.run(
-                ['osascript', '-e', detect_process_script],
-                capture_output=True,
-                text=True,
-                timeout=5
-            )
-            edge_process_name = result.stdout.strip()
-            if not edge_process_name:
-                logger.error('Could not detect Edge process name')
-                return None
-            logger.info(f'Detected Edge process: {edge_process_name}')
-        except Exception as e:
-            logger.error(f'Error detecting Edge process: {str(e)}')
-            # Fallback to default name
-            edge_process_name = "Microsoft Edge"
-            logger.warning(f'Using fallback process name: {edge_process_name}')
-
-        # Use AppleScript to save page as HTML
-        # We'll use Command+S to trigger Save dialog, then automate the save process
-        applescript = f'''
-        tell application "System Events"
-            -- Activate the detected Edge process
-            tell process "{edge_process_name}"
-                set frontmost to true
-                delay 0.5
-                
-                -- Press Command+S to open Save dialog
-                keystroke "s" using command down
-                delay 1.5
-                
-                -- Type the filename in the save dialog
-                keystroke "{filename}"
-                delay 0.5
-                
-                -- Press Command+Shift+G to open Go to Folder dialog
-                keystroke "g" using {{command down, shift down}}
-                delay 1
-                
-                -- Type the directory path
-                keystroke "{str(screenshot_dir)}"
-                delay 0.5
-                
-                -- Press Enter to go to the directory
-                keystroke return
-                delay 0.5
-                
-                -- Make sure "Web Page, Complete" format is selected
-                -- Click on Format dropdown
-                try
-                    click pop up button 1 of group 1 of group 1 of sheet 1 of window 1
-                    delay 0.3
-                    
-                    -- Look for "Web Page, HTML Only" or similar option
-                    -- We'll try to find the HTML-only option
-                    click menu item "Web Page, HTML Only" of menu 1 of pop up button 1 of group 1 of group 1 of sheet 1 of window 1
-                    delay 0.3
-                end try
-                
-                -- Press Enter to save
-                keystroke return
-                delay 1
-            end tell
-        end tell
-        '''
-
-        logger.debug(f'Executing AppleScript to save HTML file with process: {edge_process_name}')
-        result = subprocess.run(
-            ['osascript', '-e', applescript],
-            capture_output=True,
-            text=True,
-            timeout=15
-        )
-
-        if result.returncode == 0:
-            # Verify the file was created
-            if html_path.exists():
-                logger.info(f'Edge flags state saved successfully: {html_path}')
-                return str(html_path)
-            else:
-                logger.warning(f'AppleScript executed but file not found at: {html_path}')
-                # Try to find the file with similar name
-                pattern = f'{test_name_pattern}_*.html'
-                matching_files = list(screenshot_dir.glob(pattern))
-                if matching_files:
-                    latest_file = max(matching_files, key=lambda p: p.stat().st_mtime)
-                    logger.info(f'Found HTML file: {latest_file}')
-                    return str(latest_file)
-                return None
-        else:
-            logger.error(f'AppleScript failed: {result.stderr}')
-            return None
+        logger.info(f'Edge flags state saved successfully: {dest_file}')
+        return str(dest_file)
 
     except Exception as e:
         logger.error(f'Error saving Edge flags state: {str(e)}')
@@ -713,8 +560,17 @@ def after_scenario(context, scenario):
     logger.info(f'-' * 80)
     logger.info(f'DEBUG: Finished Scenario: {scenario.name} - {status}')
     
-    # Track scenario execution status telemetry
-    if scenario.status != 'skipped' and 'RUN_SOURCE' in os.environ and getattr(scenario, '_current_retry', 0) == getattr(scenario, '_max_attempts', 1) - 1:
+    # Determine if this is the last retry attempt
+    # If scenario passed, this is the last attempt regardless of retry count
+    # If scenario failed, check if we've exhausted all retry attempts
+    scenario_key = f"{scenario.filename}::{scenario.name}"
+    current_retry = context.scenario_retry_count.get(scenario_key, 0)
+    is_last_attempt = scenario.status == 'passed' or (current_retry + 1) >= MAX_RETRY_ATTEMPTS
+    
+    logger.debug(f'Retry info - current_retry: {current_retry}, max_attempts: {MAX_RETRY_ATTEMPTS}, status: {scenario.status}, is_last_attempt: {is_last_attempt}')
+    
+    # Track scenario execution status telemetry (only on last attempt)
+    if scenario.status != 'skipped' and 'RUN_SOURCE' in os.environ and is_last_attempt:
         context.telemetry_client.track_metric(
             "TestScenarioExecuted", 1,
             properties={
@@ -783,64 +639,7 @@ def after_scenario(context, scenario):
 
     # Save Edge flags state if scenario failed on the last retry attempt
     # Only save on the final retry to avoid duplicate captures
-    
-    # Debug: Check all attributes on both scenario and context objects
-    logger.debug('=' * 60)
-    logger.debug('DEBUG: Investigating retry mechanism')
-    
-    # Check scenario object attributes
-    scenario_attrs = {}
-    for attr in dir(scenario):
-        if not attr.startswith('__'):
-            try:
-                value = getattr(scenario, attr)
-                if not callable(value):
-                    scenario_attrs[attr] = value
-            except:
-                pass
-    
-    logger.debug(f'Scenario non-callable attributes: {scenario_attrs}')
-    
-    # Check context object for retry-related attributes
-    context_retry_attrs = {}
-    for attr in dir(context):
-        if 'retry' in attr.lower() or 'attempt' in attr.lower() or 'execute' in attr.lower():
-            try:
-                value = getattr(context, attr)
-                if not callable(value) and not attr.startswith('_'):
-                    context_retry_attrs[attr] = value
-            except:
-                pass
-    
-    logger.debug(f'Context retry-related attributes: {context_retry_attrs}')
-    
-    # Check if scenario has a parent/feature that might have retry info
-    if hasattr(scenario, 'feature'):
-        feature_attrs = {}
-        for attr in dir(scenario.feature):
-            if 'retry' in attr.lower() or 'attempt' in attr.lower():
-                try:
-                    value = getattr(scenario.feature, attr)
-                    if not callable(value) and not attr.startswith('_'):
-                        feature_attrs[attr] = value
-                except:
-                    pass
-        logger.debug(f'Feature retry-related attributes: {feature_attrs}')
-    
-    logger.debug('=' * 60)
-    
-    # Use context-based retry tracking since patch_scenario_with_autoretry doesn't set attributes on scenario
-    scenario_key = f'retry_count_{scenario.name}'
-    current_attempt = getattr(context, scenario_key, 1)
-    max_attempts = 2  # This matches the max_attempts in before_feature
-    
-    is_last_attempt = current_attempt >= max_attempts
-    is_final_failure = scenario.status == 'failed' and is_last_attempt
-    
-    logger.debug(f'Retry tracking - attempt: {current_attempt}/{max_attempts}, status: {scenario.status}, is_last_attempt: {is_last_attempt}, is_final_failure: {is_final_failure}')
-    
-    if is_final_failure:
-        logger.info(f'Scenario failed on final attempt, saving Edge flags state...')
+    if scenario.status == 'failed' and is_last_attempt:
         try:
             flags_html_path = save_edge_flags_state(context, scenario.name)
             if flags_html_path:
@@ -899,8 +698,8 @@ def clean_test_name(name):
 
 def before_feature(context, feature):
     for scenario in feature.scenarios:
-        patch_scenario_with_autoretry(scenario, max_attempts=2)
-        logger.debug(f'Scenario "{scenario.name}" configured with max_attempts=2')
+        patch_scenario_with_autoretry(scenario, max_attempts=MAX_RETRY_ATTEMPTS)
+        logger.debug(f'Scenario "{scenario.name}" configured with max_attempts={MAX_RETRY_ATTEMPTS}')
 
 
 def after_step(context, step):
