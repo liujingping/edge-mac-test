@@ -45,6 +45,12 @@ except ImportError as e:
 
 logger = logging.getLogger('behave_environment')
 
+# Global configuration for scenario retry attempts
+MAX_RETRY_ATTEMPTS = 2
+
+# Global retry counter for scenarios (survives context resets during retries)
+_scenario_retry_count = {}
+
 session_ready = threading.Event()
 TRANSPORT = 'stdio'  # Default transport method, can be changed to "sse" if needed
 
@@ -359,6 +365,16 @@ def before_scenario(context, scenario):
     logger.info(f'=' * 80)
     logger.info(f'DEBUG: Starting Scenario {progress_info}: {scenario.name}')
 
+    # Use global retry counter (survives context resets during retries)
+    scenario_key = f"{scenario.filename}::{scenario.name}"
+    if scenario_key not in _scenario_retry_count:
+        _scenario_retry_count[scenario_key] = 0
+    else:
+        _scenario_retry_count[scenario_key] += 1
+    
+    current_attempt = _scenario_retry_count[scenario_key] + 1
+    logger.info(f'Scenario attempt {current_attempt}/{MAX_RETRY_ATTEMPTS}')
+
     # Handle network throttling tags
     if NETWORK_THROTTLING_AVAILABLE:
         throttling_manager = get_throttling_manager()
@@ -470,14 +486,98 @@ def take_screenshot(scenario_name):
     return _take_screenshot_internal(scenario_name)
 
 
+def save_edge_flags_state(context, scenario_name):
+    """
+    Save Edge flags state by copying ChromeFeatureState file from Edge profile directory
+    to screenshot directory with the same naming convention as screenshots
+    
+    Args:
+        context: Behave context object with profile_path
+        scenario_name: Name of the scenario for file naming
+        
+    Returns:
+        str: Path to saved ChromeFeatureState file or None if failed
+    """
+    try:
+        # Import launch_edge_implementation from common steps
+        from features.steps.common.common import launch_edge_implementation
+        
+        # Restart Edge to ensure ChromeFeatureState is written to disk
+        logger.info('Restarting Edge to flush ChromeFeatureState to disk...')
+        launch_edge_implementation(context)
+        logger.info('Edge restarted successfully')
+        
+        # Wait a moment for the file to be fully written
+        time.sleep(2)
+        
+        # Get Edge profile directory from context.profile_path
+        if not hasattr(context, 'profile_path') or not context.profile_path:
+            logger.error('context.profile_path not set')
+            return None
+        
+        edge_path = pathlib.Path(context.profile_path)
+        
+        source_file = edge_path / 'ChromeFeatureState'
+        
+        # Check if source file exists
+        if not source_file.exists():
+            logger.error(f'ChromeFeatureState file not found at: {source_file}')
+            return None
+        
+        # Get screenshot directory from environment variable
+        screenshot_dir = os.environ.get('SCREENSHOT_DIR')
+        if not screenshot_dir:
+            logger.warning(
+                f'SCREENSHOT_DIR environment variable not set, using default: {screenshot_dir}'
+            )
+            return None
+        else:
+            screenshot_dir = pathlib.Path(screenshot_dir)
+
+        # Create screenshots directory if it doesn't exist
+        screenshot_dir.mkdir(parents=True, exist_ok=True)
+
+        # Clean test name for use as filename
+        test_name_pattern = clean_test_name(scenario_name)
+
+        # Add timestamp to match screenshot naming convention
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f'{test_name_pattern}_{timestamp}_ChromeFeatureState'
+
+        # Full path for the destination file
+        dest_file = screenshot_dir / filename
+
+        # Copy the file
+        import shutil
+        shutil.copy2(source_file, dest_file)
+        
+        logger.info(f'Edge flags state saved successfully: {dest_file}')
+        return str(dest_file)
+
+    except Exception as e:
+        logger.error(f'Error saving Edge flags state: {str(e)}')
+        import traceback
+        logger.debug(f'Exception details: {traceback.format_exc()}')
+        return None
+
+
 def after_scenario(context, scenario):
     # Print scenario completion info
     status = 'Passed' if scenario.status == 'passed' else 'Failed'
     logger.info(f'-' * 80)
     logger.info(f'DEBUG: Finished Scenario: {scenario.name} - {status}')
     
-    # Track scenario execution status telemetry
-    if scenario.status != 'skipped' and 'RUN_SOURCE' in os.environ and getattr(scenario, '_current_retry', 0) == getattr(scenario, '_max_attempts', 1) - 1:
+    # Determine if this is the last retry attempt
+    # If scenario passed, this is the last attempt regardless of retry count
+    # If scenario failed, check if we've exhausted all retry attempts
+    scenario_key = f"{scenario.filename}::{scenario.name}"
+    current_retry = _scenario_retry_count.get(scenario_key, 0)
+    is_last_attempt = scenario.status == 'passed' or (current_retry + 1) >= MAX_RETRY_ATTEMPTS
+    
+    logger.debug(f'Retry info - current_retry: {current_retry}, max_attempts: {MAX_RETRY_ATTEMPTS}, status: {scenario.status}, is_last_attempt: {is_last_attempt}')
+    
+    # Track scenario execution status telemetry (only on last attempt)
+    if scenario.status != 'skipped' and 'RUN_SOURCE' in os.environ and is_last_attempt:
         context.telemetry_client.track_metric(
             "TestScenarioExecuted", 1,
             properties={
@@ -538,6 +638,26 @@ def after_scenario(context, scenario):
         else:
             logger.error('Failed to remove network throttling')
 
+    # Take screenshot after scenario completion
+    try:
+        screenshot_path = take_screenshot(scenario.name)
+    except Exception as e:
+        logger.warning(f'Screenshot failed for scenario {scenario.name}: {str(e)}')
+
+    # Save Edge flags state if scenario failed on the last retry attempt
+    # Only save on the final retry to avoid duplicate captures
+    if scenario.status == 'failed' and is_last_attempt:
+        try:
+            flags_html_path = save_edge_flags_state(context, scenario.name)
+            if flags_html_path:
+                logger.info(f'Edge flags state saved successfully: {flags_html_path}')
+            else:
+                logger.warning(f'Failed to save Edge flags state for scenario: {scenario.name}')
+        except Exception as e:
+            logger.error(f'Error saving Edge flags state: {str(e)}')
+            import traceback
+            logger.debug(f'Exception details: {traceback.format_exc()}')
+
     # Clean up temporary profile directory if it exists
     if hasattr(context, 'profile_path'):
         try:
@@ -549,12 +669,6 @@ def after_scenario(context, scenario):
                 logger.info(f'Cleaned up temporary profile directory: {profile_path}')
         except Exception as e:
             logger.warning(f'Failed to cleanup profile directory: {str(e)}')
-
-    # Take screenshot after scenario completion
-    try:
-        screenshot_path = take_screenshot(scenario.name)
-    except Exception as e:
-        logger.warning(f'Screenshot failed for scenario {scenario.name}: {str(e)}')
 
     logger.info(f'-' * 80)
 
@@ -591,7 +705,7 @@ def clean_test_name(name):
 
 def before_feature(context, feature):
     for scenario in feature.scenarios:
-        patch_scenario_with_autoretry(scenario, max_attempts=2)
+        patch_scenario_with_autoretry(scenario, max_attempts=MAX_RETRY_ATTEMPTS)
 
 
 def after_step(context, step):
