@@ -581,13 +581,13 @@ def after_scenario(context, scenario):
         context.telemetry_client.track_metric(
             "TestScenarioExecuted", 1,
             properties={
-            "Platform": "Mac",
-            "Status": status,
-            "RunSource": os.environ.get('RUN_SOURCE', 'Local'),
-            "ScenarioName": scenario.name,
-            "FeatureName": scenario.feature.name,
-            "EdgeChannel": os.environ.get('EDGE_CHANNEL', 'Unknown')
-        }
+                "Platform": "Mac",
+                "Status": status,
+                "RunSource": os.environ.get('RUN_SOURCE', 'Local'),
+                "ScenarioName": scenario.name,
+                "FeatureName": scenario.feature.name,
+                "EdgeChannel": os.environ.get('EDGE_CHANNEL', 'Unknown')
+            }
         )
         context.telemetry_client.flush()
 
@@ -716,12 +716,12 @@ def after_step(context, step):
         context.telemetry_client.track_metric(
             "TestStepExecuted", 1,
             properties={
-            "Platform": "Mac",
-            "Status": 'Passed' if step.status == 'passed' else 'Failed',
-            "RunSource": os.environ.get('RUN_SOURCE', 'Local'),
-            "ScenarioName": scenario.name,
-            "FeatureName": scenario.feature.name,
-            "EdgeChannel": os.environ.get('EDGE_CHANNEL', 'Unknown')
-        }
+                "Platform": "Mac",
+                "Status": 'Passed' if step.status == 'passed' else 'Failed',
+                "RunSource": os.environ.get('RUN_SOURCE', 'Local'),
+                "ScenarioName": scenario.name,
+                "FeatureName": scenario.feature.name,
+                "EdgeChannel": os.environ.get('EDGE_CHANNEL', 'Unknown')
+            }
         )
         context.telemetry_client.flush()
