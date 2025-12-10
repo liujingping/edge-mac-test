@@ -584,7 +584,9 @@ def after_scenario(context, scenario):
                 "Platform": "Mac",
                 "Status": status,
                 "RunSource": os.environ.get('RUN_SOURCE', 'Local'),
-                "ScenarioName": scenario.name
+                "ScenarioName": scenario.name,
+                "FeatureName": scenario.feature.name,
+                "EdgeChannel": os.environ.get('EDGE_CHANNEL', 'Unknown')
             }
         )
         context.telemetry_client.flush()
@@ -710,12 +712,16 @@ def before_feature(context, feature):
 
 def after_step(context, step):
     if step.status != 'skipped' and 'RUN_SOURCE' in os.environ:
+        scenario = step.scenario
         context.telemetry_client.track_metric(
             "TestStepExecuted", 1,
             properties={
-                "Platform": "Mac", 
+                "Platform": "Mac",
                 "Status": 'Passed' if step.status == 'passed' else 'Failed',
-                "RunSource": os.environ.get('RUN_SOURCE', 'Local')
+                "RunSource": os.environ.get('RUN_SOURCE', 'Local'),
+                "ScenarioName": scenario.name,
+                "FeatureName": scenario.feature.name,
+                "EdgeChannel": os.environ.get('EDGE_CHANNEL', 'Unknown')
             }
         )
         context.telemetry_client.flush()
