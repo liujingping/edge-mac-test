@@ -304,7 +304,7 @@ def step_impl(context):
             name='right_click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_value': "//XCUIElementTypeTab[@label='YouTu']",
+                'locator_value': "//XCUIElementTypeTab[@label='YouTube']",
                 'locator_strategy': 'AppiumBy.XPATH',
                 'need_snapshot': 0,
             },
