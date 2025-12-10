@@ -349,6 +349,9 @@ def get_tool_json(result):
 
 
 def before_scenario(context, scenario):
+    # Store scenario in context for access in steps and hooks
+    context.scenario = scenario
+
     # 递增全局scenario计数器
     before_all._global_counter += 1
     # 使用 setattr 来避免 ContextMaskWarning
@@ -712,7 +715,7 @@ def before_feature(context, feature):
 
 def after_step(context, step):
     if step.status != 'skipped' and 'RUN_SOURCE' in os.environ:
-        scenario = step.scenario
+        scenario = context.scenario
         context.telemetry_client.track_metric(
             "TestStepExecuted", 1,
             properties={
