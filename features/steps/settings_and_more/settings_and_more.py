@@ -190,7 +190,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'New Tab - Microsoft Edge Canary',
+                'locator_value': f'New Tab - {context.app_window_name}',
                 'need_snapshot': 0,
             },
         ),
@@ -213,8 +213,7 @@ def step_impl(context):
                 'caller': 'behave-automation',
                 'expected_value': '',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeWindow[@title='New Tab - Microsoft Edge "
-                "Canary']//XCUIElementTypeTextField[@label='Address and "
+                'locator_value': f"//XCUIElementTypeWindow[@title='New Tab - {context.app_window_name}']//XCUIElementTypeTextField[@label='Address and "
                 "search bar']",
                 'need_snapshot': 0,
                 'rule': '==',
@@ -258,7 +257,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'New InPrivate tab - Microsoft Edge Canary (InPrivate)',
+                'locator_value': f'New InPrivate tab - {context.app_window_name} (InPrivate)',
                 'need_snapshot': 0,
             },
         ),

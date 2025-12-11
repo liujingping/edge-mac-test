@@ -179,8 +179,81 @@ def count_all_scenarios():
     return total_scenarios
 
 
+def _get_app_window_name():
+    """
+    Determine app window name based on EDGE_CHANNEL environment variable or config file.
+    Priority:
+    1. EDGE_CHANNEL environment variable
+    2. bundleId from config file (referenced in .vscode/mcp.json)
+    3. Default: Microsoft Edge Canary
+    """
+    app_window_name = None
+    edge_channel = os.environ.get('EDGE_CHANNEL')
+    
+    channel_mapping = {
+        'Canary': 'Microsoft Edge Canary',
+        'Dev': 'Microsoft Edge Dev',
+        'Beta': 'Microsoft Edge Beta',
+        'Stable': 'Microsoft Edge'
+    }
+    
+    bundle_id_mapping = {
+        'com.microsoft.edgemac.Canary': 'Microsoft Edge Canary',
+        'com.microsoft.edgemac.Dev': 'Microsoft Edge Dev',
+        'com.microsoft.edgemac.Beta': 'Microsoft Edge Beta',
+        'com.microsoft.edgemac': 'Microsoft Edge'
+    }
+
+    if edge_channel and edge_channel in channel_mapping:
+        app_window_name = channel_mapping[edge_channel]
+        logger.info(f"App window name determined from EDGE_CHANNEL ({edge_channel}): {app_window_name}")
+        return app_window_name
+
+    # Try to get from config file
+    try:
+        # Find mcp.json path
+        workspace_root = os.getcwd()
+        mcp_config_path = os.path.join(workspace_root, '.vscode', 'mcp.json')
+        
+        if os.path.exists(mcp_config_path):
+            with open(mcp_config_path, 'r') as f:
+                mcp_data = json.load(f)
+            
+            config_path = None
+            # Look for the config path in args
+            for server_name, server_config in mcp_data.get('servers', {}).items():
+                args = server_config.get('args', [])
+                if '--config' in args:
+                    idx = args.index('--config')
+                    if idx + 1 < len(args):
+                        config_path = args[idx + 1]
+                        break
+            
+            if config_path and os.path.exists(config_path):
+                with open(config_path, 'r') as f:
+                    bdd_conf = json.load(f)
+                
+                bundle_id = bdd_conf.get('APPIUM_DRIVER_CONFIGS', {}).get('mac', {}).get('bundleId')
+                if bundle_id:
+                    if bundle_id in bundle_id_mapping:
+                        app_window_name = bundle_id_mapping[bundle_id]
+                        logger.info(f"App window name determined from config bundleId ({bundle_id}): {app_window_name}")
+                        return app_window_name
+                    else:
+                            logger.warning(f"Unknown bundleId in config: {bundle_id}")
+    except Exception as e:
+        logger.warning(f"Failed to determine app window name from config: {e}")
+
+    # Default fallback
+    default_name = 'Microsoft Edge Canary'
+    logger.info(f"App window name defaulted to: {default_name}")
+    return default_name
+
+
 def before_all(context):
     import threading
+
+    context.app_window_name = _get_app_window_name()
 
     # Initialize Application Insights telemetry client
     telemetry_client = TelemetryClient('6cfcacca-7f4d-476e-85f4-c184d70ccff9')
