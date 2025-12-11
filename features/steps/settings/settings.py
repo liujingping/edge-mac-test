@@ -1304,7 +1304,7 @@ def step_impl(context):
             arguments={
                 'attribute_name': 'title',
                 'caller': 'behave-automation',
-                'expected_value': 'New Tab - Microsoft Edge Canary',
+                'expected_value': f'New Tab - {context.app_window_name}',
                 'locator_strategy': 'AppiumBy.XPATH',
                 'locator_value': '//XCUIElementTypeWindow',
                 'need_snapshot': 0,
@@ -1897,8 +1897,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeWindow[@title='New Tab - Microsoft Edge "
-                "Canary - Profile 2']//XCUIElementTypeButton[@label='Settings "
+                'locator_value': f"//XCUIElementTypeWindow[@title='New Tab - {context.app_window_name} - Profile 2']//XCUIElementTypeButton[@label='Settings "
                 "and more']",
                 'need_snapshot': 0,
             },

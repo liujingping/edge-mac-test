@@ -1185,10 +1185,9 @@ def step_impl(context):
             arguments={
                 'attribute_name': 'title',
                 'caller': 'behave-automation',
-                'expected_value': 'Search - Microsoft Bing - Pinned - Microsoft Edge Canary',
+                'expected_value': f'Search - Microsoft Bing - Pinned - {context.app_window_name}',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeGroup[@title='Search - Microsoft Bing - "
-                "Pinned - Microsoft Edge Canary']",
+                'locator_value': f"//XCUIElementTypeGroup[@title='Search - Microsoft Bing - Pinned - {context.app_window_name}']",
                 'need_snapshot': 0,
                 'rule': '==',
             },

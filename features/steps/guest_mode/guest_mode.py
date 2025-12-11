@@ -162,7 +162,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'New Tab - Microsoft Edge Canary (Guest)',
+                'locator_value': f'New Tab - {context.app_window_name} (Guest)',
                 'need_snapshot': 0,
             },
         ),
@@ -184,7 +184,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeWindow[@title="New Tab - Microsoft Edge Canary (Guest)"]//XCUIElementTypeWindow[@title="Favourites"]',
+                'locator_value': f'//XCUIElementTypeWindow[@title="New Tab - {context.app_window_name} (Guest)"]//XCUIElementTypeWindow[@title="Favourites"]',
                 'need_snapshot': 0,
             },
         ),
@@ -329,7 +329,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeWindow[@title="New Tab - Microsoft Edge Canary (Guest)"]//XCUIElementTypeWindow[@title="History"]',
+                'locator_value': f'//XCUIElementTypeWindow[@title="New Tab - {context.app_window_name} (Guest)"]//XCUIElementTypeWindow[@title="History"]',
                 'need_snapshot': 0,
             },
         ),
