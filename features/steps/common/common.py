@@ -1,5 +1,5 @@
 from behave import given, when, then, step
-from features.environment import call_tool_sync, get_tool_json
+from features.environment import call_tool_sync, get_tool_json, take_screenshot
 import os
 import uuid
 import tempfile
@@ -306,3 +306,13 @@ def clean_edge_downloads_file(context, filename):
     except Exception as e:
         logger.error(f'Error removing file {filename} from Edge downloads folder: {e}')
         raise
+
+
+@step('I save current screenshot')
+def save_current_screenshot(context):
+    if hasattr(context, 'scenario'):
+        take_screenshot(context.scenario.name)
+        logger.info(f'DEBUG: Manual screenshot taken for scenario: {context.scenario.name}')
+    else:
+        logger.warning('DEBUG: No scenario context found for screenshot')
+

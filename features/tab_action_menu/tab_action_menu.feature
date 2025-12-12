@@ -188,16 +188,21 @@ Feature: tab action menu functionality
     When I navigate to "https://www.google.com"
     And I click "Search tabs" button on the tab bar
     Then the "Search tabs" dialog should be opened
+    And I save current screenshot
     When I click "Turn on vertical tabs" button in the "Search tabs" dialog
     And I press escape to close popup
     And I press "cmd+t" to open a new tab
     And I navigate to "https://www.apple.com"
     And I wait 3 seconds
+    And I save current screenshot
     And I press "cmd+w" to close the current tab
+    And I save current screenshot
     And I click "Search tabs" button on the tab bar
     Then the "Search tabs" dialog should be opened
+    And I save current screenshot
     When I input "google" in the "Search Tabs" in full screen mode
     Then verify a tab name contains "google" shown in the "Search tabs" open tabs dialog
+    And I save current screenshot
     When I clear the input in the "Search Tabs" input box
     And I input "Apple" in the "Search Tabs" in full screen mode
     Then verify a tab name contains "Apple" shown in the "Search tabs" recently closed dialog
