@@ -722,9 +722,9 @@ def after_scenario(context, scenario):
     except Exception as e:
         logger.warning(f'Screenshot failed for scenario {scenario.name}: {str(e)}')
 
-    # Save Edge flags state if scenario failed on the last retry attempt
+    # Save Edge flags state on the last retry attempt
     # Only save on the final retry to avoid duplicate captures
-    if scenario.status == 'failed' and is_last_attempt:
+    if is_last_attempt:
         try:
             flags_html_path = save_edge_flags_state(context, scenario.name)
             if flags_html_path:

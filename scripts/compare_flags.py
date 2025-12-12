@@ -24,10 +24,10 @@ def load_flag_file(file_path: str) -> dict:
 
 def parse_features(enable_features_str: str) -> Set[str]:
     """
-    解析 enable-features 字符串，提取完整特性定义
+    解析 enable-features 字符串，提取特性名称（只取 < 之前的部分）
     
     格式示例: "ImmersiveFullscreen<EdgeImmersiveFullscreen,eefrc<EmptyEdgeFirstRunConfig"
-    返回: {"ImmersiveFullscreen<EdgeImmersiveFullscreen", "eefrc<EmptyEdgeFirstRunConfig", ...}
+    返回: {"ImmersiveFullscreen", "eefrc", ...}
     """
     if not enable_features_str:
         return set()
@@ -43,6 +43,10 @@ def parse_features(enable_features_str: str) -> Set[str]:
         
         # 替换 Unicode 转义的 < 符号为实际的 <
         item = item.replace('\u003C', '<')
+        
+        # 只取 < 之前的部分
+        if '<' in item:
+            item = item.split('<')[0]
         
         if item:
             features.add(item)
@@ -88,24 +92,21 @@ def print_results(file_a: str, file_b: str, only_in_a: Set[str], only_in_b: Set[
     if only_in_a:
         print(f"\n✅ A 文件有但 B 文件没有的特性 ({len(only_in_a)} 个):")
         print("-" * 80)
-        for feature in sorted(only_in_a):
-            print(f"  • {feature}")
+        print(f"  {','.join(sorted(only_in_a))}")
     else:
         print(f"\n✅ A 文件有但 B 文件没有的特性: 无")
     
     if only_in_b:
         print(f"\n✅ B 文件有但 A 文件没有的特性 ({len(only_in_b)} 个):")
         print("-" * 80)
-        for feature in sorted(only_in_b):
-            print(f"  • {feature}")
+        print(f"  {','.join(sorted(only_in_b))}")
     else:
         print(f"\n✅ B 文件有但 A 文件没有的特性: 无")
     
     if common:
         print(f"\n🔄 共同特性 ({len(common)} 个):")
         print("-" * 80)
-        for feature in sorted(common):
-            print(f"  • {feature}")
+        print(f"  {','.join(sorted(common))}")
     
     print("\n" + "=" * 80)
 
