@@ -581,7 +581,6 @@ def save_edge_flags_state(context, scenario_name):
         # Restart Edge to ensure ChromeFeatureState is written to disk
         logger.info('Restarting Edge to flush ChromeFeatureState to disk...')
         launch_edge_implementation(context)
-        logger.info('Edge restarted successfully')
         
         # Wait a moment for the file to be fully written
         time.sleep(2)
@@ -727,10 +726,6 @@ def after_scenario(context, scenario):
     if is_last_attempt:
         try:
             flags_html_path = save_edge_flags_state(context, scenario.name)
-            if flags_html_path:
-                logger.info(f'Edge flags state saved successfully: {flags_html_path}')
-            else:
-                logger.warning(f'Failed to save Edge flags state for scenario: {scenario.name}')
         except Exception as e:
             logger.error(f'Error saving Edge flags state: {str(e)}')
             import traceback

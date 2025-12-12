@@ -312,7 +312,6 @@ def clean_edge_downloads_file(context, filename):
 def save_current_screenshot(context):
     if hasattr(context, 'scenario'):
         take_screenshot(context.scenario.name)
-        logger.info(f'DEBUG: Manual screenshot taken for scenario: {context.scenario.name}')
     else:
         logger.warning('DEBUG: No scenario context found for screenshot')
 
