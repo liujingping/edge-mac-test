@@ -583,7 +583,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeTab[@title="Recently Closed"]',
+                'locator_value': '//XCUIElementTypeTab[@label="Recently Closed"]',
                 'need_snapshot': 0,
             },
         ),
