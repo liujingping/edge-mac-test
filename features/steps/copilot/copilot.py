@@ -6,19 +6,37 @@ from features.environment import call_tool_sync, get_tool_json
 # --- auto-generated step ---
 @when('I click the Copilot icon in the toolbar')
 def step_impl(context):
+    # First try to click using ACCESSIBILITY_ID
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeButton[@label="Chat"]',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Copilot (⇧⌘.)',
                 'need_snapshot': 0,
             },
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If first attempt fails, try using XPATH
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': '//XCUIElementTypeButton[@label="Chat"]',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
