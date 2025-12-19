@@ -196,6 +196,9 @@ Feature: tab action menu functionality
     And I navigate to "https://www.apple.com"
     And I wait 3 seconds
     And I save current screenshot
+    And I click "Search tabs" button on the tab bar
+    And I save current screenshot
+    When I press escape to close popup
     And I press "cmd+w" to close the current tab
     And I save current screenshot
     And I click "Search tabs" button on the tab bar
@@ -207,7 +210,11 @@ Feature: tab action menu functionality
     # When I clear the input in the "Search Tabs" input box
     # And I input "Apple" in the "Search Tabs" in full screen mode
     # Then verify a tab name contains "Apple" shown in the "Search tabs" recently closed dialog
-    When I press escape to close popup
+    And I press escape to close popup
+    When I click "Settings and more" button in toolbar
+    And I click "History" button
+    And I save current screenshot
+    And I press escape to close popup
     And I press "ctrl+cmd+f" keys to exit full screen mode
     And I save current screenshot
     Then Verify the full screen mode has been exited
