@@ -7,8 +7,9 @@ import shutil
 import atexit
 import logging
 import time
+import subprocess
 
-# 导入网络限速管理器
+# Import network throttling manager
 try:
     from features.utils.network_throttling import (
         get_throttling_manager,
@@ -21,7 +22,7 @@ except ImportError as e:
     NETWORK_THROTTLING_AVAILABLE = False
     logging.warning(f'Network throttling not available: {e}')
 
-# 导入系统弹窗处理器
+# Import system dialog handler
 try:
     from features.utils.system_dialog_handler import get_dialog_handler
     SYSTEM_DIALOG_HANDLER_AVAILABLE = True
@@ -30,15 +31,15 @@ except ImportError as e:
     logging.warning(f'System dialog handler not available: {e}')
 
 
-logger = logging.getLogger('behave_environment')  # 使用与environment.py相同的logger名称
+logger = logging.getLogger('behave_environment')  # Use the same logger name as environment.py
 
 
-# 全局变量存储需要清理的临时目录
+# Global variable to store temporary directories to cleanup
 _temp_directories_to_cleanup = []
 
 
 def cleanup_temp_directories():
-    """清理所有创建的临时目录"""
+    """Cleanup all created temporary directories"""
     for temp_dir in _temp_directories_to_cleanup:
         try:
             if os.path.exists(temp_dir):
@@ -49,35 +50,35 @@ def cleanup_temp_directories():
     _temp_directories_to_cleanup.clear()
 
 
-# 注册退出时的清理函数
+# Register cleanup function on exit
 atexit.register(cleanup_temp_directories)
 
 
 def create_profile_directory():
     """
-    创建临时 profile 目录
-    直接使用系统临时目录，在下面创建随机命名的文件夹
+    Create temporary profile directory
+    Use system temporary directory directly, create random named folder under it
     """
-    # 使用系统临时目录
+    # Use system temporary directory
     profile_root = tempfile.gettempdir()
 
-    # 生成随机文件夹名
+    # Generate random folder name
     random_folder_name = f'edge-profile-{uuid.uuid4().hex[:8]}'
     profile_path = os.path.join(profile_root, random_folder_name)
 
-    # 创建目录
+    # Create directory
     os.makedirs(profile_path, exist_ok=True)
     logger.info(f'DEBUG: Created profile directory: {profile_path}')
 
-    # 添加到清理列表
+    # Add to cleanup list
     _temp_directories_to_cleanup.append(profile_path)
 
     return profile_path
 
 
 def launch_edge_implementation(context):
-    """启动Edge应用程序的具体实现"""
-    # 检查context中是否已经有profile_path，如果有就复用，没有就创建新的
+    """Implementation of launching Edge application"""
+    # Check if profile_path already exists in context, reuse if yes, create new if no
     if (
         hasattr(context, 'profile_path')
         and context.profile_path
@@ -86,42 +87,60 @@ def launch_edge_implementation(context):
         profile_path = context.profile_path
         logger.info(f'DEBUG: Reusing existing profile path: {profile_path}')
     else:
-        # 创建 profile 目录
+        # Create profile directory
         profile_path = create_profile_directory()
-        # 将profile路径存储到context中，以便后续可能的清理
+        # Store profile path in context for possible future cleanup
         context.profile_path = profile_path
 
     # Launch the Edge application
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='app_launch',
-            arguments={
-                'caller': 'behave-automation',
-                'need_snapshot': 0,
-                'arguments': [
-                    '--no-first-run',
-                    f'--user-data-dir={profile_path}',
-                ],
-            },
-        ),
-    )
+    def _launch():
+        return call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='app_launch',
+                arguments={
+                    'caller': 'behave-automation',
+                    'need_snapshot': 0,
+                    'arguments': [
+                        '--no-first-run',
+                        f'--user-data-dir={profile_path}',
+                    ],
+                },
+            ),
+        )
+
+    result = _launch()
     result_json = get_tool_json(result)
+
+    # If launch fails, try to kill process and retry
+    if result_json.get('status') != 'success':
+        logger.warning(f"First launch attempt failed: {result_json.get('error')}. Killing Edge and retrying...")
+        try:
+            # Kill Microsoft Edge processes (matches "Microsoft Edge", "Microsoft Edge Canary", etc.)
+            subprocess.run(['pkill', '-f', 'Microsoft Edge'], check=False)
+            time.sleep(2) # Wait for cleanup
+        except Exception as e:
+            logger.warning(f"Failed to kill Edge processes: {e}")
+            
+        # Retry launch
+        result = _launch()
+        result_json = get_tool_json(result)
+
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
     logger.info('DEBUG: Edge application launched successfully')
     
-    # 检查并处理系统弹窗
+    # Check and handle system dialogs
     if SYSTEM_DIALOG_HANDLER_AVAILABLE:
         logger.info('DEBUG: Checking for system dialogs after Edge launch...')
         try:
             dialog_handler = get_dialog_handler()
             
-            # 等待一段时间让系统弹窗有机会出现
+            # Wait for a while to let system dialogs appear
             time.sleep(2)
             
-            # 快速检查是否有系统弹窗
+            # Quickly check if there are system dialogs
             detected_dialogs = dialog_handler.quick_check()
             
             if detected_dialogs:
@@ -130,7 +149,7 @@ def launch_edge_implementation(context):
                 
                 if handled:
                     logger.info('DEBUG: ✅ System dialogs automatically handled')
-                    # 再等待一段时间让处理生效
+                    # Wait for a while to let handling take effect
                     time.sleep(1)
                 else:
                     logger.warning('DEBUG: ⚠️ Failed to handle some system dialogs')
@@ -156,8 +175,8 @@ def step_close_and_restart_edge(context):
 @step('I enable slow network')
 def enable_slow_network(context):
     """
-    启用低网速模式
-    使用默认的slow_download配置文件
+    Enable slow network mode
+    Use default slow_download profile
     """
     if not NETWORK_THROTTLING_AVAILABLE:
         logger.warning('Network throttling is not available on this system')
@@ -166,12 +185,12 @@ def enable_slow_network(context):
     try:
         manager = get_throttling_manager()
 
-        # 使用slow_download配置文件
+        # Use slow_download profile
         profile_name = 'slow_download'
         success = apply_profile(manager, profile_name)
 
         if success:
-            # 在context中标记网络节流已激活
+            # Mark network throttling as active in context
             setattr(context, 'network_throttling_active', True)
             setattr(context, 'network_throttling_profile', profile_name)
 
@@ -193,7 +212,7 @@ def enable_slow_network(context):
 @step('I disable slow network')
 def disable_slow_network(context):
     """
-    禁用低网速模式，恢复正常网速
+    Disable slow network mode, restore normal network speed
     """
     if not NETWORK_THROTTLING_AVAILABLE:
         logger.warning('Network throttling is not available on this system')
@@ -202,7 +221,7 @@ def disable_slow_network(context):
     try:
         manager = get_throttling_manager()
 
-        # 检查是否已激活网络节流
+        # Check if network throttling is active
         is_active = getattr(context, 'network_throttling_active', False)
         current_profile = getattr(context, 'network_throttling_profile', 'unknown')
 
@@ -213,7 +232,7 @@ def disable_slow_network(context):
         success = manager.remove_throttling()
 
         if success:
-            # 清除context中的网络节流标记
+            # Clear network throttling mark in context
             setattr(context, 'network_throttling_active', False)
             setattr(context, 'network_throttling_profile', None)
 
@@ -231,10 +250,10 @@ def disable_slow_network(context):
 
 def get_edge_downloads_path(context):
     """
-    获取Edge浏览器的下载文件夹路径
-    Edge浏览器默认使用用户目录下的Downloads文件夹
+    Get Edge browser download folder path
+    Edge browser defaults to Downloads folder in user directory
     """
-    # Edge浏览器始终使用用户目录下的Downloads文件夹
+    # Edge browser always uses Downloads folder in user directory
     downloads_path = os.path.expanduser('~/Downloads')
     
     return downloads_path
@@ -243,7 +262,7 @@ def get_edge_downloads_path(context):
 @step('I clean Edge downloads folder')
 def clean_edge_downloads_folder(context):
     """
-    清空Edge浏览器的下载文件夹
+    Clean Edge browser download folder
     """
     downloads_path = get_edge_downloads_path(context)
     
@@ -252,13 +271,13 @@ def clean_edge_downloads_folder(context):
             logger.info(f'DEBUG: Downloads folder does not exist: {downloads_path}')
             return
             
-        # 获取下载文件夹中的所有文件和文件夹
+        # Get all files and folders in download folder
         items_to_remove = []
         for item in os.listdir(downloads_path):
             item_path = os.path.join(downloads_path, item)
             items_to_remove.append(item_path)
         
-        # 删除所有文件和文件夹
+        # Remove all files and folders
         removed_count = 0
         for item_path in items_to_remove:
             try:
@@ -281,10 +300,10 @@ def clean_edge_downloads_folder(context):
 @step('I clean Edge downloads file "{filename}"')
 def clean_edge_downloads_file(context, filename):
     """
-    删除Edge浏览器下载文件夹中的指定文件
+    Remove specified file from Edge browser download folder
     
     Args:
-        filename: 要删除的文件名
+        filename: Filename to remove
     """
     downloads_path = get_edge_downloads_path(context)
     file_path = os.path.join(downloads_path, filename)
