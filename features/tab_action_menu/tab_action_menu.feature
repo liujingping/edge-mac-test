@@ -199,7 +199,7 @@ Feature: tab action menu functionality
     And I click "Search tabs" button on the tab bar
     And I save current screenshot
     When I press escape to close popup
-    And I wait 3 seconds
+    And I wait for 60 seconds
     And I save current screenshot
     And I click "Search tabs" button on the tab bar
     And I save current screenshot
