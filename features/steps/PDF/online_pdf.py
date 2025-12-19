@@ -285,12 +285,13 @@ def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='click_element',
+            name='verify_visual_task',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Highlightcvsf',
                 'need_snapshot': 0,
+                'task_description': 'Verify that the text "May 2001" is highlighted '
+                'in yellow in the PDF viewer, showing visual highlighting '
+                'applied to the selected text',
             },
         ),
     )
