@@ -1,6 +1,7 @@
 Feature: Online PDF
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56445945
+  @online_pdf 
   Scenario: Directly close online PDF tab after modifying pdf
     Given Edge is launched
     When I navigate to "https://www.adobe.com/support/products/enterprise/knowledgecenter/media/c4611_sample_explain.pdf"
@@ -14,6 +15,7 @@ Feature: Online PDF
     Then The "PDF Bookmark Sample" tab should be closed
 
   # https://microsoft.visualstudio.com/Edge/_workitems/edit/56445852
+  @online_pdf
   Scenario: Erase highlight and save in online PDF
     Given Edge is launched
     And I clean Edge downloads file "c4611_sample_explain.pdf"
