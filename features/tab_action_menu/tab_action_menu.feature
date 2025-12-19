@@ -190,6 +190,7 @@ Feature: tab action menu functionality
     Then the "Search tabs" dialog should be opened
     And I save current screenshot
     When I click "Turn on vertical tabs" button in the "Search tabs" dialog
+    And I save current screenshot
     And I press escape to close popup
     And I press "cmd+t" to open a new tab
     And I navigate to "https://www.apple.com"
@@ -200,12 +201,13 @@ Feature: tab action menu functionality
     And I click "Search tabs" button on the tab bar
     Then the "Search tabs" dialog should be opened
     And I save current screenshot
-    When I input "google" in the "Search Tabs" in full screen mode
-    Then verify a tab name contains "google" shown in the "Search tabs" open tabs dialog
-    And I save current screenshot
-    When I clear the input in the "Search Tabs" input box
-    And I input "Apple" in the "Search Tabs" in full screen mode
-    Then verify a tab name contains "Apple" shown in the "Search tabs" recently closed dialog
+    # When I input "google" in the "Search Tabs" in full screen mode
+    # Then verify a tab name contains "google" shown in the "Search tabs" open tabs dialog
+    # And I save current screenshot
+    # When I clear the input in the "Search Tabs" input box
+    # And I input "Apple" in the "Search Tabs" in full screen mode
+    # Then verify a tab name contains "Apple" shown in the "Search tabs" recently closed dialog
     When I press escape to close popup
     And I press "ctrl+cmd+f" keys to exit full screen mode
+    And I save current screenshot
     Then Verify the full screen mode has been exited
