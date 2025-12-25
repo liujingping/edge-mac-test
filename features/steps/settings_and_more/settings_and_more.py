@@ -576,6 +576,7 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I click "Recently closed" in history hub')
 def step_impl(context):
+    # Try with @label first
     result = call_tool_sync(
         context,
         context.session.call_tool(
@@ -583,12 +584,29 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeTab[@title="Recently Closed"]',
+                'locator_value': '//XCUIElementTypeTab[@label="Recently Closed"]',
                 'need_snapshot': 0,
             },
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If @label fails, try with @title
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': '//XCUIElementTypeTab[@title="Recently Closed"]',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
