@@ -108,23 +108,9 @@ def launch_edge_implementation(context):
                 },
             ),
         )
-
+    
     result = _launch()
     result_json = get_tool_json(result)
-
-    # If launch fails, try to kill process and retry
-    if result_json.get('status') != 'success':
-        logger.warning(f"First launch attempt failed: {result_json.get('error')}. Killing Edge and retrying...")
-        try:
-            # Kill Microsoft Edge processes (matches "Microsoft Edge", "Microsoft Edge Canary", etc.)
-            subprocess.run(['pkill', '-f', 'Microsoft Edge'], check=False)
-            time.sleep(2) # Wait for cleanup
-        except Exception as e:
-            logger.warning(f"Failed to kill Edge processes: {e}")
-            
-        # Retry launch
-        result = _launch()
-        result_json = get_tool_json(result)
 
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
