@@ -990,8 +990,8 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Redo ⌘Y ⌘Y',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeMenuItem[@title='Redo']",
                 'need_snapshot': 0,
             },
         ),
