@@ -9,6 +9,7 @@ Feature: Feedback functionality
     Then the "Send feedback" dialog should be shown
     When I input "This is a test feedback." into the feedback text area
     And I select "Yes" for the question "Include this screenshot"
+    And I check the "Send diagnostic data to Microsoft" and select "Yes" if it is not checked
     And I click the send button
     Then The "Send feedback" dialog should not be shown
     And The "Thank you for sharing!" message should be shown
