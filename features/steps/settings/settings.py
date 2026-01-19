@@ -69,20 +69,39 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I input "Privacy" in the settings search box')
 def step_impl(context):
+    # Try XPath first
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='send_keys',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Search settings',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeTextField[@placeholderValue='Search settings']",
                 'need_snapshot': 0,
                 'text': 'Privacy',
             },
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If XPath fails, try AccessibilityID
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='send_keys',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                    'locator_value': 'Search settings',
+                    'need_snapshot': 0,
+                    'text': 'Privacy',
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
@@ -154,20 +173,39 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I input "123" in the settings search box')
 def step_impl(context):
+    # Try XPath first
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='send_keys',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Search settings',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeTextField[@placeholderValue='Search settings']",
                 'need_snapshot': 0,
                 'text': '123',
             },
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If XPath fails, try AccessibilityID
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='send_keys',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                    'locator_value': 'Search settings',
+                    'need_snapshot': 0,
+                    'text': '123',
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
