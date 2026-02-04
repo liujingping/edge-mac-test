@@ -325,8 +325,8 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_value': "//XCUIElementTypeMenuItem[@label='Refresh ⌘R ⌘R']",
                 'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeMenuItem[@title='Refresh']",
                 'need_snapshot': 0,
             },
         ),
@@ -955,8 +955,8 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Close Tab ⌘W ⌘W',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeMenuItem[@title='Close Tab']",
                 'need_snapshot': 0,
             },
         ),

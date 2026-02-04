@@ -456,7 +456,7 @@ def step_impl(context):
     )
 
 
-# --- auto-generated step ---
+# # --- auto-generated step ---
 @step('I click "Save As..." in the context menu')
 def step_impl(context):
     result = call_tool_sync(
@@ -466,7 +466,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeMenuItem[@label='Save As… ⌘S ⌘S']",
+                'locator_value': "//XCUIElementTypeMenuItem[@title='Save As…']",
                 'need_snapshot': 0,
             },
         ),
@@ -1027,3 +1027,4 @@ def step_impl(context):
     ))
     result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+

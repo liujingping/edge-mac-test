@@ -69,6 +69,7 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I input "Privacy" in the settings search box')
 def step_impl(context):
+    # Try XPath first
     result = call_tool_sync(
         context,
         context.session.call_tool(
@@ -83,6 +84,24 @@ def step_impl(context):
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If XPath fails, try AccessibilityID
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='send_keys',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                    'locator_value': 'Search settings',
+                    'need_snapshot': 0,
+                    'text': 'Privacy',
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
@@ -154,6 +173,7 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I input "123" in the settings search box')
 def step_impl(context):
+    # Try XPath first
     result = call_tool_sync(
         context,
         context.session.call_tool(
@@ -168,6 +188,24 @@ def step_impl(context):
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If XPath fails, try AccessibilityID
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='send_keys',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                    'locator_value': 'Search settings',
+                    'need_snapshot': 0,
+                    'text': '123',
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
@@ -473,6 +511,42 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I input "https://www.bing.com" in the URL field on the "Add site" dialog')
 def step_impl(context):
+    # Try with @label="Website" first - click then send keys
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '(//XCUIElementTypeGroup[@label="Website"])',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    
+    # If @label fails for click, try @title="Website"
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': '//XCUIElementTypeTextField[@title="Website"]',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success' for click, got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+    
+    # Now send keys - try with @label="Website" first
     result = call_tool_sync(
         context,
         context.session.call_tool(
@@ -480,13 +554,31 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeTextField[@title="Website"]',
+                'locator_value': '(//XCUIElementTypeGroup[@label="Website"])',
                 'need_snapshot': 0,
                 'text': 'https://www.bing.com',
             },
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If @label fails, try with @title="Website"
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='send_keys',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': '//XCUIElementTypeTextField[@title="Website"]',
+                    'need_snapshot': 0,
+                    'text': 'https://www.bing.com',
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
@@ -939,9 +1031,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when(
-    'I click the "More actions" button next to the custom site "https://www.bing.com"'
-)
+@when('I click the "More actions" button next to the custom site "https://www.bing.com"')
 def step_impl(context):
     result = call_tool_sync(
         context,

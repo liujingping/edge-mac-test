@@ -76,7 +76,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeMenuItem[@label='Turn On Vertical Tabs']",
+                'locator_value': "//XCUIElementTypeMenuItem[@title='Turn On Vertical Tabs']",
                 'need_snapshot': 0,
             },
         ),
