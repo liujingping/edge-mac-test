@@ -77,7 +77,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeWebView[@title='Settings']//XCUIElementTypeTextField",
+                'locator_value': "//XCUIElementTypeTextField[@placeholderValue='Search settings']",
                 'need_snapshot': 0,
                 'text': 'Privacy',
             },
@@ -181,7 +181,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeWebView[@title='Settings']//XCUIElementTypeTextField",
+                'locator_value': "//XCUIElementTypeTextField[@placeholderValue='Search settings']",
                 'need_snapshot': 0,
                 'text': '123',
             },
