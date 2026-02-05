@@ -6,3 +6,4 @@ files/*
 logs/*
 uv.lock
 .ruff_cache/*
+.claude/*.json
