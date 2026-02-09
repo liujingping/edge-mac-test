@@ -482,19 +482,37 @@ def step_impl(context):
 # --- auto-generated step ---
 @step('I click "Explore Copilot Mode" button')
 def step_impl(context):
+    # First try XPath locator
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Explore Copilot Mode',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeButton[@label="Explore Copilot Mode, Copilot Mode"]',
                 'need_snapshot': 0,
             },
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If first attempt failed, try original method
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                    'locator_value': 'Explore Copilot Mode',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )

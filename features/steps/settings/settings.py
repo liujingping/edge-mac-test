@@ -1,3 +1,4 @@
+from ast import arguments
 from behave import *
 import logging
 from features.environment import call_tool_sync, get_tool_json
@@ -2388,19 +2389,37 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I click "Clear browsing data" section')
 def step_impl(context):
+    # First try XPath locator
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Clear browsing data',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeButton[@label="Clear browsing data"]',
                 'need_snapshot': 0,
             },
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If first attempt failed, try original method
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.NAME',
+                    'locator_value': 'Clear browsing data',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
@@ -2473,19 +2492,35 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I select "All time" option in the "Time range" dropdown menu')
 def step_impl(context):
+    # First try XPath locator for Time range dropdown
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='click_element',
             arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Time range Last hour',
-                'need_snapshot': 0,
-            },
+            'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.XPATH',
+            'locator_value': '//XCUIElementTypePopUpButton[@label="Time range Last hour"]',
+            'need_snapshot': 0}
         ),
     )
-    result_json = get_tool_json(result)
+
+    # If first attempt failed, try NAME locator
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.NAME',
+                    'locator_value': 'Time range Last hour',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
@@ -2584,7 +2619,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeButton[@label='Make default']",
+                'locator_value': "//XCUIElementTypeButton[contains(@label, 'Make default')]",
                 'need_snapshot': 0,
             },
         ),
@@ -2643,19 +2678,37 @@ def step_impl(context):
 # --- auto-generated step ---
 @step('I click "Add languages" button')
 def step_impl(context):
+    # First try XPath locator
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Add languages',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': '//XCUIElementTypeButton[@label="Add languages, Preferred languages"]',
                 'need_snapshot': 0,
             },
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If first attempt failed, try accessibility ID
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                    'locator_value': 'Add languages',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
