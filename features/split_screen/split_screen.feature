@@ -44,9 +44,12 @@ Feature: Split Screen
         When I navigate to "https://www.bing.com"
         And I open Split Screen
         Then Split Screen icon should appear in toolbar
-        When I turn on "Open Left link To The right" button
+        When I press "ctrl+cmd+f" keys to enter full screen mode
+        And I turn on "Open Left link To The right" button
         And I click on the "Images" button on Microsoft Bing screen
         Then I can see right screen tab name contains "Bing Images"
+        When I press "ctrl+cmd+f" keys to exit full screen mode
+        Then Verify the full screen mode has been exited
 
     # https://microsoft.visualstudio.com/Edge/_workitems/edit/58971652
     @p0 @regression @split_screen

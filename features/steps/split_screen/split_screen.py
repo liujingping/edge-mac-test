@@ -529,7 +529,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeWebView[contains(@title, "Microsoft Bing")]',
+                'locator_value': '//XCUIElementTypeStaticText[@value="Images"]',
                 'need_snapshot': 0,
             },
         ),
