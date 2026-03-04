@@ -633,8 +633,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeWebView[@title='Microsoft Copilot: Your AI "
-                "companion']",
+                'locator_value': "//XCUIElementTypeGroup[@label='Side pane Copilot']",
                 'need_snapshot': 0,
             },
         ),
