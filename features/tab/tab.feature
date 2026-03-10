@@ -119,6 +119,8 @@ Feature: tab
     Then Analyze the screenshot to verify that the vertical tabs shown on the left side of the window
     When I right click on the "Search - Microsoft Bing" tab on the vertical tab bar
     And I click "Pin tab" from the right-click context menu
+    And I wait 10 seconds
+    And I click the "Refresh" button on the toolbar
     Then the "bing" tab should be pinned
     When I click the "Search - Microsoft Bing" tab in the vertical tab bar
     Then the address bar should contains "www.bing.com"

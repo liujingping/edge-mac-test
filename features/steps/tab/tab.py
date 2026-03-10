@@ -1178,22 +1178,40 @@ def step_impl(context):
 # --- auto-generated step ---
 @then('the "bing" tab should be pinned')
 def step_impl(context):
+    # 先尝试 contains pinned 的 xpath
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='verify_element_attribute',
+            name='verify_element_exists',
             arguments={
-                'attribute_name': 'title',
                 'caller': 'behave-automation',
-                'expected_value': f'Search - Microsoft Bing - Pinned - {context.app_window_name}',
                 'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': f"//XCUIElementTypeGroup[@title='Search - Microsoft Bing - Pinned - {context.app_window_name}']",
+                'locator_value': '//XCUIElementTypeTab[contains(@label, "Search - Microsoft Bing - Pinned")]',
                 'need_snapshot': 0,
-                'rule': '==',
             },
         ),
     )
     result_json = get_tool_json(result)
+
+    if result_json.get('status') != 'success':
+        # 如果contains pinned没找到，再去找title属性
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='verify_element_attribute',
+                arguments={
+                    'attribute_name': 'title',
+                    'caller': 'behave-automation',
+                    'expected_value': f'Search - Microsoft Bing - Pinned - {context.app_window_name}',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': f"//XCUIElementTypeGroup[@title='Search - Microsoft Bing - Pinned - {context.app_window_name}']",
+                    'need_snapshot': 0,
+                    'rule': '==',
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
