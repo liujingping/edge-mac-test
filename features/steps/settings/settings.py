@@ -1,7 +1,10 @@
 from ast import arguments
 from behave import *
 import logging
+import time
 from features.environment import call_tool_sync, get_tool_json
+
+logger = logging.getLogger(__name__)
 
 
 # --- auto-generated step ---
@@ -70,7 +73,13 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I input "Privacy" in the settings search box')
 def step_impl(context):
-    # Try XPath first
+    text_to_input = 'Privacy'
+    
+    # Wait for Settings page to fully load
+    # This ensures the search box and its attributes are properly rendered
+    time.sleep(2)
+    
+    # Strategy 1: Try XPath with placeholderValue (works in most cases)
     result = call_tool_sync(
         context,
         context.session.call_tool(
@@ -80,13 +89,13 @@ def step_impl(context):
                 'locator_strategy': 'AppiumBy.XPATH',
                 'locator_value': "//XCUIElementTypeTextField[@placeholderValue='Search settings']",
                 'need_snapshot': 0,
-                'text': 'Privacy',
+                'text': text_to_input,
             },
         ),
     )
     result_json = get_tool_json(result)
     
-    # If XPath fails, try AccessibilityID
+    # Strategy 3: Position-based XPath (for environments where placeholder is not rendered)
     if result_json.get('status') != 'success':
         result = call_tool_sync(
             context,
@@ -94,18 +103,24 @@ def step_impl(context):
                 name='send_keys',
                 arguments={
                     'caller': 'behave-automation',
-                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                    'locator_value': 'Search settings',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': "(//XCUIElementTypeWebView//XCUIElementTypeGroup//XCUIElementTypeTextField)[1]",
                     'need_snapshot': 0,
-                    'text': 'Privacy',
+                    'text': text_to_input,
                 },
             ),
         )
         result_json = get_tool_json(result)
     
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+    # If all strategies failed, raise error with details
+    if result_json.get('status') != 'success':
+        assert False, (
+            f"Failed to input text in settings search box after trying 2 strategies.\n"
+            f"Status: '{result_json.get('status')}', error: '{result_json.get('error')}'\n"
+            f"Strategies tried:\n"
+            f"  1. XPath with placeholderValue='Search settings'\n"
+            f"  2. Position-based XPath (first TextField in Settings WebView)"
+        )
 
 
 # --- auto-generated step ---
@@ -174,7 +189,12 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I input "123" in the settings search box')
 def step_impl(context):
-    # Try XPath first
+    text_to_input = '123'
+    
+    # Wait for Settings page to fully load
+    time.sleep(2)
+    
+    # Strategy 1: Try XPath with placeholderValue
     result = call_tool_sync(
         context,
         context.session.call_tool(
@@ -184,13 +204,13 @@ def step_impl(context):
                 'locator_strategy': 'AppiumBy.XPATH',
                 'locator_value': "//XCUIElementTypeTextField[@placeholderValue='Search settings']",
                 'need_snapshot': 0,
-                'text': '123',
+                'text': text_to_input,
             },
         ),
     )
     result_json = get_tool_json(result)
     
-    # If XPath fails, try AccessibilityID
+    # Strategy 3: Position-based XPath
     if result_json.get('status') != 'success':
         result = call_tool_sync(
             context,
@@ -198,18 +218,21 @@ def step_impl(context):
                 name='send_keys',
                 arguments={
                     'caller': 'behave-automation',
-                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                    'locator_value': 'Search settings',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': "(//XCUIElementTypeWebView//XCUIElementTypeGroup//XCUIElementTypeTextField)[1]",
                     'need_snapshot': 0,
-                    'text': '123',
+                    'text': text_to_input,
                 },
             ),
         )
         result_json = get_tool_json(result)
     
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+    # If all strategies failed, raise error
+    if result_json.get('status') != 'success':
+        assert False, (
+            f"Failed to input text '123' in settings search box after trying 2 strategies.\n"
+            f"Status: '{result_json.get('status')}', error: '{result_json.get('error')}'"
+        )
 
 
 # --- auto-generated step ---

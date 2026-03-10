@@ -567,6 +567,9 @@ def save_edge_flags_state(context, scenario_name):
     Save Edge flags state by copying ChromeFeatureState file from Edge profile directory
     to screenshot directory with the same naming convention as screenshots
     
+    IMPORTANT: This captures the ACTUAL running state, not a restarted clean state.
+    We do NOT restart Edge here to avoid capturing a misleading "clean" state.
+    
     Args:
         context: Behave context object with profile_path
         scenario_name: Name of the scenario for file naming
@@ -575,37 +578,37 @@ def save_edge_flags_state(context, scenario_name):
         str: Path to saved ChromeFeatureState file or None if failed
     """
     try:
-        # Import launch_edge_implementation from common steps
-        from features.steps.common.common import launch_edge_implementation
-        
-        # Restart Edge to ensure ChromeFeatureState is written to disk
-        logger.info('Restarting Edge to flush ChromeFeatureState to disk...')
-        launch_edge_implementation(context)
-        
-        # Wait a moment for the file to be fully written
-        time.sleep(2)
-        
         # Get Edge profile directory from context.profile_path
         if not hasattr(context, 'profile_path') or not context.profile_path:
             logger.error('context.profile_path not set')
             return None
         
         edge_path = pathlib.Path(context.profile_path)
-        
         source_file = edge_path / 'ChromeFeatureState'
         
         # Check if source file exists
         if not source_file.exists():
-            logger.error(f'ChromeFeatureState file not found at: {source_file}')
-            return None
+            logger.warning(f'ChromeFeatureState file not found at: {source_file}')
+            logger.info('This may be normal if Edge has not written the file yet')
+            
+            # Try to find Local State instead (also contains useful info)
+            local_state_file = edge_path / 'Local State'
+            if local_state_file.exists():
+                logger.info(f'Found Local State file instead: {local_state_file}')
+                source_file = local_state_file
+            else:
+                logger.error('Neither ChromeFeatureState nor Local State found')
+                return None
         
         # Get screenshot directory from environment variable
         screenshot_dir = os.environ.get('SCREENSHOT_DIR')
         if not screenshot_dir:
+            # Use default directory if env var not set (same as take_screenshot)
+            current_dir = pathlib.Path(__file__).parent.parent
+            screenshot_dir = current_dir / 'screenshots'
             logger.warning(
-                f'SCREENSHOT_DIR environment variable not set, using default: {screenshot_dir}'
+                f'SCREENSHOT_DIR not set, using default: {screenshot_dir}'
             )
-            return None
         else:
             screenshot_dir = pathlib.Path(screenshot_dir)
 

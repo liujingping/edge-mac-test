@@ -103,6 +103,8 @@ def launch_edge_implementation(context):
                     'need_snapshot': 0,
                     'arguments': [
                         '--no-first-run',
+                        '--enable-benchmarking',
+                        '--disable-field-trial-config',
                         f'--user-data-dir={profile_path}',
                     ],
                 },
