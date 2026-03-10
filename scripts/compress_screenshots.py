@@ -7,9 +7,10 @@ import sys
 from pathlib import Path
 from PIL import Image
 
-MAX_WIDTH = 1024
-MAX_HEIGHT = 768
-QUALITY = 65
+MAX_WIDTH = 1440
+MAX_HEIGHT = 1080
+QUALITY = 80
+SIZE_THRESHOLD = 500 * 1024
 
 
 def compress_image(image_path: str, output_path: str = None) -> dict:
@@ -23,6 +24,14 @@ def compress_image(image_path: str, output_path: str = None) -> dict:
     
     try:
         original_size = path.stat().st_size
+        
+        if original_size <= SIZE_THRESHOLD:
+            return {
+                "success": True,
+                "skipped": True,
+                "original_size": original_size,
+                "reason": "Already small enough"
+            }
         
         with Image.open(path) as img:
             if img.mode in ('RGBA', 'P'):
@@ -60,7 +69,9 @@ def compress_directory(dir_path: str) -> list[dict]:
         result = compress_image(str(img_path))
         result["file"] = img_path.name
         results.append(result)
-        if result["success"]:
+        if result.get("skipped"):
+            print(f"Skipped: {img_path.name} (already small: {result['original_size']} bytes)")
+        elif result["success"]:
             print(f"Compressed: {img_path.name} ({result['reduction']} reduction)")
         else:
             print(f"Failed: {img_path.name} - {result.get('error')}")
@@ -69,7 +80,9 @@ def compress_directory(dir_path: str) -> list[dict]:
         result = compress_image(str(img_path))
         result["file"] = img_path.name
         results.append(result)
-        if result["success"]:
+        if result.get("skipped"):
+            print(f"Skipped: {img_path.name} (already small: {result['original_size']} bytes)")
+        elif result["success"]:
             print(f"Compressed: {img_path.name} ({result['reduction']} reduction)")
         else:
             print(f"Failed: {img_path.name} - {result.get('error')}")

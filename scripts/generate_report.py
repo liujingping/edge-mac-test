@@ -84,7 +84,8 @@ def generate_html(failure_info: dict, healing_results: Optional[dict] = None) ->
         else:
             other_count += 1
     
-    unique_bugs = len(bug_summary) if bug_summary else likely_bug_count
+    actual_bugs = [b for b in bug_summary if b.get("status") == "created" or b.get("ado_bug_url")] if bug_summary else []
+    unique_bugs = len(actual_bugs) if actual_bugs else likely_bug_count
     unique_heals = len(heal_summary) if heal_summary else element_change_count
     
     pr_table_html = ""
@@ -135,9 +136,9 @@ def generate_html(failure_info: dict, healing_results: Optional[dict] = None) ->
         '''
     
     bug_table_html = ""
-    if bug_summary:
+    if actual_bugs:
         bug_rows = ""
-        for i, bug in enumerate(bug_summary, 1):
+        for i, bug in enumerate(actual_bugs, 1):
             affected_cases = bug.get("affected_cases", bug.get("case_names", []))
             affected = ", ".join(affected_cases) if isinstance(affected_cases, list) else str(affected_cases)
             confidence = bug.get("confidence", 0)

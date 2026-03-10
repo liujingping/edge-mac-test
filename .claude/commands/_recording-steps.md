@@ -7,18 +7,9 @@ This file contains the shared recording steps used by both `record-and-verify` a
 - `feature_file_path`: Path to the feature file
 - `scenario_name`: Name of the scenario
 - `mode`: "initial" (use COPILOT_PROMPT) or "heal" (use SELF_HEALING_PROMPT)
+- `flag_file`: (Optional) Path to ChromeFeatureState file for Edge launch flags
 
 ## Steps
-
-### 0. Prepare Environment
-
-Start Appium server (kills existing instance if running):
-
-```bash
-bash scripts/start_appium_auto.sh
-```
-
-Wait for "Appium server is ready!" message before proceeding.
 
 ### 1. Extract Scenario Content
 
@@ -46,8 +37,21 @@ Execute the recording flow using MCP tools:
    ```
 
 2. **Launch application:**
+   
+   **Without flag file:**
    ```
    mcp__bdd-auto-mcp__app_launch(caller="recording", scenario=<scenario_name>)
+   ```
+   
+   **With flag file (if `flag_file` parameter is provided):**
+   First parse the flag file to get launch arguments:
+   ```python
+   from features.utils.flag_parser import parse_flag_file_to_arguments
+   extra_args = parse_flag_file_to_arguments(flag_file)
+   ```
+   Then launch with arguments:
+   ```
+   mcp__bdd-auto-mcp__app_launch(caller="recording", scenario=<scenario_name>, arguments=["--no-first-run"] + extra_args)
    ```
 
 3. **Execute each step in the scenario sequentially:**
@@ -76,10 +80,16 @@ Execute the recording flow using MCP tools:
 
 ### 4. Playback Verification
 
-Run the single case to verify recording result:
+Run the single case to verify recording result.
 
+**Without flag file:**
 ```bash
 uv run behave --name "^<scenario_name>$" <feature_file_path>
+```
+
+**With flag file (if `flag_file` parameter is provided):**
+```bash
+uv run behave -D flag_file=<flag_file> --name "^<scenario_name>$" <feature_file_path>
 ```
 
 ### 5. Return Result

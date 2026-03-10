@@ -11,9 +11,13 @@ This script parses behave_result.json and collects:
 
 import json
 import re
+import sys
 from pathlib import Path
 from datetime import datetime
 from typing import Optional, Union
+
+sys.path.insert(0, str(Path(__file__).parent))
+from extract_scenario import get_scenario_text
 
 
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -56,19 +60,74 @@ def find_element_trees(case_name: str) -> list[str]:
     return find_matching_files(PAGE_SOURCE_DIR, case_name, ".json")
 
 
+def extract_step_implementation(match_location: str, context_lines: int = 30) -> Optional[str]:
+    """
+    Extract the step implementation code from the match_location.
+    
+    Args:
+        match_location: Step file path and line number (e.g., "features/steps/foo.py:123")
+        context_lines: Number of lines to read after the match line
+    
+    Returns:
+        The step implementation code or None if not found
+    """
+    if not match_location or ":" not in match_location:
+        return None
+    
+    try:
+        file_path, line_str = match_location.rsplit(":", 1)
+        line_num = int(line_str)
+        
+        full_path = PROJECT_ROOT / file_path
+        if not full_path.exists():
+            return None
+        
+        with open(full_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
+        
+        start_line = max(0, line_num - 1)
+        end_line = min(len(lines), line_num + context_lines)
+        
+        code_lines = []
+        in_function = False
+        indent_level = None
+        
+        for i in range(start_line, end_line):
+            line = lines[i]
+            
+            if i == start_line:
+                in_function = True
+                indent_level = len(line) - len(line.lstrip())
+                code_lines.append(line.rstrip())
+                continue
+            
+            if in_function:
+                current_indent = len(line) - len(line.lstrip())
+                if line.strip() and current_indent <= indent_level and not line.strip().startswith(('@', '#')):
+                    break
+                code_lines.append(line.rstrip())
+        
+        return "\n".join(code_lines)
+    except Exception:
+        return None
+
+
 def extract_failed_step_info(scenario: dict) -> Optional[dict]:
     """Extract information about the failed step."""
     steps = scenario.get("steps", [])
     for step in steps:
         result = step.get("result", {})
         if result.get("status") == "failed":
+            match_location = step.get("match", {}).get("location", "")
+            step_implementation = extract_step_implementation(match_location)
             return {
                 "keyword": step.get("keyword", ""),
                 "name": step.get("name", ""),
                 "location": step.get("location", ""),
-                "match_location": step.get("match", {}).get("location", ""),
+                "match_location": match_location,
                 "error_message": result.get("error_message", []),
-                "duration": result.get("duration", 0)
+                "duration": result.get("duration", 0),
+                "step_implementation": step_implementation
             }
     return None
 
@@ -180,12 +239,20 @@ def parse_behave_results() -> list[dict]:
                 error_message = failed_step.get("error_message", []) if failed_step else []
                 failure_analysis = analyze_failure_type(error_message)
                 
+                scenario_text = None
+                if feature_file:
+                    try:
+                        scenario_text = get_scenario_text(str(PROJECT_ROOT / feature_file), scenario_name)
+                    except Exception:
+                        pass
+                
                 case_data[dedup_key] = {
                     "scenario_name": scenario_name,
                     "feature_name": feature_name,
                     "feature_file": feature_file,
                     "scenario_location": scenario_location,
                     "tags": element.get("tags", []),
+                    "scenario_steps": scenario_text,
                     "failed_step": failed_step,
                     "failure_analysis": failure_analysis,
                     "screenshots": find_screenshots(scenario_name),
