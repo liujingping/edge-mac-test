@@ -961,7 +961,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'FSQ tab group ("New Tab") - Expanded',
+                'locator_value': 'FSQ - Expanded',
                 'need_snapshot': 0,
             },
         ),

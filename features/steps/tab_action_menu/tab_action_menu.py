@@ -261,27 +261,6 @@ def step_impl(context):
     )
 
 
-# --- auto-generated step ---
-@step('the tab gourp contains 3 tabs')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_exists',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Search Engines tab group ("Google" and 2 Other Tabs) - '
-                'Expanded',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
 
 # --- auto-generated step ---
 @when('I click "Group Tabs" button in the "Organize tabs" pop')
@@ -314,8 +293,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Search Engines tab group ("Google" and 2 Other Tabs) - '
-                'Expanded',
+                'locator_value': 'Search Engines - Expanded',
                 'need_snapshot': 0,
             },
         ),
@@ -336,11 +314,9 @@ def step_impl(context):
             arguments={
                 'attribute_name': 'label',
                 'caller': 'behave-automation',
-                'expected_value': 'Search Engines tab group ("Google" and 2 Other Tabs) - '
-                'Expanded',
+                'expected_value': 'Search Engines - Expanded',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Search Engines tab group ("Google" and 2 Other Tabs) - '
-                'Expanded',
+                'locator_value': 'Search Engines - Expanded',
                 'need_snapshot': 0,
                 'rule': 'contains',
             },

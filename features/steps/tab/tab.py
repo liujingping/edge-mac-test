@@ -720,8 +720,8 @@ def step_impl(context):
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Add Tab to New Group',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeMenuItem[@title='Add Tab to New Group']",
                 'need_snapshot': 0,
             },
         ),
@@ -826,7 +826,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'YouTube tab group ("YouTube") - Expanded',
+                'locator_value': 'YouTube - Expanded',
                 'need_snapshot': 0,
             },
         ),
@@ -847,9 +847,9 @@ def step_impl(context):
             arguments={
                 'attribute_name': 'label',
                 'caller': 'behave-automation',
-                'expected_value': 'YouTube tab group ("YouTube") - Expanded',
+                'expected_value': 'YouTube - Expanded',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'YouTube tab group ("YouTube") - Expanded',
+                'locator_value': 'YouTube - Expanded',
                 'need_snapshot': 0,
                 'rule': 'contains',
             },

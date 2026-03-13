@@ -4,73 +4,6 @@ from features.environment import call_tool_sync, get_tool_json
 
 
 # --- auto-generated step ---
-@when('I navigate to "https://www.facebook.com"')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Address and search bar',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='send_keys',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Address and search bar',
-                'need_snapshot': 0,
-                'text': 'https://www.facebook.com',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='press_key',
-            arguments={
-                'caller': 'behave-automation',
-                'key': 'return',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='time_sleep',
-            arguments={'caller': 'behave-automation', 'need_snapshot': 0, 'seconds': 3},
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
-
-
-# --- auto-generated step ---
 @step('I click the install button in address bar')
 def step_impl(context):
     result = call_tool_sync(
@@ -80,7 +13,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'App available. Install Facebook',
+                'locator_value': 'App available. Install YouTube',
                 'need_snapshot': 0,
             },
         ),
@@ -92,7 +25,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('The "Install Facebook App" dialog should be shown')
+@then('The "Install YouTube App" dialog should be shown')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -101,7 +34,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Install Facebook app',
+                'locator_value': 'Install YouTube app',
                 'need_snapshot': 0,
             },
         ),
@@ -113,7 +46,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click the install button in the "Install Facebook App" dialog')
+@when('I click the install button in the "Install YouTube App" dialog')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -134,7 +67,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('Analyze the screenshot to verify the installed "Facebook" app should be opened')
+@then('Analyze the screenshot to verify the installed "YouTube" app should be opened')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -143,10 +76,10 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'need_snapshot': 0,
-                'task_description': 'Verify that the installed Facebook app should be opened. '
-                'Look for evidence that Facebook PWA has been installed '
-                'and opened, such as Facebook app window, Facebook '
-                'interface, or any indication that the Facebook app is '
+                'task_description': 'Verify that the installed YouTube app should be opened. '
+                'Look for evidence that YouTube PWA has been installed '
+                'and opened, such as YouTube app window, YouTube '
+                'interface, or any indication that the YouTube app is '
                 'running.',
             },
         ),
@@ -213,7 +146,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('The "Facebook" app should be shown in the apps list')
+@then('The "YouTube" app should be shown in the apps list')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -222,7 +155,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'Facebook',
+                'locator_value': 'YouTube',
                 'need_snapshot': 0,
             },
         ),
@@ -234,7 +167,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click "More Options" on the right coner of the Facebook app')
+@when('I click "More Options" on the right coner of the YouTube app')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -243,7 +176,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'More options for Facebook app',
+                'locator_value': 'More options for YouTube app',
                 'need_snapshot': 0,
             },
         ),
@@ -297,7 +230,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click the check box of "Delete app history and data" in the Uninstall Facebook dialog')
+@when('I click the check box of "Delete app history and data" in the Uninstall YouTube dialog')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -339,7 +272,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@when('I click "More Options" on the right corner of the Facebook app')
+@when('I click "More Options" on the right corner of the YouTube app')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -348,7 +281,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.NAME',
-                'locator_value': 'More options for Facebook app',
+                'locator_value': 'More options for YouTube app',
                 'need_snapshot': 0,
             },
         ),
@@ -360,7 +293,7 @@ def step_impl(context):
 
 
 # --- auto-generated step ---
-@then('verify the "Facebook" app is not shown in the apps list')
+@then('verify the "YouTube" app is not shown in the apps list')
 def step_impl(context):
     result = call_tool_sync(
         context,
@@ -370,8 +303,8 @@ def step_impl(context):
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.XPATH',
                 'locator_value': '//XCUIElementTypeWebView//XCUIElementTypeStaticText[contains(@value, '
-                "'Facebook') or contains(@label, 'Facebook') or "
-                "contains(@title, 'Facebook')]",
+                "'YouTube') or contains(@label, 'YouTube') or "
+                "contains(@title, 'YouTube')]",
                 'need_snapshot': 0,
             },
         ),
