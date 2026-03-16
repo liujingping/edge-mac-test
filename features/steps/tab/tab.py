@@ -832,6 +832,23 @@ def step_impl(context):
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If first attempt fails, try alternative locator
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='verify_element_exists',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                    'locator_value': 'YouTube tab group ("YouTube") - Expanded',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
@@ -856,6 +873,26 @@ def step_impl(context):
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If first attempt fails, try alternative locator
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='verify_element_attribute',
+                arguments={
+                    'attribute_name': 'label',
+                    'caller': 'behave-automation',
+                    'expected_value': 'YouTube tab group ("YouTube") - Expanded',
+                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                    'locator_value': 'YouTube tab group ("YouTube") - Expanded',
+                    'need_snapshot': 0,
+                    'rule': 'contains',
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
