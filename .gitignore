@@ -7,3 +7,8 @@ logs/*
 uv.lock
 .ruff_cache/*
 .claude/*.json
+pipeline_data/
+reports/
+pretty.output
+.DS_Store
+CLAUDE_backup.md

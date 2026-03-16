@@ -77,7 +77,7 @@ def generate_html(failure_info: dict, healing_results: Optional[dict] = None) ->
         failure_analysis = case.get("failure_analysis", {})
         ai_analysis = case.get("ai_analysis", {})
         
-        if failure_analysis.get("is_healable"):
+        if failure_analysis.get("is_healable") is True:
             element_change_count += 1
         elif ai_analysis.get("is_likely_bug"):
             likely_bug_count += 1
@@ -281,8 +281,9 @@ def generate_html(failure_info: dict, healing_results: Optional[dict] = None) ->
                 </div>
                 <div class="detail-row">
                     <span class="label">Healable:</span>
-                    <span class="value">{"Yes" if failure_analysis.get("is_healable") else "No"}</span>
+                    <span class="value">{"Yes" if failure_analysis.get("is_healable") is True else ("Pending Triage" if failure_analysis.get("is_healable") is None else "No")}</span>
                 </div>
+                {f'<div class="detail-row"><span class="label">Triage Reason:</span><span class="value">{failure_analysis.get("triage_reason", "")}</span></div>' if failure_analysis.get("triage_reason") else ''}
                 {f'<div class="detail-row"><span class="label">PR:</span><span class="value">{pr_html}</span></div>' if pr_url else ''}
             </div>
             
@@ -500,6 +501,8 @@ def generate_html(failure_info: dict, healing_results: Optional[dict] = None) ->
         }}
         
         .failure-type-element_change {{ color: #fd7e14; font-weight: 600; }}
+        .failure-type-element_not_found {{ color: #fd7e14; font-weight: 600; }}
+        .failure-type-element_state {{ color: #e83e8c; font-weight: 600; }}
         .failure-type-timeout {{ color: #6c757d; }}
         .failure-type-assertion {{ color: #dc3545; }}
         .failure-type-likely_bug {{ color: #dc3545; font-weight: 600; }}
