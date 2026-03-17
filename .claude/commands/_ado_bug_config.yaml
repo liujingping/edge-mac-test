@@ -1,0 +1,49 @@
+organization: https://dev.azure.com/microsoft
+project: Edge
+area_path: Edge\Edge China\Mac
+
+tags:
+  - FSQ_Auto
+  - FSQ FOUND
+
+fields:
+  severity: "1"
+  product: Mac
+  platform: macOS {macos_version}
+
+attachment_domain: microsoft.visualstudio.com
+
+repro_shared_header: |
+  <p><b>*Platform:</b> {platform}</p>
+  <p><b>Build:</b> Canary {edge_version}</p>
+  <p><b>Recurrence frequently:</b> xx</p>
+  <hr>
+
+repro_case_section: |
+  <h4>{case_label}: {scenario_name}</h4>
+  <p><b>*Repro Steps:</b></p>
+  {repro_steps_ol}
+  <p><b>*Expected Result:</b></p>
+  <p>{expected_result}</p>
+  <p><b>*Actual Result:</b></p>
+  <p>{actual_result}</p>
+  <p><b>Error:</b> {error_message}</p>
+  <p><b>Screenshots:</b></p>
+  {screenshots_html}
+
+repro_single_case: |
+  <p><b>*Repro Steps:</b></p>
+  {repro_steps_ol}
+  <p><b>*Expected Result:</b></p>
+  <p>{expected_result}</p>
+  <p><b>*Actual Result:</b></p>
+  <p>{actual_result}</p>
+  <p><b>Error:</b> {error_message}</p>
+  <p><b>Screenshots:</b></p>
+  {screenshots_html}
+
+custom_html_template: |
+  <h3>Mac</h3>
+  <ol>
+  {case_list_items}
+  </ol>

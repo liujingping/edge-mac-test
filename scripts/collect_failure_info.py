@@ -311,13 +311,13 @@ def analyze_failure_type(error_message: Union[list, str]) -> dict:
     }
 
 
-def find_behave_result_files(reports_dir: Path = None) -> list[Path]:
-    """Find all behave result JSON files in reports directory."""
-    reports_dir = reports_dir or REPORTS_DIR
+def find_behave_result_files(logs_dir: Path = None) -> list[Path]:
+    """Find all behave result JSON files in logs directory."""
+    logs_dir = logs_dir or (PROJECT_ROOT / "logs")
     patterns = ["behave_result*.json", "*_behave_result.json"]
     files = []
     for pattern in patterns:
-        files.extend(reports_dir.glob(pattern))
+        files.extend(logs_dir.glob(pattern))
     return sorted(set(files), key=lambda x: x.stat().st_mtime, reverse=True)
 
 
@@ -326,15 +326,14 @@ def parse_behave_results(reports_dir: Path = None, screenshots_dir: Path = None,
                         logs_dir: Path = None) -> list[dict]:
     """Parse all behave_result*.json files and extract failed cases."""
     reports_dir = reports_dir or REPORTS_DIR
-    result_files = find_behave_result_files(reports_dir)
-    if not result_files:
-        raise FileNotFoundError(f"No behave result files found in: {reports_dir}")
-
-    # Build scenario -> UUID mapping from agent logs
     _logs_dir = logs_dir or (PROJECT_ROOT / "logs")
+    result_files = find_behave_result_files(_logs_dir)
+    if not result_files:
+        raise FileNotFoundError(f"No behave result files found in: {_logs_dir}")
+
     uuid_mapping = _parse_agent_logs(_logs_dir)
     if not result_files:
-        raise FileNotFoundError(f"No behave result files found in: {reports_dir}")
+        raise FileNotFoundError(f"No behave result files found in: {_logs_dir}")
     
     print(f"Found {len(result_files)} behave result file(s):")
     for f in result_files:
@@ -430,7 +429,7 @@ def collect_and_save(data_dir: str = None):
         logs_dir = PROJECT_ROOT / "logs"
         output_file = OUTPUT_FILE
 
-    print(f"Searching for behave result files in: {reports_dir}")
+    print(f"Searching for behave result files in: {logs_dir}")
     
     try:
         failed_cases = parse_behave_results(reports_dir, screenshots_dir, page_source_dir, error_results_dir, logs_dir)

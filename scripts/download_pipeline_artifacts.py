@@ -54,6 +54,75 @@ def get_pipeline_run_info(build_id: str, token: str) -> dict:
         return json.loads(resp.read())
 
 
+def get_build_environment_info(build_id: str, run_info: dict, token: str) -> dict:
+    """Extract Edge version from triggerInfo and macOS version from job logs."""
+    import urllib.request
+
+    info = {}
+
+    trigger_info = run_info.get("triggerInfo", {})
+    info["edge_version"] = trigger_info.get("version", "")
+
+    try:
+        timeline_url = (
+            f"{ADO_ORG}/{ADO_PROJECT}/_apis/build/builds/{build_id}/timeline"
+            f"?api-version=7.0"
+        )
+        req = urllib.request.Request(timeline_url, headers={
+            "Authorization": f"Bearer {token}",
+        })
+        with urllib.request.urlopen(req) as resp:
+            timeline = json.loads(resp.read())
+
+        log_id = None
+        for record in timeline.get("records", []):
+            if (record.get("type") == "Job"
+                    and "Mac Tests" in record.get("name", "")
+                    and record.get("log")):
+                log_id = record["log"]["id"]
+                break
+
+        if log_id:
+            project_id = run_info.get("project", {}).get("id", ADO_PROJECT)
+            log_url = (
+                f"{ADO_ORG}/{project_id}/_apis/build/builds/{build_id}"
+                f"/logs/{log_id}"
+            )
+            req = urllib.request.Request(log_url, headers={
+                "Authorization": f"Bearer {token}",
+            })
+            with urllib.request.urlopen(req) as resp:
+                log_lines = resp.read().decode("utf-8", errors="replace").splitlines()[:40]
+
+            in_os_section = False
+            in_runner_section = False
+            os_lines = []
+            for line in log_lines:
+                text = re.sub(r"^\d{4}-.*?Z\s*", "", line).strip()
+                if "##[group]Operating System" in text:
+                    in_os_section = True
+                    continue
+                if "##[group]Runner Image" in text:
+                    in_os_section = False
+                    in_runner_section = True
+                    continue
+                if "##[endgroup]" in text:
+                    in_os_section = False
+                    in_runner_section = False
+                    continue
+                if in_os_section:
+                    os_lines.append(text)
+                if in_runner_section and text.startswith("Image:"):
+                    info["runner_image"] = text.split(":", 1)[1].strip()
+
+            if len(os_lines) >= 2:
+                info["macos_version"] = os_lines[1]
+    except Exception:
+        pass
+
+    return info
+
+
 def list_artifacts(build_id: str, token: str) -> list[dict]:
     """List all artifacts for a pipeline run."""
     import urllib.request
@@ -108,9 +177,9 @@ def clean_name_for_matching(name: str) -> str:
 def extract_behave_results(zip_path: Path, artifact_name: str, output_dir: Path, agent_index: int) -> Path:
     """Phase 1: Extract only behave_results.json (not pretty) from artifact zip."""
     target = f"{artifact_name}/reports/json/behave_results.json"
-    reports_dir = output_dir / "reports"
-    reports_dir.mkdir(parents=True, exist_ok=True)
-    dest = reports_dir / f"behave_results_agent{agent_index}.json"
+    logs_dir = output_dir / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    dest = logs_dir / f"behave_results_agent{agent_index}.json"
 
     with zipfile.ZipFile(zip_path, "r") as zf:
         if target in zf.namelist():
@@ -349,6 +418,18 @@ def download_pipeline_artifacts(build_id: str) -> Path:
         "url": f"{ADO_ORG}/{ADO_PROJECT}/_build/results?buildId={build_id}&view=results",
         "artifacts": [a["name"] for a in test_artifacts],
     }
+
+    env_info = get_build_environment_info(build_id, run_info, token)
+    if env_info.get("edge_version"):
+        meta["edge_version"] = env_info["edge_version"]
+        print(f"  Edge version: {env_info['edge_version']}")
+    if env_info.get("macos_version"):
+        meta["macos_version"] = env_info["macos_version"]
+        print(f"  macOS version: {env_info['macos_version']}")
+    if env_info.get("runner_image"):
+        meta["runner_image"] = env_info["runner_image"]
+        print(f"  Runner image: {env_info['runner_image']}")
+
     with open(output_dir / "pipeline_info.json", "w") as f:
         json.dump(meta, f, indent=2)
 
@@ -369,8 +450,8 @@ def download_pipeline_artifacts(build_id: str) -> Path:
 
     # Phase 2: Parse results to find failed cases
     print(f"\n--- Phase 2: Identify failed cases ---")
-    reports_dir = output_dir / "reports"
-    failed_names = parse_failed_case_names(reports_dir)
+    logs_dir = output_dir / "logs"
+    failed_names = parse_failed_case_names(logs_dir)
 
     if not failed_names:
         print("  No failed cases found! Cleaning up zips.")
@@ -424,7 +505,7 @@ def download_pipeline_artifacts(build_id: str) -> Path:
         zip_path.unlink()
 
     # Summary
-    report_count = len(list(reports_dir.glob("behave_results*.json")))
+    report_count = len(list(logs_dir.glob("behave_results*.json")))
     screenshots_dir = output_dir / "screenshots"
     screenshot_count = len(list(screenshots_dir.glob("*"))) if screenshots_dir.exists() else 0
 

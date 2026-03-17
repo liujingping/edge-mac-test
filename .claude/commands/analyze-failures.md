@@ -4,14 +4,12 @@ Analyze test failures, perform self-healing for element-related issues, and gene
 
 ## User Configuration
 
-```yaml
-# Azure DevOps Settings (for bug creation)
-ado:
-  organization: https://dev.azure.com/microsoft
-  project: Edge
-  area_path: Edge\Edge China\Mac
-  default_tags: FSQ_Auto
-```
+ADO bug creation settings are in `.claude/commands/_ado_bug_config.yaml`. Read this file before creating bugs to get org, project, area_path, tags, fields, templates, etc.
+
+Self-healing PR settings:
+- Branch prefix: `fix/self-heal-` (used for PR dedup)
+- PR title prefix: `[self-heal]`
+- PR body must include `## Affected Cases` section listing case names
 
 ## Usage
 
@@ -48,12 +46,11 @@ TodoWrite with ALL these items:
 4. [pending] Step 1.1b: Prune element trees (uv run scripts/prune_element_tree.py pipeline_data/<build_id>/logs/error_results/)
 5. [pending] Step 1.2: Screenshot + element tree triage (parallel subagents, 3 at a time)
 6. [pending] Step 2.0: Healable cases - group by same element (set_heal_group)
-7. [pending] Step 2.1: Self-healing - direct code fix with fallback + verify (one PR per heal_group)
+7. [pending] Step 2.1: Self-healing - direct code fix with fallback + verify + create PR via script
 8. [pending] Step 3.0: Bug analysis & dedup - main agent reviews all observations, groups bugs
-9. [pending] Step 3.1: Create ADO bugs (az boards work-item create for each bug in bug_summary)
-10. [pending] Step 4: Generate HTML report (uv run scripts/generate_report.py)
-11. [pending] Step 4.1: Open report (open reports/failure_analysis.html)
-12. [pending] Step 5: Cleanup - return to main branch
+9. [pending] Step 3.1: Create ADO bugs (uv run scripts/create_ado_bugs.py --data-dir pipeline_data/<build_id>)
+10. [pending] Step 4: Generate HTML report and upload (uv run scripts/generate_report.py --data-dir pipeline_data/<build_id> --upload)
+11. [pending] Step 5: Cleanup - return to main branch
 ```
 
 **After /compact, ALWAYS check todo list first to see which step to resume.**
@@ -75,7 +72,7 @@ This script:
 - Lists all `MacAutomationTestResults-Agent*` artifacts from the build
 - Downloads and extracts each artifact zip via REST API
 - Merges all agents' data into `pipeline_data/<build_id>/`:
-  - `reports/` — behave result JSON files (renamed per agent)
+  - `logs/` — behave result JSON files (renamed per agent), agent logs, error results with element trees
   - `screenshots/` — all screenshots from all agents
   - `logs/error_results/` — error result JSONs containing element trees (XML page_source)
   - `pipeline_info.json` — run metadata and URL
@@ -92,7 +89,7 @@ uv run scripts/collect_failure_info.py --data-dir pipeline_data/<build_id>
 ```
 
 This script collects:
-- Failed cases from `reports/behave_result*.json` (supports multiple files from parallel pipelines)
+- Failed cases from `logs/behave_result*.json` (supports multiple files from parallel pipelines)
 - Screenshots from `screenshots/` directory (matched by case name)
 - Element trees from `logs/error_results/` directory (matched by screenshot timestamp ±5s)
 - Error messages and stack traces
@@ -168,221 +165,106 @@ After collection, ALL cases have `is_healable: null`. Each case needs screenshot
   - Element absent from screenshot + element absent from tree → **Bug**
   - Wrong page in screenshot + irrelevant tree content → **Bug**
 
-**Step 1: Get all cases pending triage and prepare**
+**Step 1: Get all cases pending triage and initialize debug logs**
 ```bash
 uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> triage
 ```
 
-This returns ALL cases with `is_healable: null`, including:
-- Screenshot path (original)
-- Element tree path (JSON)
-- Error message and test steps
+This returns ALL cases with `is_healable: null`, including index, screenshot path, element tree path, error message.
 
-**Deriving compressed screenshot path**: Replace `screenshots/` with `screenshots_compressed/` and `.png` with `.jpg`:
-- Original: `pipeline_data/<build_id>/screenshots/<name>.png`
-- Compressed: `pipeline_data/<build_id>/screenshots_compressed/<name>.jpg`
-
-**Create debug directory**:
+For each pending case, initialize its debug log from template:
 ```bash
-mkdir -p pipeline_data/<build_id>/reports/triage_debug
+uv run scripts/init_triage_log.py --data-dir pipeline_data/<build_id> --index <index>
 ```
+
+This creates `pipeline_data/<build_id>/reports/triage_debug/case_<index>.md` with all required sections pre-filled with `PENDING`. It also auto-derives the compressed screenshot path and pruned element tree path.
 
 **Step 2: Launch subagents in batches of 3**
 
 Process all pending cases by launching subagents. In each message, launch up to **3 Task tool calls concurrently**. Wait for all 3 to complete before launching the next batch.
 
-For each case, launch a `general-purpose` subagent with the following prompt (fill in the case-specific values):
+For each case, launch a `general-purpose` subagent with the following prompt (fill in the case-specific values from init_triage_log output):
 
 ---
 
 #### Subagent Prompt Template
 
 ```
-You are analyzing a single test failure case. Your job is to collect FACTUAL OBSERVATIONS only — do NOT make healable/bug judgment. If any file read fails, report the failure directly. Do NOT guess or infer content you cannot read.
-
-⚠️ STRICT RULES:
-- If screenshot read fails → write "SCREENSHOT_READ: FAILED" in debug log. Do NOT guess what the screenshot shows.
-- If element tree file read fails → write "ELEMENT_TREE_READ: FAILED" in debug log. Do NOT guess tree contents.
-- Do NOT make healable/bug determination. Only report factual observations.
-- Screenshot analysis must be OBJECTIVE — enumerate everything you see WITHOUT any knowledge of the error or what element the test was looking for.
+You are analyzing a single test failure case. Collect FACTUAL OBSERVATIONS only — no healable/bug judgment. Do NOT guess content you cannot read.
 
 ## Case Info
 - Index: <index>
 - Scenario: <scenario_name>
 - Failed step: <failed_step_name>
 - Error: <error_message_first_line>
-- Compressed screenshot path: <compressed_screenshot_path>
-- Element tree path: <element_tree_path> (pruned file from error_results_pruned/)
-- Debug log output path: pipeline_data/<build_id>/reports/triage_debug/case_<index>.md
+- Compressed screenshot: <compressed_screenshot_path>
+- Element tree: <element_tree_path>
+- Update command: uv run scripts/update_triage_log.py --file pipeline_data/<build_id>/reports/triage_debug/case_<index>.md --section <SECTION> --content "<CONTENT>"
 
-## Your Todo List (follow strictly in order)
+You make exactly **2 update calls**: `--section screenshot_all` and `--section element_tree`. For multi-line content use bash $'...\n...' syntax. ALL Bash calls MUST use **timeout: 30000**.
 
-### Task 1: Read & Enumerate Screenshot Content
-⚠️ Do NOT look at the error message or case info before analyzing the screenshot. Describe the page as-is, with ZERO preconceptions about what element the test was looking for.
+## Task 1: Screenshot Analysis
 
-1. Use the Read tool to read the compressed screenshot file at: <compressed_screenshot_path>
-2. If the read FAILS, record "SCREENSHOT_READ: FAILED" and skip to Task 2. Do NOT fabricate observations.
-3. If the read SUCCEEDS, enumerate EVERYTHING visible on the page. Be exhaustive:
+⚠️ Analyze the screenshot BEFORE looking at the error. Describe what you see with ZERO preconceptions.
 
-   **PAGE_LAYOUT**: What application is shown? What is the overall page structure? (e.g., "Edge browser with tab bar at top, sidebar on left, web content in center")
+1. Read the compressed screenshot file. If read FAILS → update `screenshot_all` with `SCREENSHOT_READ: FAILED (<reason>)` and skip to Task 2.
+2. If read SUCCEEDS → compose content following this template exactly, then update `screenshot_all` in ONE call:
 
-   **TAB_BAR**: List every tab and tab group visible in the tab bar. For each:
-   - Tab/group name text
-   - State: active/inactive, expanded/collapsed
-   - Position: left-to-right order
-
-   **TOOLBAR**: List every button/icon in the toolbar area. For each:
-   - Button label or icon description (e.g., "back arrow", "refresh icon", "three-dot menu")
-   - Position and state
-
-   **SIDEBAR** (if visible): List all items in any sidebar panel. For each:
-   - Item text and icon
-   - Hierarchy/nesting
-
-   **WEB_CONTENT**: Describe the main content area:
-   - Page title
-   - Key text content (headings, paragraphs, links)
-   - Forms, inputs, buttons within the page
-
-   **DIALOGS_AND_OVERLAYS**: List any popups, dialogs, tooltips, toasts, overlays, context menus. For each:
-   - Title and content text
-   - Buttons/options available
-   - Whether it's blocking the page
-
-   **OTHER_ELEMENTS**: Any other visible UI elements not covered above (status bar, notifications, etc.)
-
-4. Use the Bash tool (with **timeout: 30000**) to write screenshot analysis to the debug log:
-   ```bash
-   python3 -c "
-import pathlib
-content = '''## Screenshot Content Enumeration
+```
 SCREENSHOT_READ: SUCCESS
 
 ### PAGE_LAYOUT
-<your description>
+<application name, window mode (normal/fullscreen), overall structure>
 
 ### TAB_BAR
-<list all tabs and tab groups>
+<every tab left to right: exact title, active/inactive, visual indicators; or "No tab bar visible">
 
 ### TOOLBAR
-<list all toolbar buttons/icons>
+<every button/icon left to right: exact label or icon shape, enabled/disabled state, address bar content>
 
 ### SIDEBAR
-<list sidebar content, or Not visible>
+<every item with exact label and hierarchy; or "Not visible">
 
 ### WEB_CONTENT
-<describe main content area>
+<URL in address bar, page title, every heading, every form field with placeholder/value, every button/link text>
 
 ### DIALOGS_AND_OVERLAYS
-<list all popups/dialogs/overlays, or None>
+<popup/dialog title, all text, all buttons; or "None">
 
 ### OTHER_ELEMENTS
-<any other visible elements, or None>
-'''
-pathlib.Path('pipeline_data/<build_id>/reports/triage_debug/case_<index>_screenshot.md').write_text(content)
-   "
-   ```
-
-### Task 2: Read & Analyze Element Tree
-The element tree file is a **pruned** JSON (from Step 1.1b) with this structure:
-```json
-{
-  "tool_name": "click_element | verify_element_exists | send_keys | ...",
-  "parameters": {
-    "locator_value": "the locator that failed",
-    "locator_strategy": "AppiumBy.ACCESSIBILITY_ID | AppiumBy.XPATH | ..."
-  },
-  "error": "error message from MCP server",
-  "page_source_pruned": "<compact XML tree with shortened tags, e.g. <Button label=\"X\" @(100,200,50,30)/>>"
-}
+<info bar, download bar, status bar, notifications; or "None">
 ```
 
-1. Use the Read tool to read the **pruned** element tree file at: <element_tree_path>
-   (Path is under `logs/error_results_pruned/`, NOT `error_results/`)
-2. If the file path is empty or the read FAILS, record "ELEMENT_TREE_READ: FAILED (no file)" and skip to Task 3. Do NOT fabricate findings.
-3. If the read SUCCEEDS:
-   - Note `parameters.locator_value` and `parameters.locator_strategy` — this is exactly what the test was searching for
-   - The `page_source_pruned` is a compact XML tree. Tag names are shortened (e.g. `Button` not `XCUIElementTypeButton`). Search it for the target:
-     - For `ACCESSIBILITY_ID` strategy: search for elements with matching `label`, `title`, or `identifier` attributes
-     - For `XPATH` strategy: mentally evaluate the XPath against the XML tree
-     - Search for **partial matches** too — the element may exist with a slightly different attribute
-   - Document findings:
-     - **TARGET_FOUND_IN_TREE**: yes/no — was an element matching the target found?
-     - **TREE_MATCH_DETAILS**: If found, what are its attributes? (tag, label, title, identifier, enabled, rect)
-     - **LOCATOR_DIFFERENCE**: If found but with different identifier, describe the difference
-     - **NEARBY_ELEMENTS**: What sibling elements exist in the same area?
-4. Use the Bash tool (with **timeout: 30000**) to write element tree analysis to the debug log:
-   ```bash
-   python3 -c "
-import pathlib
-content = '''## Element Tree Analysis
-ELEMENT_TREE_READ: <SUCCESS|FAILED (reason)>
-LOCATOR_SEARCHED: <locator_strategy>=<locator_value>
-TARGET_FOUND_IN_TREE: <yes/no/N/A>
-TREE_MATCH_DETAILS: <matching element attributes if found>
-LOCATOR_DIFFERENCE: <how the locator differs, if applicable>
-NEARBY_ELEMENTS: <relevant sibling elements>
-'''
-pathlib.Path('pipeline_data/<build_id>/reports/triage_debug/case_<index>_tree.md').write_text(content)
-   "
-   ```
+**Detail level required (follow these examples):**
 
-### Task 3: Write Combined Debug Log
-Combine all findings into a single debug log file. Use the Bash tool (with **timeout: 30000**):
-```bash
-python3 -c "
-import pathlib
-content = '''## Case Info
-- Index: <index>
-- Scenario: <scenario_name>
-- Failed step: <failed_step_name>
-- Error: <error_first_line>
-- Screenshot: <compressed_screenshot_path>
-- Element Tree: <element_tree_path>
+TAB_BAR: "3 tabs left to right: 1) 'New Tab' (inactive, close button visible) 2) 'Google' (active, blue underline) 3) 'Search - Microsoft Bing' (inactive). No tab groups."
 
-## Screenshot Content Enumeration
-SCREENSHOT_READ: <SUCCESS|FAILED>
+TOOLBAR: "Left to right: Back arrow button (disabled), Forward arrow button (disabled), Refresh button (enabled), Address bar containing 'https://www.bing.com' (focused, blue border), Star icon (not filled, enabled), Read-aloud icon, Share icon, Feedback smiley icon, Extensions puzzle icon, Profile avatar (letter 'J'), Three-dot menu button"
 
-### PAGE_LAYOUT
-<observation or N/A if failed>
+WEB_CONTENT: "URL: edge://settings/privacy. Heading: 'Privacy, search, and services'. Section 'Tracking prevention': radio 'Basic' (off), 'Balanced' (selected), 'Strict' (off). Button 'Blocked trackers (0)'. Section 'Clear browsing data': button 'Choose what to clear'. Toggle 'Send Do Not Track requests' (off)."
 
-### TAB_BAR
-<observation or N/A if failed>
+SIDEBAR: "Vertical tab sidebar. Search box placeholder 'Search tabs'. Pinned: 'Google' with favicon. All tabs: 1) 'New Tab' 2) 'Settings - Microsoft Edge'. Collapse button at bottom."
 
-### TOOLBAR
-<observation or N/A if failed>
+⚠️ Do NOT use vague terms like "standard toolbar", "some content", "typical layout", "various controls". Every element must be specifically named and enumerated.
 
-### SIDEBAR
-<observation or N/A if failed>
+## Task 2: Element Tree Analysis
 
-### WEB_CONTENT
-<observation or N/A if failed>
+1. Read the pruned element tree file. If path is "N/A" or read FAILS → update `element_tree` with `ELEMENT_TREE_READ: FAILED (no file)` and stop.
+2. The file is JSON with `parameters.locator_value`, `parameters.locator_strategy`, and `page_source_pruned` (compact XML, shortened tags like `Button` not `XCUIElementTypeButton`).
+3. Search the tree:
+   - `ACCESSIBILITY_ID`: match `label`, `title`, or `identifier`
+   - `XPATH`: evaluate the XPath against the tree
+   - Include **partial matches**
+4. Update `element_tree` with ALL fields:
+   - `ELEMENT_TREE_READ: SUCCESS`
+   - `LOCATOR_SEARCHED: <strategy>=<value>`
+   - `TARGET_FOUND_IN_TREE: yes/no`
+   - `TREE_MATCH_DETAILS: <matching element attributes if found>`
+   - `LOCATOR_DIFFERENCE: <how it differs, or None>`
+   - `NEARBY_ELEMENTS: <relevant siblings>`
 
-### DIALOGS_AND_OVERLAYS
-<observation or N/A if failed>
-
-### OTHER_ELEMENTS
-<observation or N/A if failed>
-
-## Element Tree Analysis
-ELEMENT_TREE_READ: <SUCCESS|FAILED (reason)>
-LOCATOR_SEARCHED: <locator_strategy>=<locator_value> or N/A
-TARGET_FOUND_IN_TREE: <yes/no/N/A>
-TREE_MATCH_DETAILS: <details or N/A>
-LOCATOR_DIFFERENCE: <details or N/A>
-NEARBY_ELEMENTS: <details or N/A>
-'''
-pathlib.Path('pipeline_data/<build_id>/reports/triage_debug/case_<index>.md').write_text(content)
-"
-```
-
-### Important Rules for Subagent
-- ALL Bash tool calls inside the subagent MUST use **timeout: 30000** (30 seconds) to prevent hanging.
-- Use `python3 -c` with `pathlib.Path.write_text()` to write files. NEVER use `cat << EOF` heredoc syntax.
-- If any tool call fails, record the failure in the debug log and return immediately.
-
-### Return
-Return a brief summary: "Case <index> (<scenario_name>): Screenshot read <SUCCESS/FAILED>, Element tree read <SUCCESS/FAILED>."
+## Return
+"Case <index> (<scenario_name>): Screenshot <SUCCESS/FAILED>, Element tree <SUCCESS/FAILED>."
 ```
 
 ---
@@ -399,20 +281,10 @@ Batch 3: Launch 1 Task tool for case 6
 → Wait for completion
 
 ⚠️ **Handling subagent failures**: If a subagent fails (e.g., context limit exceeded, tool error), do **NOT** retry or attempt to perform the subagent's work in the main agent. Instead:
-1. Record the failure:
+1. Update the debug log with failure status:
    ```bash
-   python3 -c "
-import pathlib
-content = '''## Case Info
-- Index: <index>
-- Scenario: <scenario_name>
-
-## Subagent Failure
-SUBAGENT_STATUS: FAILED
-REASON: <error message or context limit exceeded>
-'''
-pathlib.Path('pipeline_data/<build_id>/reports/triage_debug/case_<index>.md').write_text(content)
-   "
+   uv run scripts/update_triage_log.py --file pipeline_data/<build_id>/reports/triage_debug/case_<index>.md --section screenshot_all --content "SCREENSHOT_READ: FAILED (subagent failed)"
+   uv run scripts/update_triage_log.py --file pipeline_data/<build_id>/reports/triage_debug/case_<index>.md --section element_tree --content "ELEMENT_TREE_READ: FAILED (subagent failed)"
    ```
 2. In Step 4 (update triage), use the fallback error text pattern table to triage this case.
 3. Move on to the next batch.
@@ -476,17 +348,10 @@ If a case has SCREENSHOT_READ: FAILED AND ELEMENT_TREE_READ: FAILED, fall back t
 
 **Step 4: Update triage for each case**
 
-After making judgment, append the judgment to the debug log and update triage:
+After making judgment, update the judgment section in the debug log and update triage:
 
 ```bash
-cat >> "pipeline_data/<build_id>/reports/triage_debug/case_<index>.md" << 'JUDGMENT_EOF'
-
-## Main Agent Judgment
-PATTERN: <1/2/3/4/5/6>
-REASONING: <interpretation combining screenshot + tree evidence>
-CONFIDENCE: <HIGH|MEDIUM|LOW> - <why>
-TRIAGE: <index> <healable|bug> "<reason>"
-JUDGMENT_EOF
+uv run scripts/update_triage_log.py --file pipeline_data/<build_id>/reports/triage_debug/case_<index>.md --section judgment --content $'PATTERN: <1/2/3/4/5/6>\nREASONING: <interpretation combining screenshot + tree evidence>\nCONFIDENCE: <HIGH|MEDIUM|LOW> - <why>\nTRIAGE: <index> <healable|bug> "<reason>"'
 ```
 
 For healable:
@@ -550,8 +415,10 @@ For each **heal_group**:
 ##### Step 1: Create Git Branch (one per group)
 
 ```bash
-git checkout -b fix/self-heal-<heal_group_id>-<timestamp>
+git checkout -b fix/self-heal-<heal_group_id>
 ```
+
+Branch name MUST start with `fix/self-heal-` — this prefix is used for PR dedup.
 
 ##### Step 2: Read Triage Debug Log for Locator Change
 
@@ -645,11 +512,15 @@ uv run behave --name "^(case1|case2|case3)$" <feature_file>
 
 **If ALL verifications pass:**
 - Commit changes: `git commit -am "fix: self-heal element change for <element_description>"`
-- Create ONE PR for the entire group
-- **IMPORTANT: Update failure_info.json with PR URL:**
+- Create PR via script:
   ```bash
-  uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> update_heal <heal_group_id> healed "<pr_url>" "<fix_description>"
+  uv run scripts/create_heal_pr.py --data-dir pipeline_data/<build_id> --group-id <heal_group_id>
   ```
+  This script automatically:
+  1. Fetches all open `fix/self-heal-*` PRs and parses their `## Affected Cases` section
+  2. Filters out cases already covered by existing open PRs
+  3. If remaining cases > 0: pushes branch + creates PR with `[self-heal]` title prefix
+  4. Updates `failure_info.json` with PR URL
 
 **If any verification fails:**
 - Record failure:
@@ -712,76 +583,38 @@ uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> set_bu
 
 ### 3.1 Create ADO Bugs (for likely bugs)
 
-For each unique bug in `bug_summary`, create a work item using settings from **User Configuration** above:
+Run the bug creation script:
 
 ```bash
-az boards work-item create \
-  --org <ado.organization> \
-  --project <ado.project> \
-  --type Bug \
-  --title "<suggested_title>" \
-  --area "<ado.area_path>" \
-  --fields "System.Tags=<ado.default_tags>" "Microsoft.VSTS.TCM.ReproSteps=<repro_steps>"
+uv run scripts/create_ado_bugs.py --data-dir pipeline_data/<build_id>
 ```
 
-Where `<repro_steps>` includes:
-- Affected test cases
-- Error message
-- Screenshot analysis summary
+This script automatically:
+1. Reads config from `.claude/commands/_ado_bug_config.yaml`
+2. For each bug group in `bug_summary`:
+   - **Dedup check**: Queries `OSG.CustomHTML CONTAINS '<case_name>'` via WIQL — skips if bug already exists
+   - **Upload screenshots**: Uploads to ADO attachment API with short filenames, fixes domain for rendering
+   - **Build repro HTML**: Shared header (Platform + Build + Recurrence) at top, per-case sections with repro/expected/actual/error/screenshot
+   - **Create bug**: Via REST API with all fields (Tags, Severity, Product, CustomHTML, ReproSteps)
+3. Updates `failure_info.json` with `ado_bug_url` and `ado_bug_id` for each created bug
 
-**After creating each bug:**
-1. Capture the bug URL from the command output
-2. Update `failure_info.json` with the bug URL:
-   ```json
-   {
-     "bug_summary": [
-       {
-         "bug_group_id": "BUG-001",
-         "ado_bug_url": "https://dev.azure.com/org/project/_workitems/edit/12345",
-         ...
-       }
-     ]
-   }
-   ```
-3. Also update each affected case's `ai_analysis` with the bug URL
-
-**If `az` command fails:**
-- Skip bug creation
-- Log warning in report
+**If the script fails:**
+- Already-created bugs are preserved (idempotent)
+- Re-run safely — dedup check prevents duplicates
 - Continue with report generation
 
-### 4. Generate HTML Report
+### 4. Generate HTML Report and Upload
 
-Run the report generation script:
-
-```bash
-uv run scripts/generate_report.py
-```
-
-Output: `reports/failure_analysis.html`
-
-### 4.1 Open Report
-
-Open the report in default browser:
+Run the report generation script with upload:
 
 ```bash
-open reports/failure_analysis.html
+uv run scripts/generate_report.py --data-dir pipeline_data/<build_id> --upload
 ```
 
-Report includes:
-- Summary statistics (total failures, healed, likely bugs, other)
-- List of all failed cases with:
-  - Scenario name and feature file
-  - Error message
-  - Failure category (element_not_found, element_state, timeout, assertion, unknown)
-  - AI analysis details (for likely bugs):
-    - Bug confidence score
-    - Bug category
-    - Analysis reason
-    - Suggested bug title and description
-  - Self-healing status (attempted/succeeded/failed/skipped)
-  - PR link (if created)
-  - Screenshots (embedded or linked)
+This generates `pipeline_data/<build_id>/reports/failure_analysis.html` and uploads it to Azure Blob Storage.
+The SAS URL (valid for 7 days) is printed to console and saved to `pipeline_data/<build_id>/reports/report_url.json`.
+
+Blob path: `<pipeline_name>/<build_id>/<date>_<HHMMSS>_failure_analysis.html` (unique per run, never overwrites).
 
 ### 5. Cleanup
 
@@ -801,7 +634,8 @@ git checkout main
 
 - `pipeline_data/<build_id>/` — Downloaded pipeline artifacts
 - `pipeline_data/<build_id>/reports/failure_info.json` — Collected failure data with AI analysis
-- `reports/failure_analysis.html` — Final analysis report
+- `pipeline_data/<build_id>/reports/failure_analysis.html` — Final analysis report
+- `pipeline_data/<build_id>/reports/report_url.json` — Uploaded report SAS URL
 - PRs created for successfully healed cases
 
 ## Notes
@@ -809,6 +643,4 @@ git checkout main
 1. Element changes affecting the same element are grouped into ONE PR (not separate PRs)
 2. Bug analysis groups similar failures into ONE bug entry (not separate bugs)
 3. Self-healing is only attempted for element-change failures
-4. AI bug analysis is performed for non-element-change failures
-5. Bug and heal group results can be used for ADO integration
-6. Screenshots and element trees are matched by case name pattern
+4. Screenshots and element trees are matched by case name pattern
