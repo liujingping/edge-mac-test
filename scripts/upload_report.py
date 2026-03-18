@@ -58,6 +58,7 @@ def upload_blob(
     container: str,
     blob_name: str,
     file_path: str,
+    content_type: str = 'text/html',
 ) -> str:
     result = subprocess.run(
         [
@@ -67,7 +68,7 @@ def upload_blob(
             '--container-name', container,
             '--name', blob_name,
             '--file', file_path,
-            '--content-type', 'text/html',
+            '--content-type', content_type,
             '--overwrite',
         ],
         capture_output=True,
@@ -107,6 +108,38 @@ def generate_sas_url(
     if result.returncode != 0:
         raise RuntimeError(f'Failed to generate SAS URL.\n{result.stderr}')
     return result.stdout.strip()
+
+
+def upload_file(
+    file_path: str,
+    build_id: str,
+    pipeline_name: str = '',
+    content_type: str = 'application/octet-stream',
+    suffix: str = '',
+    account_name: str | None = None,
+    container: str | None = None,
+) -> str:
+    account_name = account_name or AZURE_STORAGE_ACCOUNT_NAME
+    container = container or AZURE_STORAGE_CONTAINER
+
+    if not Path(file_path).exists():
+        raise FileNotFoundError(f'File not found: {file_path}')
+
+    account_key = get_storage_account_key(account_name)
+
+    now = datetime.now()
+    date_str = now.strftime('%Y%m%d')
+    time_str = now.strftime('%H%M%S')
+    safe_pipeline = pipeline_name.replace(' ', '_').replace('/', '_') if pipeline_name else 'unknown'
+    file_suffix = suffix or Path(file_path).name
+    blob_name = f'{safe_pipeline}/{build_id}/{date_str}_{time_str}_{file_suffix}'
+
+    upload_blob(account_name, account_key, container, blob_name, file_path, content_type)
+    print(f'  Uploaded: {blob_name}')
+
+    sas_url = generate_sas_url(account_name, account_key, container, blob_name)
+    print(f'  SAS URL: {sas_url}')
+    return sas_url
 
 
 def upload_report(

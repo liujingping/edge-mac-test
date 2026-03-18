@@ -145,7 +145,8 @@ def create_pr(branch_name: str, title: str, body: str) -> Optional[str]:
 
 def process_heal_group(heal_group: dict, pipeline_info: dict,
                        covered_cases: dict,
-                       dry_run: bool = False) -> Optional[dict]:
+                       dry_run: bool = False,
+                       not_verified: bool = False) -> Optional[dict]:
     group_id = heal_group.get("heal_group_id", "")
     affected = heal_group.get("affected_cases", [])
     element_desc = heal_group.get("element_description", "")
@@ -198,7 +199,7 @@ def process_heal_group(heal_group: dict, pipeline_info: dict,
         else:
             print("  DRY RUN: Would push branch")
 
-    title = f"{PR_TITLE_PREFIX} {element_desc}"
+    title = f"{PR_TITLE_PREFIX}{'[not verified] ' if not_verified else ' '}{element_desc}"
     body = build_pr_body(heal_group, pipeline_info, remaining)
 
     if dry_run:
@@ -222,6 +223,8 @@ def main():
                         help="Pipeline data directory (e.g., pipeline_data/141562849)")
     parser.add_argument("--group-id", required=True,
                         help="heal_group_id to create PR for")
+    parser.add_argument("--not-verified", action="store_true",
+                        help="Add [not verified] tag to PR title (env failure, could not verify)")
     parser.add_argument("--dry-run", action="store_true",
                         help="Print what would be created without actually creating")
     args = parser.parse_args()
@@ -253,7 +256,7 @@ def main():
     if covered_cases:
         print(f"  Already covered cases: {len(covered_cases)}")
 
-    result = process_heal_group(heal_group, pipeline_info, covered_cases, args.dry_run)
+    result = process_heal_group(heal_group, pipeline_info, covered_cases, args.dry_run, args.not_verified)
 
     if result and not args.dry_run:
         heal_group["status"] = "pr_existing" if result.get("already_covered") else "pr_created"

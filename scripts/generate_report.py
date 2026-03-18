@@ -119,6 +119,7 @@ def generate_html(failure_info: dict, data_dir: Optional[Path] = None,
 
     element_change_count = 0
     likely_bug_count = 0
+    visual_flaky_count = 0
     other_count = 0
 
     for case in failed_cases:
@@ -126,6 +127,8 @@ def generate_html(failure_info: dict, data_dir: Optional[Path] = None,
         ai_analysis = case.get("ai_analysis", {})
         if failure_analysis.get("is_healable") is True:
             element_change_count += 1
+        elif failure_analysis.get("is_healable") == "visual_flaky":
+            visual_flaky_count += 1
         elif ai_analysis.get("is_likely_bug"):
             likely_bug_count += 1
         else:
@@ -195,6 +198,43 @@ def generate_html(failure_info: dict, data_dir: Optional[Path] = None,
                 </thead>
                 <tbody>
                     {pr_rows}
+                </tbody>
+            </table>
+        </div>
+        '''
+
+    flaky_table_html = ""
+    flaky_cases = [c for c in failed_cases if c.get("failure_analysis", {}).get("is_healable") == "visual_flaky"]
+    if flaky_cases:
+        flaky_rows = ""
+        for c in flaky_cases:
+            idx = failed_cases.index(c)
+            scenario = c.get("scenario_name", "N/A")
+            failed_step = c.get("failed_step", {})
+            step_name = f'{failed_step.get("keyword", "")} {failed_step.get("name", "N/A")}'
+            reason = c.get("failure_analysis", {}).get("triage_reason", "")
+            flaky_rows += f'''
+            <tr>
+                <td>#{idx}</td>
+                <td>{scenario}</td>
+                <td>{step_name}</td>
+                <td>{reason}</td>
+            </tr>
+            '''
+        flaky_table_html = f'''
+        <div class="summary-table">
+            <h3>Flaky Summary</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Case</th>
+                        <th>Scenario</th>
+                        <th>Failed Step</th>
+                        <th>Reason</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {flaky_rows}
                 </tbody>
             </table>
         </div>
@@ -336,6 +376,8 @@ def generate_html(failure_info: dict, data_dir: Optional[Path] = None,
         healable_value = failure_analysis.get("is_healable")
         if healable_value is True:
             healable_display = '<span class="healable-yes">Healable</span>'
+        elif healable_value == "visual_flaky":
+            healable_display = '<span class="healable-flaky">Visual Flaky</span>'
         elif healable_value is False:
             healable_display = '<span class="healable-no">Bug</span>'
         else:
@@ -466,6 +508,7 @@ def generate_html(failure_info: dict, data_dir: Optional[Path] = None,
         .summary-card.total .number {{ color: #333; }}
         .summary-card.element-change .number {{ color: #fd7e14; }}
         .summary-card.bugs .number {{ color: #d63384; }}
+        .summary-card.visual-flaky .number {{ color: #6f42c1; }}
         .summary-card.other .number {{ color: #6c757d; }}
 
         .summary-table {{
@@ -579,6 +622,16 @@ def generate_html(failure_info: dict, data_dir: Optional[Path] = None,
 
         .healable-pending {{
             background: #6c757d;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }}
+
+        .healable-flaky {{
+            background: #6f42c1;
             color: white;
             padding: 4px 12px;
             border-radius: 20px;
@@ -868,6 +921,10 @@ def generate_html(failure_info: dict, data_dir: Optional[Path] = None,
                 <div class="number">{unique_bugs}</div>
                 <div class="label">Likely Bugs</div>
             </div>
+            <div class="summary-card visual-flaky">
+                <div class="number">{visual_flaky_count}</div>
+                <div class="label">Visual Flaky</div>
+            </div>
             <div class="summary-card other">
                 <div class="number">{other_count}</div>
                 <div class="label">Other</div>
@@ -875,6 +932,7 @@ def generate_html(failure_info: dict, data_dir: Optional[Path] = None,
         </div>
 
         {pr_table_html}
+        {flaky_table_html}
         {bug_table_html}
 
         <div class="cases">
@@ -940,7 +998,7 @@ def generate_report(data_dir: Optional[Path] = None, upload: bool = False):
 
     if upload:
         try:
-            from upload_report import upload_report as do_upload
+            from upload_report import upload_report as do_upload, upload_file
             pi = pipeline_info or {}
             build_id = pi.get("build_id", "")
             if not build_id and data_dir:
@@ -951,6 +1009,16 @@ def generate_report(data_dir: Optional[Path] = None, upload: bool = False):
                 build_id=build_id,
                 pipeline_name=pipeline_name,
             )
+            try:
+                upload_file(
+                    file_path=str(failure_info_file),
+                    build_id=build_id,
+                    pipeline_name=pipeline_name,
+                    content_type="application/json",
+                    suffix="failure_info.json",
+                )
+            except Exception as e:
+                print(f"Warning: failure_info.json upload failed: {e}")
             return sas_url
         except Exception as e:
             print(f"Warning: upload failed: {e}")

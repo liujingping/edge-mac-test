@@ -40,6 +40,8 @@ def list_cases():
         has_analysis = "ai_analysis" in case
         if is_healable is None:
             status = "needs_triage"
+        elif is_healable == "visual_flaky":
+            status = "visual_flaky"
         elif is_healable:
             status = "healable"
         elif has_analysis:
@@ -168,12 +170,13 @@ def get_triage_v2():
         print("")
 
 
-def update_triage(index: int, is_healable: bool, reason: str,
+def update_triage(index: int, is_healable, reason: str,
                   observable_state: str = "", expected_state: str = "",
                   difference: str = "", failed_functionality: str = ""):
     """Update triage result for a case after screenshot analysis.
     
     Sets is_healable and stores the triage reason.
+    is_healable can be True, False, or "visual_flaky".
     For bug cases, also stores observation fields (observable_state, expected_state,
     difference, failed_functionality) so a separate analysis step is not needed.
     """
@@ -188,7 +191,7 @@ def update_triage(index: int, is_healable: bool, reason: str,
     fa["triage_reason"] = reason
     cases[index]["failure_analysis"] = fa
     
-    if not is_healable and observable_state:
+    if is_healable is False and observable_state:
         cases[index]["ai_analysis"] = {
             "observable_state": observable_state,
             "expected_state": expected_state,
@@ -201,16 +204,23 @@ def update_triage(index: int, is_healable: bool, reason: str,
     
     healable_count = sum(1 for c in cases if c.get("failure_analysis", {}).get("is_healable") is True)
     non_healable_count = sum(1 for c in cases if c.get("failure_analysis", {}).get("is_healable") is False)
+    visual_flaky_count = sum(1 for c in cases if c.get("failure_analysis", {}).get("is_healable") == "visual_flaky")
     pending_count = sum(1 for c in cases if c.get("failure_analysis", {}).get("is_healable") is None)
     
     data["summary"]["healable_failures"] = healable_count
     data["summary"]["non_healable_failures"] = non_healable_count
+    data["summary"]["visual_flaky_failures"] = visual_flaky_count
     data["summary"]["pending_triage"] = pending_count
     
     save_failure_info(data)
-    label = "HEALABLE" if is_healable else "BUG"
+    if is_healable == "visual_flaky":
+        label = "VISUAL_FLAKY"
+    elif is_healable:
+        label = "HEALABLE"
+    else:
+        label = "BUG"
     print(f"Triaged case {index} as {label}: {reason}")
-    if not is_healable and observable_state:
+    if is_healable is False and observable_state:
         print(f"  (observation also saved)")
 
 
@@ -272,8 +282,8 @@ def get_pending():
     cases = data.get("failed_cases", [])
     for i, case in enumerate(cases):
         is_healable = case.get("failure_analysis", {}).get("is_healable")
-        # Skip cases not yet triaged or triaged as healable
-        if is_healable is None or is_healable is True:
+        # Skip cases not yet triaged or triaged as healable or visual_flaky
+        if is_healable is None or is_healable is True or is_healable == "visual_flaky":
             continue
         has_analysis = "ai_analysis" in case
         if not has_analysis:
@@ -304,7 +314,7 @@ def get_pending_all():
     pending_cases = []
     for i, case in enumerate(cases):
         is_healable = case.get("failure_analysis", {}).get("is_healable")
-        if is_healable is None or is_healable is True:
+        if is_healable is None or is_healable is True or is_healable == "visual_flaky":
             continue
         has_analysis = "ai_analysis" in case
         if not has_analysis:
@@ -419,6 +429,10 @@ def get_observations():
         if is_healable is True:
             print(f"[{i}] {case['scenario_name'][:50]}")
             print(f"    [HEALABLE - skip bug analysis]\n")
+            continue
+        if is_healable == "visual_flaky":
+            print(f"[{i}] {case['scenario_name'][:50]}")
+            print(f"    [VISUAL_FLAKY - skip bug analysis]\n")
             continue
         if is_healable is None:
             print(f"[{i}] {case['scenario_name'][:50]}")
@@ -593,7 +607,7 @@ def main():
         print("  python failure_info_helper.py [--data-dir <dir>] get <index>         - Get case details")
         print("  python failure_info_helper.py [--data-dir <dir>] triage              - Get all cases pending screenshot triage")
         print("  python failure_info_helper.py [--data-dir <dir>] triage_v2            - Get pending cases with success screenshot paths (for v2)")
-        print("  python failure_info_helper.py [--data-dir <dir>] update_triage <index> <is_healable> <reason> [observable] [expected] [diff] [functionality]")
+        print("  python failure_info_helper.py [--data-dir <dir>] update_triage <index> <true|false|visual_flaky> <reason> [observable] [expected] [diff] [functionality]")
         print("  python failure_info_helper.py [--data-dir <dir>] healable            - Get all healable cases for grouping")
         print("  python failure_info_helper.py [--data-dir <dir>] heal_summary        - Get heal_summary (grouped healable cases)")
         print("  python failure_info_helper.py [--data-dir <dir>] pending             - Get next pending case (non-healable, needs analysis)")
@@ -610,6 +624,7 @@ def main():
         print("  python failure_info_helper.py triage")
         print("  python failure_info_helper.py update_triage 0 true 'Install button visible in screenshot but locator changed'")
         print("  python failure_info_helper.py update_triage 1 false 'Translate popup not visible in screenshot - real bug'")
+        print("  python failure_info_helper.py update_triage 2 visual_flaky 'verify_visual_task flaky - screenshot shows expected state'")
         print("  python failure_info_helper.py healable")
         print("  python failure_info_helper.py pending")
         print("  python failure_info_helper.py set_bug_group BUG-001 '0,1,2' 'Same failure' '[Edge] Bug' true 0.85 functional_bug")
@@ -628,7 +643,11 @@ def main():
         get_triage_v2()
     elif cmd == "update_triage":
         index = int(filtered_args[1])
-        is_healable = filtered_args[2].lower() == "true"
+        triage_val = filtered_args[2].lower()
+        if triage_val == "visual_flaky":
+            is_healable = "visual_flaky"
+        else:
+            is_healable = triage_val == "true"
         reason = filtered_args[3] if len(filtered_args) > 3 else ""
         observable = filtered_args[4] if len(filtered_args) > 4 else ""
         expected = filtered_args[5] if len(filtered_args) > 5 else ""

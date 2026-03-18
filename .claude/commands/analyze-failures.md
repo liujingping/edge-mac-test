@@ -14,14 +14,14 @@ Self-healing PR settings:
 ## Usage
 
 ```
-/analyze-failures <build_id> [--report-only] [--skip-download]
+/analyze-failures <build_id> [--skip-download] [--analyze-only]
 ```
 
 ## Parameters
 
 - `build_id`: **Required.** Azure DevOps pipeline run (build) ID. Example: `141562849`
-- `--report-only`: Optional flag to skip self-healing and only generate analysis report
 - `--skip-download`: Optional flag to skip artifact download and use existing data in `pipeline_data/<build_id>/`. Useful for re-running analysis on already downloaded data.
+- `--analyze-only`: Optional flag to stop after Step 3.0 (bug analysis) and Step 4 (report generation, without upload). Skips PR creation (Step 2.1), ADO bug creation (Step 3.1), report upload, and cleanup (Step 5). Useful for reviewing analysis results before taking action.
 
 ## Prerequisites
 
@@ -46,11 +46,11 @@ TodoWrite with ALL these items:
 4. [pending] Step 1.1b: Prune element trees (uv run scripts/prune_element_tree.py pipeline_data/<build_id>/logs/error_results/)
 5. [pending] Step 1.2: Screenshot + element tree triage (parallel subagents, 3 at a time)
 6. [pending] Step 2.0: Healable cases - group by same element (set_heal_group)
-7. [pending] Step 2.1: Self-healing - direct code fix with fallback + verify + create PR via script
+7. [pending] Step 2.1: Self-healing - direct code fix with fallback + verify + create PR via script (SKIP if --analyze-only)
 8. [pending] Step 3.0: Bug analysis & dedup - main agent reviews all observations, groups bugs
-9. [pending] Step 3.1: Create ADO bugs (uv run scripts/create_ado_bugs.py --data-dir pipeline_data/<build_id>)
-10. [pending] Step 4: Generate HTML report and upload (uv run scripts/generate_report.py --data-dir pipeline_data/<build_id> --upload)
-11. [pending] Step 5: Cleanup - return to main branch
+9. [pending] Step 3.1: Create ADO bugs (SKIP if --analyze-only)
+10. [pending] Step 4: Generate HTML report (--analyze-only: generate only, no upload; otherwise: generate and upload)
+11. [pending] Step 5: Cleanup - return to main branch (SKIP if --analyze-only)
 ```
 
 **After /compact, ALWAYS check todo list first to see which step to resume.**
@@ -332,6 +332,14 @@ Apply the judgment patterns:
 - → **BUG** (functionality produced wrong result)
 - Confidence: HIGH
 
+**Pattern 7 — Visual verification flaky** (`verify_visual_task` tool failure where screenshot contradicts the test result):
+- **Detection**: The failed step's `step_implementation` contains `name='verify_visual_task'`, AND our screenshot analysis shows the expected visual state IS actually present (the task_description in the code describes what to verify — check if the screenshot matches it)
+- → **VISUAL_FLAKY** (the OpenAI vision API intermittently misjudged the screenshot)
+- Confidence: HIGH
+- This means: the UI is correct, the test tool produced a false negative. Not a bug, not healable — just flaky visual verification.
+
+⚠️ **Pattern 7 check MUST happen BEFORE other patterns** for `verify_visual_task` cases. If the step calls `verify_visual_task`, first check if our screenshot analysis agrees with the task_description. If it does → Pattern 7. If our analysis ALSO shows the visual state is wrong → Pattern 2 or 6 (real bug).
+
 **Tiebreaker rule**: "Element not found" error refers to an accessibility locator string failing — it does NOT mean the element is visually absent. When screenshot enumeration shows a plausible matching element but tree is ambiguous, prefer HEALABLE.
 
 **Fallback (when subagent reported both reads FAILED)**:
@@ -351,7 +359,7 @@ If a case has SCREENSHOT_READ: FAILED AND ELEMENT_TREE_READ: FAILED, fall back t
 After making judgment, update the judgment section in the debug log and update triage:
 
 ```bash
-uv run scripts/update_triage_log.py --file pipeline_data/<build_id>/reports/triage_debug/case_<index>.md --section judgment --content $'PATTERN: <1/2/3/4/5/6>\nREASONING: <interpretation combining screenshot + tree evidence>\nCONFIDENCE: <HIGH|MEDIUM|LOW> - <why>\nTRIAGE: <index> <healable|bug> "<reason>"'
+uv run scripts/update_triage_log.py --file pipeline_data/<build_id>/reports/triage_debug/case_<index>.md --section judgment --content $'PATTERN: <1/2/3/4/5/6/7>\nREASONING: <interpretation combining screenshot + tree evidence>\nCONFIDENCE: <HIGH|MEDIUM|LOW> - <why>\nTRIAGE: <index> <healable|bug|visual_flaky> "<reason>"'
 ```
 
 For healable:
@@ -362,6 +370,11 @@ uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> update
 For bug (include observation details):
 ```bash
 uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> update_triage <index> false "<reason>" "<observable_state>" "<expected_state>" "<difference>" "<failed_functionality>"
+```
+
+For visual_flaky (verify_visual_task intermittent failure):
+```bash
+uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> update_triage <index> visual_flaky "<reason>"
 ```
 
 **Step 5: Re-check for remaining untriaged cases**
@@ -406,6 +419,8 @@ After triage, group all healable cases by **same element**:
 
 ### 2.1 Self-Healing: Direct Code Fix
 
+**If `--analyze-only` is specified, skip Steps 2.1, 3.1, and 5. Step 4 still runs but without upload.**
+
 **Process by heal_group, NOT by individual case.**
 
 ⚠️ **KEY CHANGE**: We already know the exact locator change from the triage debug logs (element tree analysis shows LOCATOR_SEARCHED vs TREE_MATCH_DETAILS). Directly modify the step definition code — no need to re-record.
@@ -414,7 +429,10 @@ For each **heal_group**:
 
 ##### Step 1: Create Git Branch (one per group)
 
+⚠️ **CRITICAL: Always start from main branch** to avoid carrying changes from a previous heal group:
+
 ```bash
+git checkout main
 git checkout -b fix/self-heal-<heal_group_id>
 ```
 
@@ -508,7 +526,40 @@ Run all cases in the group to verify the fix works:
 uv run behave --name "^(case1|case2|case3)$" <feature_file>
 ```
 
-##### Step 5: Handle Result
+##### Step 5: Handle Verification Result
+
+**Classify the failure type** before deciding next action:
+
+**Environment failure indicators** (any of these → environment issue):
+- `ConnectionError`, `ConnectionRefusedError`, `socket.error`
+- `SessionNotCreatedException`, `WebDriverException` with "session" or "connection"
+- `OSError`, `TimeoutError` at session/connection level
+- App failed to launch or Appium server not responding
+- Error occurs BEFORE the test's actual step executes (in setup/Given steps unrelated to the fix)
+- All cases in the group fail with the same infrastructure error
+
+**Real test failure indicators** (any of these → code fix didn't work):
+- The SAME element-not-found error as before (original locator AND new locator both fail)
+- A DIFFERENT assertion error in the step we modified
+- Error occurs IN the step we modified or AFTER it
+- Some cases pass, some fail (inconsistent = likely code issue, not env)
+
+**Flow chart:**
+
+```
+Verification run
+    ├── ALL pass → commit + create PR + git checkout main (see below)
+    ├── Environment failure → create PR with [not verified] tag + git checkout main (see below)
+    └── Real test failure → retry (max 2 attempts total)
+         ├── Attempt 1: Re-read error, adjust code fix, run verification again
+         │    ├── ALL pass → commit + create PR + git checkout main
+         │    ├── Environment failure → commit + create PR with [not verified] tag + git checkout main
+         │    └── Real test failure again → Attempt 2
+         └── Attempt 2: Re-read error, adjust code fix, run verification again
+              ├── ALL pass → commit + create PR + git checkout main
+              ├── Environment failure → commit + create PR with [not verified] tag + git checkout main
+              └── Real test failure again → record failure, discard branch, git checkout main
+```
 
 **If ALL verifications pass:**
 - Commit changes: `git commit -am "fix: self-heal element change for <element_description>"`
@@ -521,13 +572,33 @@ uv run behave --name "^(case1|case2|case3)$" <feature_file>
   2. Filters out cases already covered by existing open PRs
   3. If remaining cases > 0: pushes branch + creates PR with `[self-heal]` title prefix
   4. Updates `failure_info.json` with PR URL
+- Return to main branch after PR creation:
+  ```bash
+  git checkout main
+  ```
 
-**If any verification fails:**
+**If environment failure detected:**
+- Commit changes: `git commit -am "fix: self-heal element change for <element_description>"`
+- Create PR with `[not verified]` tag:
+  ```bash
+  uv run scripts/create_heal_pr.py --data-dir pipeline_data/<build_id> --group-id <heal_group_id> --not-verified
+  ```
+  This adds `[not verified]` to the PR title (e.g., `[self-heal][not verified] Fix element change for ...`)
+- Return to main branch:
+  ```bash
+  git checkout main
+  ```
+
+**If real test failure after 2 retry attempts:**
 - Record failure:
   ```bash
-  uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> update_heal <heal_group_id> failed "" "Verification failed"
+  uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> update_heal <heal_group_id> failed "" "Verification failed after 2 retries"
   ```
-- Discard changes: `git checkout main`
+- Discard changes and return to main:
+  ```bash
+  git checkout main
+  git branch -D fix/self-heal-<heal_group_id>
+  ```
 
 ### 3.0 Bug Analysis and Deduplication (Main Agent)
 
@@ -583,6 +654,8 @@ uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> set_bu
 
 ### 3.1 Create ADO Bugs (for likely bugs)
 
+**If `--analyze-only` is specified, skip this step. Proceed to Step 4 (report generation without upload).**
+
 Run the bug creation script:
 
 ```bash
@@ -603,18 +676,24 @@ This script automatically:
 - Re-run safely — dedup check prevents duplicates
 - Continue with report generation
 
-### 4. Generate HTML Report and Upload
+### 4. Generate HTML Report
 
-Run the report generation script with upload:
+**If `--analyze-only`**: generate report only (no upload):
+```bash
+uv run scripts/generate_report.py --data-dir pipeline_data/<build_id>
+```
 
+**Otherwise**: generate and upload:
 ```bash
 uv run scripts/generate_report.py --data-dir pipeline_data/<build_id> --upload
 ```
 
-This generates `pipeline_data/<build_id>/reports/failure_analysis.html` and uploads it to Azure Blob Storage.
-The SAS URL (valid for 7 days) is printed to console and saved to `pipeline_data/<build_id>/reports/report_url.json`.
+This generates `pipeline_data/<build_id>/reports/failure_analysis.html`. When `--upload` is used, it also uploads both the HTML report and `failure_info.json` to Azure Blob Storage.
+The SAS URLs (valid for 7 days) are printed to console and saved to `pipeline_data/<build_id>/reports/report_url.json`.
 
-Blob path: `<pipeline_name>/<build_id>/<date>_<HHMMSS>_failure_analysis.html` (unique per run, never overwrites).
+Blob paths:
+- `<pipeline_name>/<build_id>/<date>_<HHMMSS>_failure_analysis.html` (unique per run, never overwrites)
+- `<pipeline_name>/<build_id>/<date>_<HHMMSS>_failure_info.json` (uploaded alongside the report)
 
 ### 5. Cleanup
 
@@ -627,16 +706,17 @@ git checkout main
 
 ```
 /analyze-failures 141562849
-/analyze-failures 141562849 --report-only
+/analyze-failures 141562849 --analyze-only
+/analyze-failures 141562849 --skip-download --analyze-only
 ```
 
 ## Output
 
 - `pipeline_data/<build_id>/` — Downloaded pipeline artifacts
-- `pipeline_data/<build_id>/reports/failure_info.json` — Collected failure data with AI analysis
+- `pipeline_data/<build_id>/reports/failure_info.json` — Collected failure data with AI analysis (also uploaded)
 - `pipeline_data/<build_id>/reports/failure_analysis.html` — Final analysis report
 - `pipeline_data/<build_id>/reports/report_url.json` — Uploaded report SAS URL
-- PRs created for successfully healed cases
+- PRs created for successfully healed cases (with `[not verified]` tag if env verification failed)
 
 ## Notes
 
