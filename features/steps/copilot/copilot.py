@@ -79,50 +79,112 @@ def step_impl(context):
     )
 
 
+def _type_in_copilot_input(context, text, max_retries=2):
+    for attempt in range(max_retries):
+        if attempt > 0:
+            call_tool_sync(
+                context,
+                context.session.call_tool(
+                    name='press_key',
+                    arguments={'caller': 'behave-automation', 'key': 'command+a', 'need_snapshot': 0},
+                ),
+            )
+            call_tool_sync(
+                context,
+                context.session.call_tool(
+                    name='press_key',
+                    arguments={'caller': 'behave-automation', 'key': 'delete', 'need_snapshot': 0},
+                ),
+            )
+            call_tool_sync(
+                context,
+                context.session.call_tool(
+                    name='time_sleep',
+                    arguments={'caller': 'behave-automation', 'seconds': 1, 'need_snapshot': 0},
+                ),
+            )
+
+        call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': '//XCUIElementTypeTextView',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='time_sleep',
+                arguments={'caller': 'behave-automation', 'seconds': 1, 'need_snapshot': 0},
+            ),
+        )
+
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='directly_send_keys',
+                arguments={
+                    'caller': 'behave-automation',
+                    'need_snapshot': 0,
+                    'text': text,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+        if result_json.get('status') != 'success':
+            continue
+
+        call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='time_sleep',
+                arguments={'caller': 'behave-automation', 'seconds': 1, 'need_snapshot': 0},
+            ),
+        )
+
+        verify_result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='verify_element_attribute',
+                arguments={
+                    'attribute_name': 'value',
+                    'caller': 'behave-automation',
+                    'expected_value': text,
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': '//XCUIElementTypeTextView',
+                    'need_snapshot': 0,
+                    'rule': '==',
+                },
+            ),
+        )
+        verify_json = get_tool_json(verify_result)
+        if verify_json.get('status') == 'success':
+            return
+
+        logging.warning(
+            f"Copilot input text mismatch on attempt {attempt + 1}, retrying..."
+        )
+
+    assert False, (
+        f"Failed to type correct text in Copilot input after {max_retries} attempts"
+    )
+
+
 # --- auto-generated step ---
 @when('I type "What gas do humans need to breathe?" in the copilot pane input box')
 def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='send_keys',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeTextView',
-                'need_snapshot': 0,
-                'text': 'What gas do humans need to breathe?',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+    _type_in_copilot_input(context, 'What gas do humans need to breathe?')
 
 
 # --- auto-generated step ---
 @then('the copilot pane input box should contain "What gas do humans need to breathe?"')
 def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='verify_element_attribute',
-            arguments={
-                'attribute_name': 'value',
-                'caller': 'behave-automation',
-                'expected_value': 'What gas do humans need to breathe?',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeTextView',
-                'need_snapshot': 0,
-                'rule': '==',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+    pass
 
 
 # --- auto-generated step ---
@@ -248,23 +310,7 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I type "microsoft" in the copilot pane input box')
 def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='send_keys',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeTextView',
-                'need_snapshot': 0,
-                'text': 'microsoft',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+    _type_in_copilot_input(context, 'microsoft')
 
 
 # --- auto-generated step ---
@@ -374,23 +420,7 @@ def step_impl(context):
 # --- auto-generated step ---
 @when('I type "What does CPU mean?" in the copilot pane input box')
 def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='send_keys',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeTextView[@enabled='true']",
-                'need_snapshot': 0,
-                'text': 'What does CPU mean?',
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
+    _type_in_copilot_input(context, 'What does CPU mean?')
 
 
 # --- auto-generated step ---
