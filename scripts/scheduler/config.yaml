@@ -1,0 +1,39 @@
+poll_interval_minutes: 10
+
+history:
+  retention_days: 30
+
+profiles:
+  mac-edge:
+    pipelines:
+      - edge-FSQ-mac-canary
+      - edge-FSQ-mac-beta
+      - edge-FSQ-mac-stable
+    clone:
+      repo_url: "git@github.com:edge-microsoft/FSQ_AI_Testcases_Mac.git"
+      branch: "main"
+    claude:
+      timeout_seconds: 3600
+      extra_args: []
+    ado:
+      organization: "pipelinetools"
+      project: "nickel"
+    power_automate:
+      webhook_url: ""
+
+  # example for another group:
+  # windows-edge:
+  #   pipelines:
+  #     - edge-FSQ-win-canary
+  #     - edge-FSQ-win-beta
+  #   clone:
+  #     repo_url: "git@github.com:edge-microsoft/FSQ_AI_Testcases_Win.git"
+  #     branch: "main"
+  #   claude:
+  #     timeout_seconds: 3600
+  #     extra_args: []
+  #   ado:
+  #     organization: "other-org"
+  #     project: "other-project"
+  #   power_automate:
+  #     webhook_url: ""
