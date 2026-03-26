@@ -7,7 +7,8 @@ Analyze test failures, perform self-healing for element-related issues, and gene
 ADO bug creation settings are in `.claude/commands/_ado_bug_config.yaml`. Read this file before creating bugs to get org, project, area_path, tags, fields, templates, etc.
 
 Self-healing PR settings:
-- Branch prefix: `fix/self-heal-` (used for PR dedup)
+- Branch naming: `fix/self-heal-<build_id>-<heal_group_id>` (must be unique per run/build)
+- Branch prefix for PR discovery: `fix/self-heal-` (used for PR dedup)
 - PR title prefix: `[self-heal]`
 - PR body must include `## Affected Cases` section listing case names
 
@@ -433,10 +434,10 @@ For each **heal_group**:
 
 ```bash
 git checkout main
-git checkout -b fix/self-heal-<heal_group_id>
+git checkout -b fix/self-heal-<build_id>-<heal_group_id>
 ```
 
-Branch name MUST start with `fix/self-heal-` — this prefix is used for PR dedup.
+Branch name MUST start with `fix/self-heal-` and include `<build_id>` — this keeps branch names unique across runs while preserving PR dedup discovery by prefix.
 
 ##### Step 2: Read Triage Debug Log for Locator Change
 
@@ -597,7 +598,7 @@ Verification run
 - Discard changes and return to main:
   ```bash
   git checkout main
-  git branch -D fix/self-heal-<heal_group_id>
+  git branch -D fix/self-heal-<build_id>-<heal_group_id>
   ```
 
 ### 3.0 Bug Analysis and Deduplication (Main Agent)
