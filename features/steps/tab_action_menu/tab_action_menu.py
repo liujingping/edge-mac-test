@@ -371,11 +371,9 @@ def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='send_keys',
+            name='directly_send_keys',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeWebView[@title='TabSearch']//XCUIElementTypeTextField",
                 'need_snapshot': 0,
                 'text': 'google',
             },
@@ -496,11 +494,9 @@ def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='send_keys',
+            name='directly_send_keys',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeWebView[@title='TabSearch']//XCUIElementTypeTextField[@enabled='true'][not(@label='Address and search bar')]",
                 'need_snapshot': 0,
                 'text': 'google',
             },
@@ -517,11 +513,9 @@ def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='send_keys',
+            name='directly_send_keys',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': "//XCUIElementTypeWebView[@title='TabSearch']//XCUIElementTypeTextField[@enabled='true'][not(@label='Address and search bar')]",
                 'need_snapshot': 0,
                 'text': 'Apple',
             },
@@ -532,3 +526,58 @@ def step_impl(context):
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
 
+# --- auto-generated step ---
+@when('I click the "Open Tabs" tab to expand the section in the "Search tabs" dialog')
+def step_impl(context):
+    # First check if the Google element is already visible
+    check_result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='verify_element_exists',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.XPATH',
+                'locator_value': "//XCUIElementTypeWebView[@title='TabSearch']//XCUIElementTypeStaticText[@value='Google']",
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    check_result_json = get_tool_json(check_result)
+    
+    # If Google element is found, skip clicking Open Tabs
+    if check_result_json.get('status') == 'success':
+        logging.info("Google element already visible, skipping 'Open Tabs' click")
+        return
+    
+    # If Google element is not found, click Open Tabs to expand the section
+    logging.info("Google element not found, clicking 'Open Tabs' to expand")
+    result = call_tool_sync(
+        context,
+        context.session.call_tool(
+            name='click_element',
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Open Tabs',
+                'need_snapshot': 0,
+            },
+        ),
+    )
+    result_json = get_tool_json(result)
+    assert result_json.get('status') == 'success', (
+        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    )
+
+
+
+# --- auto-generated step ---
+@step('I click the "Search Tabs" input box in the "Search tabs" dialog')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="click_element", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': '',
+            'locator_value': 'Search Tabs'}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
