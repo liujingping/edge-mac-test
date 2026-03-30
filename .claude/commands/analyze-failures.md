@@ -618,17 +618,20 @@ This outputs for ALL analyzed cases:
 With the full picture of all failures, the main agent should:
 
 1. **Group by failed_functionality**: Cases with same `failed_functionality` likely share root cause
-2. **Compare differences**: Cases with similar `difference` descriptions are likely same bug
-3. **Consider test variations**: Same functionality tested in different modes (horizontal/vertical, normal/fullscreen) failing = likely product bug, NOT test infrastructure
+2. **Compare differences**: Cases with similar `difference` descriptions are likely same group
+3. **Consider test variations**: Cross-mode failures (horizontal/vertical/fullscreen) are clustering signals only, not direct bug-vs-test evidence
 
-**Key insight**: If Case A and Case B both fail on "search tabs" functionality with similar symptoms, they are the SAME BUG even if:
-- One is in normal mode, one is in fullscreen
-- One is horizontal tabs, one is vertical tabs  
-- The error messages are slightly different
+**Key insight**: Cross-mode consistency helps grouping, but final classification must come from locator + tree + screenshot evidence.
 
 **Step 3: Assign bug groups and determine bug vs infrastructure**
 
-For each identified group:
+For each identified group, complete this pre-check before `set_bug_group`:
+- `failed_locator`: the exact failing locator from error_result (`parameters.locator_value`)
+- `exact_match`: whether the exact locator matches in tree
+- `near_match`: semantically similar nodes (same intent, different node type/level/attribute)
+- `ui_state`: screenshot evidence for expected vs actual state
+
+Then call:
 ```bash
 uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> set_bug_group <group_id> <indices> "<reason>" "<title>" <is_bug> <confidence> <category>
 ```
@@ -639,10 +642,14 @@ uv run scripts/failure_info_helper.py --data-dir pipeline_data/<build_id> set_bu
 ```
 
 **Decision criteria for is_bug**:
-- `true` (product bug): Multiple test variations of same feature all fail similarly
-- `true` (product bug): Screenshot shows unexpected UI state that doesn't match product spec  
+- `true` (product bug): Screenshot/tree evidence shows incorrect product state or behavior
+- `true` (product bug): Different locators converge on the same wrong UI outcome
 - `false` (test_infrastructure): Only ONE case fails while similar cases pass
 - `false` (test_infrastructure): Screenshot shows correct UI but automation couldn't detect it
+- `false` (test_logic): `exact_match=no` and `near_match` exists (semantic target exists but locator model is mismatched)
+
+**Locator model mismatch rule**:
+- If failure is caused by locator assumptions (node type/level/attribute mismatch), classify as `test_logic` and lower confidence for product bug classification.
 
 ⛔ **FORBIDDEN:**
 - Do NOT read failure_info.json directly

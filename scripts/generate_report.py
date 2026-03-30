@@ -241,9 +241,9 @@ def generate_html(failure_info: dict, data_dir: Optional[Path] = None,
         '''
 
     bug_table_html = ""
-    if actual_bugs:
+    if bug_summary:
         bug_rows = ""
-        for i, bug in enumerate(actual_bugs, 1):
+        for i, bug in enumerate(bug_summary, 1):
             affected_cases = bug.get("affected_cases", bug.get("case_names", []))
             affected = ", ".join(affected_cases) if isinstance(affected_cases, list) else str(affected_cases)
             bug_title = bug.get("suggested_title", bug.get("title", "N/A"))
