@@ -144,9 +144,14 @@ def get_test_failure_count(build_id: int, org: str, project: str, token: str) ->
     total_failed = 0
     for run in data.get("value", []):
         stats = run.get("runStatistics", [])
-        for stat in stats:
-            if stat.get("outcome") == "Failed":
-                total_failed += stat.get("count", 0)
+        if stats:
+            for stat in stats:
+                if stat.get("outcome") == "Failed":
+                    total_failed += stat.get("count", 0)
+        else:
+            total_tests = run.get("totalTests", 0)
+            passed_tests = run.get("passedTests", 0)
+            total_failed += max(0, total_tests - passed_tests)
     return total_failed
 
 
@@ -162,7 +167,7 @@ def clone_repo(repo_url: str, branch: str, dest: Path):
 
 def run_claude_analysis(clone_dir: Path, build_id: int, timeout: int) -> dict:
     log.info(f"Running Claude analysis for build {build_id} (timeout: {timeout}s)")
-    prompt = f"/analyze-failures {build_id}"
+    prompt = f"/analyze-failures {build_id} --analyze-only"
     cmd = [
         "claude", "-p", prompt,
         "--dangerously-skip-permissions",
@@ -186,6 +191,21 @@ def run_claude_analysis(clone_dir: Path, build_id: int, timeout: int) -> dict:
             "stdout": "",
             "stderr": f"Timed out after {timeout}s",
         }
+
+
+def upload_report(clone_dir: Path, build_id: int) -> str:
+    data_dir = f"pipeline_data/{build_id}"
+    log.info(f"Uploading report for build {build_id}")
+    result = subprocess.run(
+        ["uv", "run", "scripts/generate_report.py", "--data-dir", data_dir, "--upload"],
+        cwd=str(clone_dir),
+        capture_output=True,
+        text=True,
+        timeout=300,
+    )
+    if result.returncode != 0:
+        log.error(f"Report upload failed: {result.stderr[-500:]}")
+    return find_report_url(clone_dir, build_id)
 
 
 def find_report_url(clone_dir: Path, build_id: int) -> str:
@@ -315,17 +335,18 @@ def process_build(build: dict, profile: dict, pipeline_name: str) -> dict:
     if fail_count == 0:
         return {"status": "skipped", "reason": "no_failures", "fail_count": 0}
 
-    clone_dir = Path(tempfile.mkdtemp(prefix=f"fsq-{build_id}-"))
+    clone_dir = SCRIPT_DIR / f"fsq-{build_id}-{int(time.time())}"
     try:
         clone_repo(clone_cfg["repo_url"], clone_cfg["branch"], clone_dir)
 
         result = run_claude_analysis(clone_dir, build_id, timeout)
 
-        report_url = find_report_url(clone_dir, build_id)
-
         status = "success" if result["returncode"] == 0 else "failed"
 
+        report_url = ""
         if status == "success":
+            report_url = upload_report(clone_dir, build_id)
+
             notification_payload = build_notification_payload(
                 clone_dir, build_id, pipeline_name
             )

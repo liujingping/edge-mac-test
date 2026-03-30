@@ -6,7 +6,8 @@
 
 - macOS (for Appium-based test automation)
 - Python 3.10+
-- Git with SSH key configured for `git@github.com:edge-microsoft/FSQ_AI_Testcases_Mac.git`
+- Git with HTTPS access to `https://github.com/edge-microsoft/FSQ_AI_Testcases_Mac.git`
+- Git Credential Manager (GCM) for unattended HTTPS clone
 
 ### 2. Install Claude Code CLI
 
@@ -19,13 +20,30 @@ Verify:
 claude --version
 ```
 
-### 3. Configure Claude API Key
+### 3. Configure Claude Code Access
+
+**Option A: API Key (Direct)**
 
 ```bash
 export ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
 Add to `~/.zshrc` or `~/.bashrc` for persistence.
+
+**Option B: Proxy (e.g., Agent Maestro)**
+
+Configure the proxy URL and auth token in `~/.claude/settings.json`:
+
+```json
+{
+  "env": {
+    "ANTHROPIC_BASE_URL": "http://localhost:23333/api/anthropic",
+    "ANTHROPIC_AUTH_TOKEN": "your-proxy-auth-token"
+  }
+}
+```
+
+When using a proxy, no `ANTHROPIC_API_KEY` is needed. Make sure the proxy service is running before starting the scheduler.
 
 ### 4. Install Azure CLI
 
@@ -62,6 +80,29 @@ Or if using `uv`:
 uv pip install pyyaml
 ```
 
+### 7. Configure Git Credential Manager
+
+The scheduler clones the repository via HTTPS on every run. To avoid interactive authentication prompts, configure Git Credential Manager (GCM) to cache credentials in macOS Keychain.
+
+**Install GCM** (if not already bundled with Git):
+```bash
+brew install git-credential-manager
+```
+
+**Verify GCM is configured:**
+```bash
+git config --global credential.helper
+# Should output: /usr/local/share/gcm-core/git-credential-manager (or similar)
+```
+
+**Trigger initial authentication** (one-time, interactive):
+```bash
+git clone https://github.com/edge-microsoft/FSQ_AI_Testcases_Mac.git /tmp/test-clone --depth 1
+rm -rf /tmp/test-clone
+```
+
+After authenticating once, GCM stores the token in macOS Keychain. Subsequent unattended clones will use the cached credential automatically.
+
 ## Setup
 
 ### 1. Copy Scheduler Files
@@ -90,17 +131,17 @@ poll_interval_minutes: 10
 
 Key settings:
 - `profiles.<name>.pipelines` — Pipeline names to monitor
-- `profiles.<name>.clone.repo_url` — SSH URL of the test case repository
+- `profiles.<name>.clone.repo_url` — HTTPS URL of the test case repository
 - `profiles.<name>.claude.timeout_seconds` — Max time for Claude analysis (default: 3600)
 - `profiles.<name>.power_automate.webhook_url` — Power Automate HTTP trigger URL (optional)
 
-### 3. Verify SSH Access
+### 3. Verify Git Access
 
 ```bash
-ssh -T git@github.com
+git ls-remote https://github.com/edge-microsoft/FSQ_AI_Testcases_Mac.git HEAD
 ```
 
-Should show: `Hi <username>! You've successfully authenticated`.
+Should return a commit hash without prompting for credentials.
 
 ### 4. Test Run (Single Poll)
 
@@ -136,6 +177,8 @@ Create `~/Library/LaunchAgents/com.fsq.scheduler.plist`:
         <string>/usr/bin/python3</string>
         <string>/path/to/scheduler/scheduler.py</string>
     </array>
+    <key>WorkingDirectory</key>
+    <string>/path/to/scheduler</string>
     <key>KeepAlive</key>
     <true/>
     <key>RunAtLoad</key>
@@ -146,10 +189,20 @@ Create `~/Library/LaunchAgents/com.fsq.scheduler.plist`:
     <string>/path/to/scheduler/scheduler.log</string>
     <key>EnvironmentVariables</key>
     <dict>
-        <key>ANTHROPIC_API_KEY</key>
-        <string>sk-ant-...</string>
+        <!-- Option A: Direct API key -->
+        <!-- <key>ANTHROPIC_API_KEY</key>
+        <string>sk-ant-...</string> -->
+
+        <!-- Option B: Proxy (e.g., Agent Maestro) -->
+        <key>ANTHROPIC_BASE_URL</key>
+        <string>http://localhost:23333/api/anthropic</string>
+        <key>ANTHROPIC_AUTH_TOKEN</key>
+        <string>your-proxy-auth-token</string>
+
         <key>PATH</key>
-        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin</string>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+        <key>HOME</key>
+        <string>/Users/your-username</string>
     </dict>
 </dict>
 </plist>
@@ -188,7 +241,7 @@ Azure CLI session expired. Run `az login` again.
 A previous run is still in progress or crashed. If crashed, delete `.scheduler.lock` manually.
 
 ### Clone fails
-Check SSH key: `ssh -T git@github.com`. Ensure the deploy key or personal SSH key has access to the repository.
+Check Git credential: `git ls-remote https://github.com/edge-microsoft/FSQ_AI_Testcases_Mac.git HEAD`. If prompted for credentials, re-authenticate once to refresh the GCM cache.
 
 ### Claude times out
 Increase `claude.timeout_seconds` in `config.yaml`. Default is 3600 (1 hour).
