@@ -20,32 +20,13 @@ AZURE_STORAGE_CONTAINER = 'reports'
 SAS_EXPIRY_DAYS = 7
 
 
-def get_storage_account_key(account_name: str) -> str:
-    result = subprocess.run(
-        [
-            'az', 'storage', 'account', 'keys', 'list',
-            '--account-name', account_name,
-            '--query', '[0].value',
-            '-o', 'tsv',
-        ],
-        capture_output=True,
-        text=True,
-    )
-    if result.returncode != 0:
-        raise RuntimeError(
-            f'Failed to get storage account key. Run "az login" first.\n{result.stderr}'
-        )
-    return result.stdout.strip()
-
-
-def ensure_container(account_name: str, account_key: str, container: str):
+def ensure_container(account_name: str, container: str):
     subprocess.run(
         [
             'az', 'storage', 'container', 'create',
             '--name', container,
             '--account-name', account_name,
-            '--account-key', account_key,
-            '--public-access', 'off',
+            '--auth-mode', 'login',
         ],
         capture_output=True,
         text=True,
@@ -54,7 +35,6 @@ def ensure_container(account_name: str, account_key: str, container: str):
 
 def upload_blob(
     account_name: str,
-    account_key: str,
     container: str,
     blob_name: str,
     file_path: str,
@@ -64,7 +44,7 @@ def upload_blob(
         [
             'az', 'storage', 'blob', 'upload',
             '--account-name', account_name,
-            '--account-key', account_key,
+            '--auth-mode', 'login',
             '--container-name', container,
             '--name', blob_name,
             '--file', file_path,
@@ -81,7 +61,6 @@ def upload_blob(
 
 def generate_sas_url(
     account_name: str,
-    account_key: str,
     container: str,
     blob_name: str,
     expiry_days: int = 7,
@@ -93,7 +72,8 @@ def generate_sas_url(
         [
             'az', 'storage', 'blob', 'generate-sas',
             '--account-name', account_name,
-            '--account-key', account_key,
+            '--auth-mode', 'login',
+            '--as-user',
             '--container-name', container,
             '--name', blob_name,
             '--permissions', 'r',
@@ -125,8 +105,6 @@ def upload_file(
     if not Path(file_path).exists():
         raise FileNotFoundError(f'File not found: {file_path}')
 
-    account_key = get_storage_account_key(account_name)
-
     now = datetime.now()
     date_str = now.strftime('%Y%m%d')
     time_str = now.strftime('%H%M%S')
@@ -134,10 +112,10 @@ def upload_file(
     file_suffix = suffix or Path(file_path).name
     blob_name = f'{safe_pipeline}/{build_id}/{date_str}_{time_str}_{file_suffix}'
 
-    upload_blob(account_name, account_key, container, blob_name, file_path, content_type)
+    upload_blob(account_name, container, blob_name, file_path, content_type)
     print(f'  Uploaded: {blob_name}')
 
-    sas_url = generate_sas_url(account_name, account_key, container, blob_name)
+    sas_url = generate_sas_url(account_name, container, blob_name)
     print(f'  SAS URL: {sas_url}')
     return sas_url
 
@@ -161,8 +139,7 @@ def upload_report(
     print(f'  Account: {account_name}')
     print(f'  Container: {container}')
 
-    account_key = get_storage_account_key(account_name)
-    ensure_container(account_name, account_key, container)
+    ensure_container(account_name, container)
 
     now = datetime.now()
     date_str = now.strftime('%Y%m%d')
@@ -170,11 +147,11 @@ def upload_report(
     safe_pipeline = pipeline_name.replace(' ', '_').replace('/', '_') if pipeline_name else 'unknown'
     blob_name = f'{safe_pipeline}/{build_id}/{date_str}_{time_str}_failure_analysis.html'
 
-    upload_blob(account_name, account_key, container, blob_name, file_path)
+    upload_blob(account_name, container, blob_name, file_path)
     print(f'  Blob: {blob_name}')
 
     sas_url = generate_sas_url(
-        account_name, account_key, container, blob_name, expiry_days
+        account_name, container, blob_name, expiry_days
     )
 
     print(f'  SAS URL (expires in {expiry_days} days):')
