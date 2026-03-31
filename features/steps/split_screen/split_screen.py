@@ -72,7 +72,7 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Search or enter web address',
+                'locator_value': 'Address and search bar',
                 'need_snapshot': 0,
             },
         ),
@@ -85,11 +85,9 @@ def step_impl(context):
     result = call_tool_sync(
         context,
         context.session.call_tool(
-            name='send_keys',
+            name='directly_send_keys',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'Address and search bar',
                 'need_snapshot': 0,
                 'text': 'https://www.apple.com',
             },

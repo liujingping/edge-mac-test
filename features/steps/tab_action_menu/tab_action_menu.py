@@ -573,11 +573,30 @@ def step_impl(context):
 # --- auto-generated step ---
 @step('I click the "Search Tabs" input box in the "Search tabs" dialog')
 def step_impl(context):
+    # Try using XPath locator first
     result = call_tool_sync(context, context.session.call_tool(
-        name="click_element", 
-        arguments={'caller': 'behave-automation',
-            'locator_strategy': '',
-            'locator_value': 'Search Tabs'}
+        name="click_element",
+        arguments={
+            'caller': 'behave-automation',
+            'locator_strategy': 'AppiumBy.XPATH',
+            'locator_value': "//XCUIElementTypeWebView[@title='TabSearch']//XCUIElementTypeTextField[@enabled='true'][not(@label='Address and search bar')]",
+            'need_snapshot': 0
+        }
     ))
     result_json = get_tool_json(result)
-    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+    
+    # If first attempt fails, try alternative locator
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(context, context.session.call_tool(
+            name="click_element",
+            arguments={
+                'caller': 'behave-automation',
+                'locator_strategy': '',
+                'locator_value': 'Search Tabs',
+                'need_snapshot': 0
+            }
+        ))
+        result_json = get_tool_json(result)
+    
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+ 
