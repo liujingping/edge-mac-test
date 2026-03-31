@@ -491,6 +491,7 @@ from features.environment import call_tool_sync, get_tool_json
 # --- auto-generated step ---
 @step('I click "AI innovations" tab in the left sidebar')
 def step_impl(context):
+    # First try to click "Copilot and AI"
     result = call_tool_sync(
         context,
         context.session.call_tool(
@@ -498,12 +499,29 @@ def step_impl(context):
             arguments={
                 'caller': 'behave-automation',
                 'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'locator_value': 'AI innovations',
+                'locator_value': 'Copilot and AI',
                 'need_snapshot': 0,
             },
         ),
     )
     result_json = get_tool_json(result)
+    
+    # If first attempt fails, try "AI innovations"
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                    'locator_value': 'AI innovations',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
@@ -512,22 +530,38 @@ def step_impl(context):
 # --- auto-generated step ---
 @step('I click "Explore Copilot Mode" button')
 def step_impl(context):
-    # First try XPath locator
+    # First try "Learn more & join"
     result = call_tool_sync(
         context,
         context.session.call_tool(
             name='click_element',
             arguments={
                 'caller': 'behave-automation',
-                'locator_strategy': 'AppiumBy.XPATH',
-                'locator_value': '//XCUIElementTypeButton[@label="Explore Copilot Mode, Copilot Mode"]',
+                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
+                'locator_value': 'Learn more & join, Copilot in Edge Preview',
                 'need_snapshot': 0,
             },
         ),
     )
     result_json = get_tool_json(result)
     
-    # If first attempt failed, try original method
+    # If first attempt failed, try XPath locator
+    if result_json.get('status') != 'success':
+        result = call_tool_sync(
+            context,
+            context.session.call_tool(
+                name='click_element',
+                arguments={
+                    'caller': 'behave-automation',
+                    'locator_strategy': 'AppiumBy.XPATH',
+                    'locator_value': '//XCUIElementTypeButton[@label="Explore Copilot Mode, Copilot Mode"]',
+                    'need_snapshot': 0,
+                },
+            ),
+        )
+        result_json = get_tool_json(result)
+    
+    # If still failed, try original ACCESSIBILITY_ID method
     if result_json.get('status') != 'success':
         result = call_tool_sync(
             context,

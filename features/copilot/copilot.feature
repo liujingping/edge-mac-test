@@ -45,7 +45,9 @@ Feature: Copilot
     And I click "Settings and more" button on toolbar
     And I select "Settings" button from the dropdown menu
     And I click "AI innovations" tab in the left sidebar
+    And I press "ctrl+cmd+f" keys to enter full screen mode
     And I click "Explore Copilot Mode" button
+    And I press "ctrl+cmd+f" keys to exit full screen mode
     And I wait 10 seconds
     # for Copilot welcome page to load
     Then verify a tab name contains "Copilot Mode" is opened
