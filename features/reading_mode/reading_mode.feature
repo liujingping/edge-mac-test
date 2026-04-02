@@ -31,3 +31,23 @@ Feature: Reading Mode
     When I click "Exit Immersive Reader" button on address bar
     Then Reading Mode toolbar should be closed
 
+# # https://microsoft.visualstudio.com/Edge/_workitems/edit/56499944
+# @p0 @regression @reading_mode
+# Scenario: Text preferences of reading mode work normally
+# Given Edge is launched
+# When I navigate to "https://en.wikipedia.org/wiki/Main_Page"
+# And I open Reading Mode
+# Then Reading Mode toolbar should appear
+# When I click "Text Preferences" button in Reading Mode toolbar
+# Then Text Preferences panel should appear
+# When I turn on "Text Spacing"
+# Then Analyze the screenshot to verify the Text Spacing is increased
+# When I click "Comic Sans" in Text Type
+# Then Analyze the screenshot to verify the Text Type should change to Comic Sans font
+# When I click "Wide column" in Text Column Style
+# Then Analyze the screenshot to verify the Text Column Style should change to Wide column
+# When I click "More Themes"
+# And I click "Orchid" in Page Themes
+# Then Analyze the screenshot to verify the Page Themes should change to Orchid theme
+# When I press "Esc" key
+# Then Text Preferences panel should be closed
