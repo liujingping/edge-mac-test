@@ -92,25 +92,6 @@ def step_impl(context):
     )
 
 
-# --- auto-generated step ---
-@step('I open a new tab')
-def step_impl(context):
-    result = call_tool_sync(
-        context,
-        context.session.call_tool(
-            name='click_element',
-            arguments={
-                'caller': 'behave-automation',
-                'locator_value': 'New Tab',
-                'locator_strategy': 'AppiumBy.ACCESSIBILITY_ID',
-                'need_snapshot': 0,
-            },
-        ),
-    )
-    result_json = get_tool_json(result)
-    assert result_json.get('status') == 'success', (
-        f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
-    )
 
 
 # --- auto-generated step ---

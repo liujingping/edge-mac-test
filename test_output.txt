@@ -1,0 +1,76 @@
+warning: `VIRTUAL_ENV=C:\Users\yuexiong\AppData\Local\Programs\Python\Python312` does not match the project environment path `.venv` and will be ignored; use `--active` to target the active environment instead
+Traceback (most recent call last):
+  File "features\steps\__init__.py", line 41, in auto_import_steps
+    spec.loader.exec_module(module)
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "C:\Users\yuexiong\projects\edge-mac-test\features\steps\favorite\favorite_old.py", line 7, in <module>
+    def step_impl(context):
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\step_registry.py", line 92, in wrapper
+    self.add_step_definition(step_type, step_text, func)
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\step_registry.py", line 58, in add_step_definition
+    raise AmbiguousStep(message % (new_step, existing_step))
+behave.step_registry.AmbiguousStep: @when('I navigate to "https://www.bing.com"') has already been defined in
+  existing step @when('I navigate to "https://www.bing.com"') at features/steps/favorite/favorite.py:5
+[auto-import] Starting auto-import of step modules...
+[auto-import] Loading module: steps.common.common
+[auto-import] Loading module: steps.download.download
+[auto-import] Loading module: steps.extensions.extensions
+[auto-import] Loading module: steps.favorite.favorite
+[auto-import] Loading module: steps.favorite.favorite_old
+[auto-import] Failed to import C:\Users\yuexiong\projects\edge-mac-test\features\steps\favorite\favorite_old.py: @when('I navigate to "https://www.bing.com"') has already been defined in
+  existing step @when('I navigate to "https://www.bing.com"') at features/steps/favorite/favorite.py:5
+[auto-import] Loading module: steps.feedback.feedback
+[auto-import] Loading module: steps.find_on_page.find_on_page
+[auto-import] Loading module: steps.full_screen.full_screen
+[auto-import] Loading module: steps.guest_mode.guest_mode
+[auto-import] Loading module: steps.history.history
+[auto-import] Loading module: steps.inprivate_mode.inprivate_mode
+[auto-import] Loading module: steps.ominibox.ominibox
+[auto-import] Loading module: steps.PDF.online_pdf
+[auto-import] Loading module: steps.PWA_china.PWA_china
+[auto-import] Loading module: steps.reading_mode.reading_mode
+[auto-import] Loading module: steps.read_aloud.read_aloud
+[auto-import] Loading module: steps.right_click.right_click
+[auto-import] Loading module: steps.settings.settings
+[auto-import] Loading module: steps.settings_and_more.settings_and_more
+[auto-import] Loading module: steps.settings_privacy.settings_privacy
+[auto-import] Loading module: steps.split_screen.split_screen
+[auto-import] Loading module: steps.tab.tab
+[auto-import] Loading module: steps.tab_action_menu.tab_action_menu
+[auto-import] Loading module: steps.translate.translate
+Feature: favorite # features/favorite/favorite.feature:1
+
+  @P0 @Regression @Favorites
+  Scenario: Add a website to favorites using the star icon                     # features/favorite/favorite.feature:5
+    Given Edge is launched                                                     # features/steps/common/common.py:153
+    When I navigate to "https://www.bing.com"                                  # features/steps/favorite/favorite.py:5
+Traceback (most recent call last):
+  File "C:\Users\yuexiong\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\runpy.py", line 196, in _run_module_as_main
+    return _run_code(code, main_globals, None,
+  File "C:\Users\yuexiong\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\runpy.py", line 86, in _run_code
+    exec(code, run_globals)
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\Scripts\behave.exe\__main__.py", line 10, in <module>
+    sys.exit(main())
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\__main__.py", line 183, in main
+    return run_behave(config)
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\__main__.py", line 127, in run_behave
+    failed = runner.run()
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\runner.py", line 804, in run
+    return self.run_with_paths()
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\runner.py", line 824, in run_with_paths
+    return self.run_model()
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\runner.py", line 626, in run_model
+    failed = feature.run(self)
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\model.py", line 321, in run
+    failed = scenario.run(runner)
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\model.py", line 742, in run
+    formatter.match(found_step_match)
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\formatter\pretty.py", line 131, in match
+    self.print_step(Status.executing, self._match.arguments,
+  File "C:\Users\yuexiong\projects\edge-mac-test\.venv\lib\site-packages\behave\formatter\pretty.py", line 307, in print_step
+    self.stream.write(text_format.text(text))
+  File "C:\Users\yuexiong\AppData\Roaming\uv\python\cpython-3.10.12-windows-x86_64-none\lib\encodings\cp1252.py", line 19, in encode
+    return codecs.charmap_encode(input,self.errors,encoding_table)[0]
+UnicodeEncodeError: 'charmap' codec can't encode character '\u2318' in position 40: character maps to <undefined>
+Exception UnicodeEncodeError: 'charmap' codec can't encode character '\u2318' in position 40: character maps to <undefined>
