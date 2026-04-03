@@ -396,3 +396,47 @@ def step_impl(context):
     assert result_json.get('status') == 'success', (
         f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
     )
+
+# --- auto-generated step ---
+@when('I click the "New tab" plus button')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="click_element", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'ACCESSIBILITY_ID',
+            'locator_value': 'New Tab'}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@then('a new tab should be created')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_element_exists", 
+        arguments={'caller': 'behave-automation',
+            'locator_strategy': 'NAME',
+            'locator_value': 'New Tab'}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('Complete scenario recording')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="app_close", 
+        arguments={'caller': 'behave-automation'}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
+
+# --- auto-generated step ---
+@step('Reset for simplified scenario')
+def step_impl(context):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="app_close", 
+        arguments={'caller': 'behave-automation'}
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
