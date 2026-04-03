@@ -439,4 +439,143 @@ def step_impl(context):
         arguments={'caller': 'behave-automation'}
     ))
     result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+
+# --- auto-generated step ---
+@step('I right click on the tab header of "{tab_name}" tab')
+def step_impl(context, tab_name):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="right_click_element", 
+        arguments={
+            'caller': 'behave-automation',
+            'locator_strategy': 'XPATH',
+            'locator_value': f"//XCUIElementTypeTab[contains(@label, '{tab_name}')]"
+        }
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+
+# --- auto-generated step ---
+@step('I click "{menu_item}" from the context menu')
+def step_impl(context, menu_item):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="click_element", 
+        arguments={
+            'caller': 'behave-automation',
+            'locator_strategy': 'NAME',
+            'locator_value': menu_item
+        }
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+
+# --- auto-generated step ---
+@step('the "{tab_name}" tab should be pinned and show only the favicon')
+def step_impl(context, tab_name):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_element_attribute", 
+        arguments={
+            'caller': 'behave-automation',
+            'locator_strategy': 'XPATH',
+            'locator_value': f"//XCUIElementTypeTab[contains(@label, '{tab_name}')]",
+            'attribute_name': 'selected',
+            'expected_value': 'true'
+        }
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+
+# --- auto-generated step ---
+@step('I right click on the pinned "{tab_name}" tab')  
+def step_impl(context, tab_name):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="right_click_element", 
+        arguments={
+            'caller': 'behave-automation',
+            'locator_strategy': 'XPATH',
+            'locator_value': f"//XCUIElementTypeTab[contains(@label, '{tab_name}')][@selected='true']"
+        }
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+
+# --- auto-generated step ---
+@step('the "{tab_name}" tab should be unpinned and show the full title')
+def step_impl(context, tab_name):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_element_exists", 
+        arguments={
+            'caller': 'behave-automation',
+            'locator_strategy': 'XPATH',
+            'locator_value': f"//XCUIElementTypeTab[contains(@label, '{tab_name}')]"
+        }
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+
+# --- auto-generated step ---
+@step('I navigate to "{url}"')
+def step_impl(context, url):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="send_keys", 
+        arguments={
+            'caller': 'behave-automation',
+            'locator_strategy': 'XPATH',
+            'locator_value': "//XCUIElementTypeTextField[@label='Address and search bar']",
+            'text': url
+        }
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+    
+    # Press Enter to navigate
+    result = call_tool_sync(context, context.session.call_tool(
+        name="press_key", 
+        arguments={
+            'caller': 'behave-automation',
+            'key': 'return'
+        }
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+
+# --- auto-generated step ---
+@step('the "{tab_name}" tab should be closed')
+def step_impl(context, tab_name):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_element_not_exists", 
+        arguments={
+            'caller': 'behave-automation',
+            'locator_strategy': 'XPATH',
+            'locator_value': f"//XCUIElementTypeTab[contains(@label, '{tab_name}')]"
+        }
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+
+# --- auto-generated step ---
+@step('I press "{key_combination}"')
+def step_impl(context, key_combination):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="press_key", 
+        arguments={
+            'caller': 'behave-automation',
+            'key': key_combination
+        }
+    ))
+    result_json = get_tool_json(result)
+    assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'"
+
+# --- auto-generated step ---
+@step('the "{tab_name}" tab should be restored')
+def step_impl(context, tab_name):
+    result = call_tool_sync(context, context.session.call_tool(
+        name="verify_element_exists", 
+        arguments={
+            'caller': 'behave-automation',
+            'locator_strategy': 'XPATH',
+            'locator_value': f"//XCUIElementTypeTab[contains(@label, '{tab_name}')]"
+        }
+    ))
+    result_json = get_tool_json(result)
     assert result_json.get("status") == "success", f"Expected status to be 'success', got '{result_json.get('status')}', error: '{result_json.get('error')}'" 
