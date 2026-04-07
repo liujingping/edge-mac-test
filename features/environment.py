@@ -680,7 +680,7 @@ def after_scenario(context, scenario):
             properties={
                 "Platform": "Mac",
                 "Status": status,
-                "RunSource": os.environ.get('RUN_SOURCE', 'Local'),
+                "RunSource": os.environ.get('RUN_SOURCE', 'autogenesis-agent'),
                 "ScenarioName": scenario.name,
                 "FeatureName": scenario.feature.name,
                 "EdgeChannel": os.environ.get('EDGE_CHANNEL', 'Unknown')
@@ -811,7 +811,7 @@ def after_step(context, step):
             properties={
                 "Platform": "Mac",
                 "Status": 'Passed' if step.status == 'passed' else 'Failed',
-                "RunSource": os.environ.get('RUN_SOURCE', 'Local'),
+                "RunSource": os.environ.get('RUN_SOURCE', 'autogenesis-agent'),
                 "ScenarioName": scenario.name,
                 "FeatureName": scenario.feature.name,
                 "EdgeChannel": os.environ.get('EDGE_CHANNEL', 'Unknown')
