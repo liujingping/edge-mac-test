@@ -79,7 +79,7 @@ def trigger_screenshot_permission():
             logger.info("System dialog handler is ready, will automatically handle permission dialogs if they appear")
         
         # Use screencapture command to trigger permission request
-        cmd = ['screencapture', '-x', str(temp_screenshot)]
+        cmd = ['/usr/sbin/screencapture', '-x', str(temp_screenshot)]
         
         # Start screenshot command (may trigger permission dialog)
         logger.info("Executing screenshot command to trigger permission check...")
@@ -143,19 +143,20 @@ def load_mcp_config():
     with open(mcp_config_path, 'r', encoding='utf-8') as f:
         config = json.load(f)
 
-    # Find server configuration starting with bdd-auto-mcp
+    # Find server configuration starting with bdd-auto-mcp or auto-genesis-mcp
     servers = config.get('servers', {})
     for server_name, server_config in servers.items():
-        if server_name.startswith('bdd-auto-mcp'):
+        if server_name.startswith('bdd-auto-mcp') or server_name.startswith('auto-genesis-mcp'):
             command = server_config.get('command')
             args = server_config.get('args', [])
             env = server_config.get('env', {})
+            logger.info(f'Found MCP server configuration: {server_name}')
             logger.info(f'Found MCP server configuration: command={command}')
             logger.info(f'Found MCP server configuration: args={args}')
             logger.info(f'Found MCP server configuration: env={env}')
             return command, args, env
 
-    raise ValueError('No bdd-auto-mcp server configuration found in mcp.json')
+    raise ValueError('No bdd-auto-mcp or auto-genesis-mcp server configuration found in mcp.json')
 
 
 def count_all_scenarios():
@@ -320,7 +321,9 @@ def before_all(context):
 
     context._task_queue = janus.Queue()
     context._result_queue = janus.Queue()
-    session_ready = threading.Event()
+    context.session = None
+    context._session_ready = threading.Event()
+    context._loop_thread = None
 
     def run_loop():
         loop = asyncio.new_event_loop()
@@ -345,11 +348,13 @@ def before_all(context):
                         async with ClientSession(*streams) as session:
                             await session.initialize()
                             context.session = session
-                            session_ready.set()
+                            logger.info('MCP session initialized successfully')
+                            context._session_ready.set()
 
                             while True:
                                 task = await context._task_queue.async_q.get()
                                 if task is None:
+                                    logger.info('Received shutdown signal, closing MCP session')
                                     break
 
                                 coro = task
@@ -363,11 +368,13 @@ def before_all(context):
                         async with ClientSession(*streams) as session:
                             await session.initialize()
                             context.session = session
-                            session_ready.set()
+                            logger.info('MCP session initialized successfully (SSE)')
+                            context._session_ready.set()
 
                             while True:
                                 task = await context._task_queue.async_q.get()
                                 if task is None:
+                                    logger.info('Received shutdown signal, closing MCP session')
                                     break
 
                                 start = time.time()
@@ -377,14 +384,26 @@ def before_all(context):
 
             except Exception as e:
                 logger.error(f'MCP init failed: {repr(e)}')
-                session_ready.set()
+                import traceback
+                logger.error(f'Exception traceback: {traceback.format_exc()}')
+                context._session_ready.set()
 
         loop.run_until_complete(mcp_worker())
 
     thread = threading.Thread(target=run_loop, daemon=True)
     thread.start()
+    context._loop_thread = thread
 
-    session_ready.wait()
+    logger.info('Waiting for MCP session to be ready...')
+    if not context._session_ready.wait(timeout=30):
+        logger.error('MCP session initialization timed out after 30 seconds')
+        raise TimeoutError('MCP session initialization timed out')
+    
+    if context.session is None:
+        logger.error('MCP session is None after initialization')
+        raise RuntimeError('MCP session initialization failed')
+    
+    logger.info('MCP session ready for use')
 
 
 def after_all(context):
@@ -524,7 +543,7 @@ def _take_screenshot_internal(scenario_name, screenshot_type="", dialog_info="")
         screenshot_path = screenshot_dir / filename
 
         # Use macOS screencapture command to take full screen screenshot
-        cmd = ['screencapture', '-x', str(screenshot_path)]
+        cmd = ['/usr/sbin/screencapture', '-x', str(screenshot_path)]
         result = subprocess.run(cmd, capture_output=True, text=True)
 
         if result.returncode == 0:

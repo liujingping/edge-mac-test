@@ -51,3 +51,12 @@ Feature: Tab functionality in Microsoft Edge
     Then the "GitHub" tab should be closed
     When I press "cmd+shift+t"
     Then the "GitHub" tab should be restored
+
+  @demo @tab
+  Scenario: Duplicate a tab
+    Given Edge is launched
+    When I navigate to "https://www.wikipedia.org"
+    And I right click on the tab header of "Wikipedia" tab
+    And I click "Duplicate tab" from the context menu
+    Then a new "Wikipedia" tab should be created
+    And both tabs should display the same URL "https://www.wikipedia.org"

@@ -30,3 +30,18 @@ Feature: Favorites functionality in Microsoft Edge
     And I click the "Search favorites" button in Favorites hub
     And I enter "Youtube" into the search box
     Then the "Youtube" website should be displayed in search results of Favorites hub
+
+  @demo @favorites
+  Scenario: Delete a favorite from Favorites hub
+    Given Edge is launched
+    When I navigate to "https://www.wikipedia.org"
+    And I click "Favorites" button in the toolbar
+    And I click the "More options" button in the favorites hub
+    And I click the "Add this page to favorites" button in the more options menu
+    And I press Enter key
+    And I click the "Search favorites" button in Favorites hub
+    And I enter "Wikipedia" into the search box
+    Then the "Wikipedia" website should be displayed in search results of Favorites hub
+    When I right click the "Wikipedia" favorite item in Favorites hub
+    And I click "Delete" from the context menu
+    Then the "Wikipedia" website should not be displayed in Favorites hub
